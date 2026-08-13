@@ -1,3 +1,5 @@
+from datetime import date, timedelta
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.deps import get_current_user_id
@@ -10,6 +12,14 @@ from app.schemas.models import (
 )
 
 router = APIRouter(prefix="/api/session", tags=["session"])
+
+
+@router.get("/week", response_model=list[SessionOut])
+def sessions_this_week(user_id: str = Depends(get_current_user_id)) -> list[dict]:
+    repo = get_repo()
+    today = date.today()
+    week_start = today - timedelta(days=today.weekday())
+    return repo.get_sessions_between(user_id, week_start, today)
 
 
 @router.post("/start", response_model=SessionOut)

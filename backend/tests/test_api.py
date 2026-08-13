@@ -135,6 +135,14 @@ def test_progress_and_muscle_balance() -> None:
     assert isinstance(balance.json(), list)
 
 
+def test_sessions_this_week() -> None:
+    resp = client.get("/api/session/week", headers=HEADERS)
+    assert resp.status_code == 200
+    sessions = resp.json()
+    assert isinstance(sessions, list)
+    assert len(sessions) >= 1  # created in test_full_session_flow
+
+
 def test_unauthorized() -> None:
     resp = client.get("/api/plan/current")
     assert resp.status_code == 401

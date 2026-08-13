@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-route
 import { useQuery } from "@tanstack/react-query";
 import { Shell } from "./components/Shell";
 import { api } from "./lib/api";
+import { Home } from "./screens/Home";
 import { Onboarding } from "./screens/Onboarding";
 
 function Gate() {
@@ -28,7 +29,7 @@ export default function App() {
       <Routes>
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/" element={<Gate />}>
-          <Route index element={<div className="p-6">Home</div>} />
+          <Route index element={<Home />} />
         </Route>
       </Routes>
     </BrowserRouter>

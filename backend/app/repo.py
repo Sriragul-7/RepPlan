@@ -435,8 +435,8 @@ class LocalRepo:
         return session
 
     def get_sessions_between(self, user_id: str, start: date, end: date) -> list[dict]:
-        start_ts = datetime.combine(start, datetime.min.time())
-        end_ts = datetime.combine(end, datetime.max.time())
+        start_ts = datetime.combine(start, datetime.min.time(), tzinfo=timezone.utc)
+        end_ts = datetime.combine(end, datetime.max.time(), tzinfo=timezone.utc)
         sessions = []
         for s in self._data["sessions"].values():
             if s["user_id"] != user_id:
