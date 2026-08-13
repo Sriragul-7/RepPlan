@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "../components/Button";
 import { GlassCard } from "../components/GlassCard";
-import { ChevronDownIcon } from "../components/icons";
+import { ChevronDownIcon, SwapIcon } from "../components/icons";
 import { CardSkeleton, Skeleton } from "../components/Skeleton";
 import { api } from "../lib/api";
 
@@ -15,6 +15,24 @@ export function DayDetail() {
     queryKey: ["plan-day", dayId],
     queryFn: () => api.getPlanDay(dayId),
     enabled: !!dayId,
+  });
+
+  const profileQuery = useQuery({ queryKey: ["profile"], queryFn: api.getProfile });
+  const equipment = profileQuery.data?.equipment_access ?? "full gym";
+
+  const swap = useMutation({
+    mutationFn: (exerciseId: string) => api.swapExercise(exerciseId, equipment),
+    onSuccess: (substitute, exerciseId) => {
+      const day = dayQuery.data;
+      if (!day) return;
+      queryClient.setQueryData(["plan-day", dayId], {
+        ...day,
+        exercises: day.exercises.map((item) => {
+          if (item.exercise?.id !== exerciseId) return item;
+          return { ...item, exercise: substitute };
+        }),
+      });
+    },
   });
 
   const replan = useMutation({
@@ -84,6 +102,16 @@ export function DayDetail() {
                     {item.prescribed_sets}×{item.prescribed_reps ?? "8-12"}
                   </span>
                 </div>
+                {ex ? (
+                  <button
+                    onClick={() => swap.mutate(ex.id)}
+                    disabled={swap.isPending}
+                    className="mt-2 flex items-center gap-1.5 rounded-full border border-white/10 px-3 py-1.5 text-xs text-ash transition active:scale-95"
+                  >
+                    <SwapIcon className="h-3.5 w-3.5" />
+                    Swap
+                  </button>
+                ) : null}
               </div>
             </GlassCard>
           );
