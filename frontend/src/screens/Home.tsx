@@ -4,6 +4,7 @@ import { Button } from "../components/Button";
 import { DisciplineRing } from "../components/DisciplineRing";
 import { GlassCard } from "../components/GlassCard";
 import { CardSkeleton, Skeleton } from "../components/Skeleton";
+import { GearIcon } from "../components/icons";
 import { api } from "../lib/api";
 
 const DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -45,9 +46,18 @@ export function Home() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <p className="text-sm text-ash">{formatDate()}</p>
-        <h1 className="font-display text-3xl font-semibold text-bone">Your week</h1>
+      <header className="flex items-start justify-between">
+        <div>
+          <p className="text-sm text-ash">{formatDate()}</p>
+          <h1 className="font-display text-3xl font-semibold text-bone">Your week</h1>
+        </div>
+        <button
+          onClick={() => navigate("/settings")}
+          aria-label="Settings"
+          className="rounded-xl p-2 text-ash transition hover:text-bone active:scale-95"
+        >
+          <GearIcon className="h-5 w-5" />
+        </button>
       </header>
 
       {/* Discipline Ring — weekly completion */}
