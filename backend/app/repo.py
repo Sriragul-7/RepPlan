@@ -79,7 +79,7 @@ class SupabaseRepo:
             day_row = {
                 "weekly_plan_id": plan_id,
                 "day_of_week": day["day_of_week"],
-                "target_muscles": json.dumps(day["target_muscles"]),
+                "target_muscles": day["target_muscles"],
                 "is_rest_day": day["is_rest_day"],
             }
             created = db.table("plan_days").insert(day_row).execute().data[0]
