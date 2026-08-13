@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.deps import get_current_user_id
 from app.repo import get_repo
@@ -14,3 +14,12 @@ def create_or_update_profile(
 ) -> dict:
     repo = get_repo()
     return repo.save_profile(user_id, data.model_dump())
+
+
+@router.get("", response_model=ProfileOut)
+def get_profile(user_id: str = Depends(get_current_user_id)) -> dict:
+    repo = get_repo()
+    profile = repo.get_profile(user_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    return profile
