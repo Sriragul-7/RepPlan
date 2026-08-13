@@ -2,6 +2,43 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "Clash Display";
+  src: url("/fonts/clash-display-600.woff2") format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Clash Display";
+  src: url("/fonts/clash-display-700.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "General Sans";
+  src: url("/fonts/general-sans-400.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "General Sans";
+  src: url("/fonts/general-sans-500.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "General Sans";
+  src: url("/fonts/general-sans-600.woff2") format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/jetbrains-mono-var.woff2") format("woff2");
+  font-weight: 400 800;
+  font-display: swap;
+}
+
 @layer base {
   :root {
     color-scheme: dark;
@@ -21,5 +58,72 @@
   .font-data {
     font-family: "JetBrains Mono", monospace;
     font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  /* Glassmorphic card: graphite base + frost overlay + hairline border */
+  .glass-card {
+    @apply rounded-card border border-white/10 bg-[#17181C];
+    background-image: linear-gradient(rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.06));
+  }
+
+  .glass-active {
+    @apply border-white/20 shadow-card;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35), 0 0 24px rgba(255, 77, 46, 0.18);
+  }
+
+  /* Frost-to-transparent shimmer sweep for skeleton loaders */
+  .skeleton {
+    background: rgba(255, 255, 255, 0.06);
+  }
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.08),
+      transparent
+    );
+    animation: shimmer 1.4s ease-in-out infinite;
+  }
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Set-logged pulse: ember flash + tactile scale bounce */
+  @keyframes set-pulse {
+    0% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 rgba(255, 77, 46, 0.45);
+    }
+    40% {
+      transform: scale(1.06);
+      box-shadow: 0 0 0 10px rgba(255, 77, 46, 0);
+    }
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 rgba(255, 77, 46, 0);
+    }
+  }
+  .animate-set-pulse {
+    animation: set-pulse 0.5s ease-out;
+  }
+
+  @keyframes sheet-up {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+  .animate-sheet-up {
+    animation: sheet-up 0.28s cubic-bezier(0.22, 1, 0.36, 1);
   }
 }

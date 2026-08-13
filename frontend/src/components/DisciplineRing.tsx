@@ -1,0 +1,70 @@
+import type { ReactNode } from "react";
+
+type DisciplineRingProps = {
+  /** Progress 0..1 */
+  value: number;
+  size?: number;
+  strokeWidth?: number;
+  /** ember = effort (weekly completion), glacier = rest/recovery */
+  color?: string;
+  trackColor?: string;
+  children?: ReactNode;
+  className?: string;
+  animate?: boolean;
+};
+
+/**
+ * The Discipline Ring — the app's signature component.
+ *
+ * Used twice, deliberately:
+ *  1. Home: weekly plan completion (ember fill)
+ *  2. Logger: rest timer countdown (glacier fill)
+ * Built once, shared, never duplicated.
+ */
+export function DisciplineRing({
+  value,
+  size = 120,
+  strokeWidth = 8,
+  color = "#FF4D2E",
+  trackColor = "rgba(255,255,255,0.06)",
+  children,
+  className,
+  animate = true,
+}: DisciplineRingProps) {
+  const clamped = Math.min(1, Math.max(0, value));
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference * (1 - clamped);
+
+  return (
+    <div className={`relative inline-flex items-center justify-center ${className ?? ""}`}>
+      <svg width={size} height={size} className="-rotate-90">
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke={trackColor}
+          strokeWidth={strokeWidth}
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke={color}
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          style={
+            animate
+              ? { transition: "stroke-dashoffset 0.6s cubic-bezier(0.22, 1, 0.36, 1)" }
+              : undefined
+          }
+        />
+      </svg>
+      {children ? <div className="absolute inset-0 flex flex-col items-center justify-center">{children}</div> : null}
+    </div>
+  );
+}
