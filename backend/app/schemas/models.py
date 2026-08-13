@@ -67,6 +67,24 @@ class PlanGenerateOut(BaseModel):
     split_type: str
 
 
+class MuscleFocusIn(BaseModel):
+    muscle: str
+    equipment_access: str = "full gym"
+    goal: str = "hypertrophy"
+
+
+class FocusedExercise(BaseModel):
+    exercise_id: str
+    name: str
+    target_muscle: str
+    equipment: str
+    prescribed_sets: int
+    prescribed_reps: str | None = None
+    thumbnail_url: str | None = None
+    gif_url: str | None = None
+    exercise: ExerciseOut | None = None
+
+
 class ReplanIn(BaseModel):
     skip_day_id: str
     note: str | None = None

@@ -115,8 +115,8 @@ def pick_exercises_for_day(
 
     counts: dict[str, int] = {}
 
-    def take(muscle: str) -> bool:
-        if counts.get(muscle, 0) >= MAX_PER_MUSCLE:
+    def take(muscle: str, cap: int = MAX_PER_MUSCLE) -> bool:
+        if counts.get(muscle, 0) >= cap:
             return False
         pool = primary_by_muscle[muscle] + secondary_by_muscle[muscle]
         for ex in pool:
@@ -153,14 +153,14 @@ def pick_exercises_for_day(
         if not progressed:
             break
 
-    # If we're short of the minimum (rare on restricted equipment), allow
-    # second passes over muscles that still have candidates.
+    # If we're short of the minimum (rare on restricted equipment, or a
+    # single-muscle focus session), allow extra picks beyond the per-muscle cap.
     while len(chosen) < MIN_EXERCISES_PER_DAY:
         progressed = False
         for muscle in muscles:
             if len(chosen) >= MIN_EXERCISES_PER_DAY:
                 break
-            if take(muscle):
+            if take(muscle, cap=MAX_EXERCISES_PER_DAY):
                 progressed = True
         if not progressed:
             break

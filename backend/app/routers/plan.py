@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from app.deps import get_current_user_id
 from app.repo import get_repo
-from app.schemas.models import DayOut, PlanOut
+from app.schemas.models import DayOut, FocusedExercise, MuscleFocusIn, PlanOut
 from app.services.planner import pick_exercises_for_day
 from app.services.recovery import flagged_muscles, to_nudge
 from app.services.split import split_for
@@ -77,6 +77,26 @@ def current_plan(user_id: str = Depends(get_current_user_id)) -> dict:
     for day in plan["days"]:
         _attach_recovery_nudges(repo, user_id, day)
     return plan
+
+
+@router.post("/muscle-focus", response_model=list[FocusedExercise])
+def muscle_focus(data: MuscleFocusIn, user_id: str = Depends(get_current_user_id)) -> list[dict]:
+    repo = get_repo()
+    profile = repo.get_profile(user_id)
+    equipment = data.equipment_access or (profile or {}).get("equipment_access", "full gym")
+    goal = data.goal or (profile or {}).get("goal", "hypertrophy")
+
+    exercises = repo.get_all_exercises()
+    rng = random.Random(f"focus:{data.muscle}")
+    picks = pick_exercises_for_day([data.muscle], equipment, exercises, goal=goal, rng=rng)
+    by_id = {e["id"]: e for e in exercises}
+    return [
+        {
+            **p.to_dict(),
+            "exercise": by_id.get(p.exercise_id),
+        }
+        for p in picks
+    ]
 
 
 @router.get("/day/{day_id}", response_model=DayOut)

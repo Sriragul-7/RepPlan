@@ -143,6 +143,20 @@ def test_sessions_this_week() -> None:
     assert len(sessions) >= 1  # created in test_full_session_flow
 
 
+def test_muscle_focus() -> None:
+    resp = client.post(
+        "/api/plan/muscle-focus",
+        headers=HEADERS,
+        json={"muscle": "shoulders", "equipment_access": "home dumbbells"},
+    )
+    assert resp.status_code == 200
+    exercises = resp.json()
+    assert 4 <= len(exercises) <= 6
+    for ex in exercises:
+        assert ex["exercise_id"]
+        assert ex["exercise"]["target_muscle"] == "delts"
+
+
 def test_unauthorized() -> None:
     resp = client.get("/api/plan/current")
     assert resp.status_code == 401

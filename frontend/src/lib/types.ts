@@ -14,6 +14,11 @@ export type Exercise = {
 export type DayExercise = {
   id: string;
   exercise_id: string;
+  name?: string;
+  target_muscle?: string;
+  equipment?: string;
+  thumbnail_url?: string | null;
+  gif_url?: string | null;
   prescribed_sets: number;
   prescribed_reps?: string | null;
   exercise: Exercise | null;

@@ -1,6 +1,7 @@
 import { getUserId } from "./user";
 import type {
   CardioLog,
+  DayExercise,
   Exercise,
   LiftPoint,
   LoggedSet,
@@ -52,6 +53,11 @@ export const api = {
   getPlan: () => request<Plan>("/api/plan/current").catch((e) => (e.status === 404 ? null : Promise.reject(e))),
   getPlanDay: (dayId: string) => request<PlanDay>(`/api/plan/day/${dayId}`),
   replanDay: (dayId: string) => request<Plan>(`/api/plan/day/${dayId}/replan`, { method: "POST" }),
+  muscleFocus: (muscle: string, equipmentAccess?: string, goal?: string) =>
+    request<DayExercise[]>(`/api/plan/muscle-focus`, {
+      method: "POST",
+      body: JSON.stringify({ muscle, equipment_access: equipmentAccess ?? "full gym", goal: goal ?? "hypertrophy" }),
+    }),
 
   searchExercises: (filters: { body_part?: string; equipment?: string; target?: string } = {}) => {
     const params = new URLSearchParams();
