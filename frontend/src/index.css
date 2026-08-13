@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-[#0B0C0F] text-[#F5F3EE] antialiased;
+    font-family: "General Sans", system-ui, sans-serif;
+  }
+
+  /* Big display numerals / titles */
+  .font-display {
+    font-family: "Clash Display", "General Sans", sans-serif;
+  }
+
+  /* Every logged number */
+  .font-data {
+    font-family: "JetBrains Mono", monospace;
+    font-variant-numeric: tabular-nums;
+  }
+}

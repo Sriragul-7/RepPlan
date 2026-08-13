@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Env & secrets
+.env
+.env.local
+.env.*.local
+*.pem
+
+# Build artifacts
+dist/
+build/
+.vite/
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
+
+# Supabase
+supabase/.temp/
+
+# Caches & logs
+.cache/
+.tmp/
+*.log
+npm-debug.log*
+
+# Editor
+.vscode/
+.idea/
+.DS_Store
+
+# Test artifacts
+coverage/
+.pytest_cache/
