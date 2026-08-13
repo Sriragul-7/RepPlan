@@ -49,6 +49,7 @@ class Repo(Protocol):
 
     def get_sessions_between(self, user_id: str, start: date, end: date) -> list[dict]: ...
     def progress_for_exercise(self, user_id: str, exercise_id: str) -> list[dict]: ...
+    def logged_lifts(self, user_id: str) -> list[dict]: ...
     def muscle_balance(self, user_id: str, week_start: date, week_end: date) -> list[dict]: ...
 
 
@@ -273,6 +274,30 @@ class SupabaseRepo:
                 counts[target] = counts.get(target, 0) + 1
         return [{"muscle": m, "sets": c} for m, c in sorted(counts.items(), key=lambda kv: -kv[1])]
 
+    def logged_lifts(self, user_id: str) -> list[dict]:
+        db = get_db()
+        sessions = db.table("workout_sessions").select("id").eq("user_id", user_id).execute().data or []
+        ids = [s["id"] for s in sessions]
+        if not ids:
+            return []
+        sets = (
+            db.table("logged_sets")
+            .select("exercise_id")
+            .in_("session_id", ids)
+            .execute()
+            .data
+            or []
+        )
+        counts: dict[str, int] = {}
+        for set_row in sets:
+            counts[set_row["exercise_id"]] = counts.get(set_row["exercise_id"], 0) + 1
+        lifts = []
+        for exercise_id, count in counts.items():
+            ex = self.get_exercise(exercise_id)
+            if ex:
+                lifts.append({"exercise_id": exercise_id, "name": ex["name"], "sets": count})
+        return sorted(lifts, key=lambda l: -l["sets"])
+
 
 # ---------------------------------------------------------------- Local (JSON)
 
@@ -469,6 +494,19 @@ class LocalRepo:
                 target = (ex or {}).get("target_muscle", "unknown")
                 counts[target] = counts.get(target, 0) + 1
         return [{"muscle": m, "sets": c} for m, c in sorted(counts.items(), key=lambda kv: -kv[1])]
+
+    def logged_lifts(self, user_id: str) -> list[dict]:
+        lifts: dict[str, dict] = {}
+        for s in self._data["sessions"].values():
+            if s["user_id"] != user_id:
+                continue
+            for set_row in s["sets"]:
+                ex = self.get_exercise(set_row["exercise_id"])
+                if not ex:
+                    continue
+                entry = lifts.setdefault(ex["id"], {"exercise_id": ex["id"], "name": ex["name"], "sets": 0})
+                entry["sets"] += 1
+        return sorted(lifts.values(), key=lambda l: -l["sets"])
 
 
 def get_repo() -> Repo:

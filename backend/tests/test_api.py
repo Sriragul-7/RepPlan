@@ -135,6 +135,14 @@ def test_progress_and_muscle_balance() -> None:
     assert isinstance(balance.json(), list)
 
 
+def test_logged_lifts() -> None:
+    resp = client.get("/api/progress/lifts", headers=HEADERS)
+    assert resp.status_code == 200
+    lifts = resp.json()
+    assert isinstance(lifts, list)
+    assert any(l["exercise_id"] and l["sets"] > 0 for l in lifts)
+
+
 def test_sessions_this_week() -> None:
     resp = client.get("/api/session/week", headers=HEADERS)
     assert resp.status_code == 200
