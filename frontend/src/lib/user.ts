@@ -1,9 +1,10 @@
+import { STORAGE_KEYS } from "./constants";
+
 export function getUserId(): string {
-  const key = "repplan_user_id";
-  let id = localStorage.getItem(key);
+  let id = localStorage.getItem(STORAGE_KEYS.USER_ID);
   if (!id) {
     id = crypto.randomUUID();
-    localStorage.setItem(key, id);
+    localStorage.setItem(STORAGE_KEYS.USER_ID, id);
   }
   return id;
 }

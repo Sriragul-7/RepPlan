@@ -17,7 +17,7 @@ const shape: Record<SkeletonVariant, string> = {
   line: "h-px w-full",
 };
 
-/** Shimmer skeleton — frost-to-transparent sweep, matching the content shape. */
+/** Frost shimmer skeleton — matching the content shape. */
 export function Skeleton({ variant = "text", className, style }: SkeletonProps) {
   return (
     <div

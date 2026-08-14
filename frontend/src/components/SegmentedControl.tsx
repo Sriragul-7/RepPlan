@@ -5,6 +5,7 @@ type SegmentedControlProps<T extends string> = {
   columns?: number;
 };
 
+/** Premium iOS-style segmented control — glass active state with glow. */
 export function SegmentedControl<T extends string>({
   options,
   value,
@@ -13,7 +14,7 @@ export function SegmentedControl<T extends string>({
 }: SegmentedControlProps<T>) {
   return (
     <div
-      className="grid gap-2"
+      className="grid gap-1 rounded-2xl bg-white/[0.04] p-1 backdrop-blur-xl"
       style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
     >
       {options.map((opt) => {
@@ -23,10 +24,10 @@ export function SegmentedControl<T extends string>({
             key={opt.value}
             type="button"
             onClick={() => onChange(opt.value)}
-            className={`rounded-2xl border px-3 py-3.5 text-sm font-medium transition active:scale-[0.97] ${
+            className={`rounded-xl px-3 py-3 text-sm font-medium transition-all duration-300 active:scale-[0.97] ${
               active
-                ? "border-white/20 bg-ember text-bone shadow-glow"
-                : "border-white/10 bg-white/5 text-ash"
+                ? "bg-steel/90 text-ink shadow-glow font-semibold"
+                : "text-ash hover:text-ivory hover:bg-white/[0.04]"
             }`}
           >
             {opt.label}

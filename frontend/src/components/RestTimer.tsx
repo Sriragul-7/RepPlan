@@ -12,7 +12,7 @@ type RestTimerProps = {
   active: boolean;
 };
 
-/** Rest timer shown as the Discipline Ring in glacier mode after a logged set. */
+/** Premium rest timer with glass effect — shown as the Discipline Ring after a logged set. */
 export function RestTimer({ seconds, id, onFinish, onSkip, active }: RestTimerProps) {
   const [remaining, setRemaining] = useState(seconds);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -43,18 +43,18 @@ export function RestTimer({ seconds, id, onFinish, onSkip, active }: RestTimerPr
   const progress = seconds > 0 ? remaining / seconds : 0;
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-24 z-40 flex justify-center px-6">
-      <div className="glass-card pointer-events-auto flex items-center gap-4 rounded-[24px] p-4 pr-2 shadow-card">
-        <DisciplineRing value={progress} size={64} strokeWidth={5} color="#5FD8E0">
-          <span className="font-data text-sm text-glacier">
+    <div className="animate-scale-in pointer-events-none fixed inset-x-0 bottom-24 z-40 flex justify-center px-6 lg:bottom-10">
+      <div className="glass-card pointer-events-auto flex items-center gap-4 rounded-[28px] border border-white/[0.06] p-4 pr-2 shadow-card backdrop-blur-xl">
+        <DisciplineRing value={progress} size={64} strokeWidth={5} color="#FFFFFF">
+          <span className="font-data text-sm text-ivory">
             {mm}:{ss}
           </span>
         </DisciplineRing>
         <div>
-          <p className="text-xs uppercase tracking-[0.15em] text-ash">Rest</p>
+          <p className="font-data text-[10px] uppercase tracking-[0.2em] text-ash">Rest</p>
           <button
             onClick={onSkip}
-            className="mt-1 flex items-center gap-1.5 rounded-full border border-glacier/30 bg-glacier/10 px-4 py-2 text-sm font-medium text-glacier transition active:scale-95"
+            className="mt-1 flex items-center gap-1.5 rounded-full border border-white/[0.06] bg-white/[0.04] px-4 py-2 text-sm font-medium text-silver backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.08] active:scale-95"
           >
             <SkipIcon className="h-4 w-4" />
             Skip

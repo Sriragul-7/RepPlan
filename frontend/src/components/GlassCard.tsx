@@ -5,7 +5,7 @@ type GlassCardProps = HTMLAttributes<HTMLDivElement> & {
   padded?: boolean;
 };
 
-/** Glassmorphic card — graphite base, frost overlay, hairline border. */
+/** Premium iOS frosted-glass card — black-and-white glassmorphism. */
 export function GlassCard({ active, padded = true, className, children, ...rest }: GlassCardProps) {
   return (
     <div

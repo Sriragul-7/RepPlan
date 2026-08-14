@@ -5,7 +5,7 @@ type DisciplineRingProps = {
   value: number;
   size?: number;
   strokeWidth?: number;
-  /** ember = effort (weekly completion), glacier = rest/recovery */
+  /** Default white for premium look */
   color?: string;
   trackColor?: string;
   children?: ReactNode;
@@ -15,17 +15,13 @@ type DisciplineRingProps = {
 
 /**
  * The Discipline Ring — the app's signature component.
- *
- * Used twice, deliberately:
- *  1. Home: weekly plan completion (ember fill)
- *  2. Logger: rest timer countdown (glacier fill)
- * Built once, shared, never duplicated.
+ * Premium black-and-white glassmorphism design with subtle glow.
  */
 export function DisciplineRing({
   value,
   size = 120,
   strokeWidth = 8,
-  color = "#FF4D2E",
+  color = "#FFFFFF",
   trackColor = "rgba(255,255,255,0.06)",
   children,
   className,
@@ -57,11 +53,12 @@ export function DisciplineRing({
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
-          style={
-            animate
-              ? { transition: "stroke-dashoffset 0.6s cubic-bezier(0.22, 1, 0.36, 1)" }
-              : undefined
-          }
+          style={{
+            filter: `drop-shadow(0 0 8px ${color}88)`,
+            ...(animate
+              ? { transition: "stroke-dashoffset 0.7s cubic-bezier(0.22, 1, 0.36, 1)" }
+              : undefined),
+          }}
         />
       </svg>
       {children ? <div className="absolute inset-0 flex flex-col items-center justify-center">{children}</div> : null}

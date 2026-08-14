@@ -71,9 +71,14 @@ def _slugify(value: str) -> str:
 
 
 def transform_exercise(raw: dict) -> dict:
-    """Map one dataset record onto the `exercises` table shape."""
-    image = raw.get("image", "")
-    gif = raw.get("gif_url", "")
+    """Map one dataset record onto the `exercises` table shape.
+
+    Accepts both the upstream dataset naming (target / image / instructions.en)
+    and the local curated dump naming (target_muscle / thumbnail_url /
+    instructions_en) so the seed produces complete rows either way.
+    """
+    image = raw.get("image") or raw.get("thumbnail_url") or ""
+    gif = raw.get("gif_url") or ""
 
     def resolve(path: str) -> str | None:
         if not path:
@@ -86,15 +91,20 @@ def transform_exercise(raw: dict) -> dict:
     if not isinstance(secondary, list):
         secondary = [secondary]
 
+    target = raw.get("target_muscle") or raw.get("target") or ""
+    instructions = raw.get("instructions_en")
+    if not instructions:
+        instructions = (raw.get("instructions") or {}).get("en", "")
+
     return {
         "id": raw["id"],
         "name": raw.get("name", ""),
         "category": raw.get("category") or raw.get("body_part") or "",
         "body_part": raw.get("body_part") or raw.get("category") or "",
         "equipment": raw.get("equipment", ""),
-        "target_muscle": raw.get("target", ""),
+        "target_muscle": target,
         "secondary_muscles": [m for m in secondary if m],
-        "instructions_en": (raw.get("instructions") or {}).get("en", ""),
+        "instructions_en": instructions or "",
         "thumbnail_url": resolve(image),
         "gif_url": resolve(gif),
         "slug": _slugify(raw.get("name", "")),

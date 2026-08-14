@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "../components/Button";
-import { GlassCard } from "../components/GlassCard";
 import { ChevronDownIcon, SwapIcon } from "../components/icons";
+import { ExerciseImage } from "../components/ExerciseImage";
 import { CardSkeleton, Skeleton } from "../components/Skeleton";
 import { api } from "../lib/api";
 
@@ -10,14 +10,23 @@ export function DayDetail() {
   const { dayId = "" } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const planQuery = useQuery({ queryKey: ["plan"], queryFn: api.getPlan });
+  const planQuery = useQuery({
+    queryKey: ["plan"],
+    queryFn: api.getPlan,
+    placeholderData: (prev) => prev,
+  });
   const dayQuery = useQuery({
     queryKey: ["plan-day", dayId],
     queryFn: () => api.getPlanDay(dayId),
     enabled: !!dayId,
+    placeholderData: (prev) => prev,
   });
 
-  const profileQuery = useQuery({ queryKey: ["profile"], queryFn: api.getProfile });
+  const profileQuery = useQuery({
+    queryKey: ["profile"],
+    queryFn: api.getProfile,
+    placeholderData: (prev) => prev,
+  });
   const equipment = profileQuery.data?.equipment_access ?? "full gym";
 
   const swap = useMutation({
@@ -45,9 +54,9 @@ export function DayDetail() {
 
   if (dayQuery.isLoading || planQuery.isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-5">
         <Skeleton className="h-6 w-24" />
-        <Skeleton className="h-8 w-2/3" />
+        <Skeleton className="h-9 w-2/3" />
         <CardSkeleton />
         <CardSkeleton />
         <CardSkeleton />
@@ -60,17 +69,23 @@ export function DayDetail() {
   const splitType = planQuery.data?.split_type ?? "";
 
   return (
-    <div className="space-y-4">
-      <button onClick={() => navigate("/plan")} className="text-sm text-ash">
-        ← Plan
+    <div className="animate-slide-up space-y-6">
+      <button
+        onClick={() => navigate("/plan")}
+        className="flex items-center gap-1.5 pt-4 font-data text-[11px] uppercase tracking-[0.22em] text-stone"
+      >
+        <span className="text-lg leading-none">‹</span> Plan
       </button>
 
       <header>
-        <p className="text-sm text-ash">{splitType}</p>
-        <h1 className="font-display text-3xl font-semibold text-bone">{day.label}</h1>
-        <div className="mt-2 flex flex-wrap gap-2">
+        <p className="font-data text-[11px] uppercase tracking-[0.28em] text-stone">{splitType}</p>
+        <h1 className="font-display mt-1.5 text-[38px] font-semibold leading-[1.1] text-white">{day.label}</h1>
+        <div className="mt-3 flex flex-wrap gap-2">
           {day.target_muscles.map((m) => (
-            <span key={m} className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs capitalize text-ash">
+            <span
+              key={m}
+              className="rounded-full border border-white/[0.08] bg-white/[0.04] px-3.5 py-1.5 text-xs font-medium capitalize text-chrome backdrop-blur-xl"
+            >
               {m}
             </span>
           ))}
@@ -78,58 +93,70 @@ export function DayDetail() {
       </header>
 
       {day.recovery_nudges.length > 0 ? (
-        <div className="rounded-card border border-glacier/30 bg-glacier/10 px-4 py-3 text-sm text-glacier">
+        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] px-5 py-4 text-sm text-silver backdrop-blur-xl">
           {day.recovery_nudges.join(" ")}
         </div>
       ) : null}
 
-      <div className="space-y-3">
-        {day.exercises.map((item) => {
-          const ex = item.exercise;
-          return (
-            <GlassCard key={item.id} className="flex items-center gap-4">
-              <div className="relative h-[90px] w-[90px] shrink-0 overflow-hidden rounded-xl bg-white/5">
-                {ex?.thumbnail_url ? (
-                  <img src={ex.thumbnail_url} alt={ex?.name ?? ""} className="h-full w-full object-contain" loading="lazy" />
-                ) : null}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-bone">{ex?.name ?? item.exercise_id}</p>
-                <p className="mt-0.5 text-xs capitalize text-ash">{ex?.target_muscle ?? ""}</p>
-                <div className="mt-2 flex items-center gap-3 text-xs text-ash">
-                  <span className="rounded-full bg-white/5 px-2 py-0.5 capitalize">{ex?.equipment}</span>
-                  <span className="font-data">
-                    {item.prescribed_sets}×{item.prescribed_reps ?? "8-12"}
-                  </span>
+      <div>
+        <h3 className="ios-section-label">
+          {day.exercises.length} exercises
+        </h3>
+        <div className="ios-list">
+          {day.exercises.map((item, i) => {
+            const ex = item.exercise;
+            return (
+              <div key={item.id} className="ios-row items-start">
+                <ExerciseImage
+                  thumbnailUrl={ex?.thumbnail_url}
+                  gifUrl={ex?.gif_url}
+                  alt={ex?.name ?? ""}
+                  className="h-14 w-14 shrink-0 rounded-xl"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-white">
+                    <span className="mr-1.5 font-data text-xs text-stone">{i + 1}.</span>
+                    {ex?.name ?? item.exercise_id}
+                  </p>
+                  <p className="mt-0.5 text-xs capitalize text-stone">{ex?.target_muscle ?? ""}</p>
+                  <div className="mt-2 flex items-center gap-2 text-xs text-stone">
+                    <span className="rounded-full bg-white/[0.04] px-2.5 py-0.5 capitalize backdrop-blur-xl">
+                      {ex?.equipment}
+                    </span>
+                    <span className="font-data text-chrome">
+                      {item.prescribed_sets}×{item.prescribed_reps ?? "8-12"}
+                    </span>
+                  </div>
                 </div>
                 {ex ? (
                   <button
                     onClick={() => swap.mutate(ex.id)}
                     disabled={swap.isPending}
-                    className="mt-2 flex items-center gap-1.5 rounded-full border border-white/10 px-3 py-1.5 text-xs text-ash transition active:scale-95"
+                    aria-label="Swap exercise"
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.04] text-stone transition-all duration-200 active:scale-90 hover:bg-white/[0.08] hover:text-white backdrop-blur-xl"
                   >
-                    <SwapIcon className="h-3.5 w-3.5" />
-                    Swap
+                    <SwapIcon className="h-4 w-4" />
                   </button>
                 ) : null}
               </div>
-            </GlassCard>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
-      <Button full onClick={() => navigate(`/log?day=${day.id}`)}>
-        Start this session
-      </Button>
-
-      <button
-        onClick={() => replan.mutate()}
-        disabled={replan.isPending}
-        className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 py-3 text-sm text-ash transition active:scale-[0.98]"
-      >
-        <ChevronDownIcon className="h-4 w-4 rotate-180" />
-        {replan.isPending ? "Redistributing…" : "Missed this day? Redistribute targets"}
-      </button>
+      <div className="space-y-3 pt-1">
+        <Button full onClick={() => navigate(`/log?day=${day.id}`)} className="py-4 text-base">
+          Start this session
+        </Button>
+        <button
+          onClick={() => replan.mutate()}
+          disabled={replan.isPending}
+          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/[0.08] bg-white/[0.03] py-3.5 text-sm text-stone transition-all duration-200 active:scale-[0.98] hover:bg-white/[0.06]"
+        >
+          <ChevronDownIcon className="h-4 w-4 rotate-180" />
+          {replan.isPending ? "Redistributing…" : "Missed this day? Redistribute targets"}
+        </button>
+      </div>
     </div>
   );
 }

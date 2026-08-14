@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from "react";
+import { useRef, useState, useCallback, type ReactNode } from "react";
 
 type SwipeRowProps = {
   onConfirm: () => void;
@@ -8,29 +8,33 @@ type SwipeRowProps = {
 
 const THRESHOLD = 90;
 
-/** Swipe-to-confirm row — drag right (or left) past the threshold to trigger. */
+/** Premium swipe-to-confirm row — white accent reveal. */
 export function SwipeRow({ onConfirm, children, disabled }: SwipeRowProps) {
   const startX = useRef<number | null>(null);
+  const dxRef = useRef(0);
   const [dx, setDx] = useState(0);
-  const [armed, setArmed] = useState(false);
 
-  const onDown = (clientX: number) => {
+  const onDown = useCallback((clientX: number) => {
     if (disabled) return;
     startX.current = clientX;
-  };
-  const onMove = (clientX: number) => {
+  }, [disabled]);
+
+  const onMove = useCallback((clientX: number) => {
     if (startX.current === null) return;
-    setDx(Math.max(-THRESHOLD * 1.4, Math.min(THRESHOLD * 1.4, clientX - startX.current)));
-    setArmed(Math.abs(dx) > THRESHOLD);
-  };
-  const onUp = () => {
+    const newDx = Math.max(-THRESHOLD * 1.4, Math.min(THRESHOLD * 1.4, clientX - startX.current));
+    dxRef.current = newDx;
+    setDx(newDx);
+  }, []);
+
+  const onUp = useCallback(() => {
+    const currentDx = dxRef.current;
     startX.current = null;
-    if (armed) {
+    if (Math.abs(currentDx) > THRESHOLD) {
       onConfirm();
     }
+    dxRef.current = 0;
     setDx(0);
-    setArmed(false);
-  };
+  }, [onConfirm]);
 
   const swiped = Math.abs(dx) > THRESHOLD;
 
@@ -45,10 +49,10 @@ export function SwipeRow({ onConfirm, children, disabled }: SwipeRowProps) {
     >
       {/* reveal behind */}
       <div
-        className="absolute inset-0 flex items-center justify-end rounded-2xl bg-ember pr-5"
+        className="absolute inset-0 flex items-center justify-end rounded-2xl bg-white/[0.12] pr-5 backdrop-blur-xl"
         style={{ opacity: swiped ? 1 : 0.25 + Math.min(0.75, Math.abs(dx) / THRESHOLD) * 0.75 }}
       >
-        <span className="text-sm font-semibold text-bone">Log set</span>
+        <span className="text-sm font-semibold text-ivory">Log set</span>
       </div>
       <div
         className={`relative rounded-2xl transition-transform duration-150 ${

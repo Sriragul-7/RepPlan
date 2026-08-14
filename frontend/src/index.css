@@ -1,82 +1,184 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@font-face {
-  font-family: "Clash Display";
-  src: url("/fonts/clash-display-600.woff2") format("woff2");
-  font-weight: 600;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Clash Display";
-  src: url("/fonts/clash-display-700.woff2") format("woff2");
-  font-weight: 700;
-  font-display: swap;
-}
-@font-face {
-  font-family: "General Sans";
-  src: url("/fonts/general-sans-400.woff2") format("woff2");
-  font-weight: 400;
-  font-display: swap;
-}
-@font-face {
-  font-family: "General Sans";
-  src: url("/fonts/general-sans-500.woff2") format("woff2");
-  font-weight: 500;
-  font-display: swap;
-}
-@font-face {
-  font-family: "General Sans";
-  src: url("/fonts/general-sans-600.woff2") format("woff2");
-  font-weight: 600;
-  font-display: swap;
-}
-@font-face {
-  font-family: "JetBrains Mono";
-  src: url("/fonts/jetbrains-mono-var.woff2") format("woff2");
-  font-weight: 400 800;
-  font-display: swap;
-}
-
 @layer base {
   :root {
     color-scheme: dark;
+    --glass-bg: rgba(26, 26, 30, 0.55);
+    --glass-border: rgba(255, 255, 255, 0.06);
+    --glass-highlight: rgba(255, 255, 255, 0.08);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
-    @apply bg-[#0B0C0F] text-[#F5F3EE] antialiased;
-    font-family: "General Sans", system-ui, sans-serif;
+    @apply bg-ink text-ivory antialiased;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display",
+      "Segoe UI", Roboto, sans-serif;
+    overscroll-behavior-y: none;
+    letter-spacing: -0.01em;
   }
 
-  /* Big display numerals / titles */
+  /* Premium display type — Space Grotesk for bold headlines */
   .font-display {
-    font-family: "Clash Display", "General Sans", sans-serif;
+    font-family: "Space Grotesk", -apple-system, BlinkMacSystemFont, sans-serif;
+    letter-spacing: -0.03em;
+    font-weight: 700;
   }
 
-  /* Every logged number */
+  /* Data numbers — tabular, precise */
   .font-data {
-    font-family: "JetBrains Mono", monospace;
+    font-family: "JetBrains Mono", "SF Mono", monospace;
     font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  /* Accent font — Outfit for labels and badges */
+  .font-accent {
+    font-family: "Outfit", "Inter", -apple-system, sans-serif;
   }
 }
 
 @layer components {
-  /* Glassmorphic card: graphite base + frost overlay + hairline border */
+  /* ================================================
+     AMBIENT BACKDROP — Premium dark with subtle light
+     ================================================ */
+  .app-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    background: #000000;
+  }
+
+  .app-bg::before,
+  .app-bg::after {
+    content: "";
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(120px);
+    will-change: transform;
+  }
+
+  .app-bg::before {
+    width: 60vw;
+    height: 60vw;
+    top: -20vw;
+    left: -15vw;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.04), transparent 55%);
+    animation: float-slow 24s ease-in-out infinite;
+  }
+
+  .app-bg::after {
+    width: 50vw;
+    height: 50vw;
+    bottom: -20vw;
+    right: -15vw;
+    background: radial-gradient(circle, rgba(200, 200, 210, 0.025), transparent 55%);
+    animation: float-slow 28s ease-in-out infinite reverse;
+  }
+
+  /* ================================================
+     GLASS CARDS — Premium frosted glassmorphism
+     ================================================ */
   .glass-card {
-    @apply rounded-card border border-white/10 bg-[#17181C];
-    background-image: linear-gradient(rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.06));
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    -webkit-backdrop-filter: blur(40px) saturate(150%);
+    backdrop-filter: blur(40px) saturate(150%);
+    box-shadow:
+      inset 0 1px 0 var(--glass-highlight),
+      0 8px 32px rgba(0, 0, 0, 0.3),
+      0 1px 2px rgba(0, 0, 0, 0.2);
   }
 
   .glass-active {
-    @apply border-white/20 shadow-card;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35), 0 0 24px rgba(255, 77, 46, 0.18);
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(34, 34, 40, 0.6);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      0 12px 40px rgba(0, 0, 0, 0.35),
+      0 0 0 1px rgba(255, 255, 255, 0.06),
+      0 0 80px rgba(255, 255, 255, 0.02);
   }
 
-  /* Frost-to-transparent shimmer sweep for skeleton loaders */
-  .skeleton {
-    background: rgba(255, 255, 255, 0.06);
+  /* ================================================
+     IOS-STYLE LISTS
+     ================================================ */
+  .ios-list {
+    overflow: hidden;
+    border-radius: 22px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(26, 26, 30, 0.5);
+    -webkit-backdrop-filter: blur(40px) saturate(150%);
+    backdrop-filter: blur(40px) saturate(150%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 6px 24px rgba(0, 0, 0, 0.25);
   }
+
+  .ios-row {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.9375rem 1rem;
+  }
+
+  .ios-list > .ios-row + .ios-row {
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+  }
+
+  .ios-section-label {
+    padding: 0 8px 6px 8px;
+    padding-top: 20px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: #6B6B76;
+  }
+
+  /* ================================================
+     INTERACTIVE FEEDBACK
+     ================================================ */
+  .ios-tap {
+    transition: background-color 0.2s ease, transform 0.15s ease;
+    cursor: pointer;
+  }
+
+  .ios-tap:active {
+    background: rgba(255, 255, 255, 0.04);
+    transform: scale(0.98);
+  }
+
+  /* ================================================
+     HAIRLINE DIVIDERS
+     ================================================ */
+  .hairline {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  /* ================================================
+     SKELETON LOADERS
+     ================================================ */
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+  }
+
   .skeleton::after {
     content: "";
     position: absolute;
@@ -85,45 +187,127 @@
     background: linear-gradient(
       90deg,
       transparent,
-      rgba(255, 255, 255, 0.08),
+      rgba(255, 255, 255, 0.04),
       transparent
     );
-    animation: shimmer 1.4s ease-in-out infinite;
-  }
-  @keyframes shimmer {
-    100% {
-      transform: translateX(100%);
-    }
+    animation: shimmer 2s ease-in-out infinite;
   }
 
-  /* Set-logged pulse: ember flash + tactile scale bounce */
+  @keyframes shimmer {
+    100% { transform: translateX(100%); }
+  }
+
+  /* ================================================
+     SET-LOGGED PULSE — Premium feedback
+     ================================================ */
   @keyframes set-pulse {
     0% {
       transform: scale(1);
-      box-shadow: 0 0 0 0 rgba(255, 77, 46, 0.45);
+      box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.3);
     }
     40% {
-      transform: scale(1.06);
-      box-shadow: 0 0 0 10px rgba(255, 77, 46, 0);
+      transform: scale(1.04);
+      box-shadow: 0 0 0 12px rgba(255, 255, 255, 0);
     }
     100% {
       transform: scale(1);
-      box-shadow: 0 0 0 0 rgba(255, 77, 46, 0);
+      box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
     }
-  }
-  .animate-set-pulse {
-    animation: set-pulse 0.5s ease-out;
   }
 
+  .animate-set-pulse {
+    animation: set-pulse 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* ================================================
+     SHEET ANIMATIONS
+     ================================================ */
   @keyframes sheet-up {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  .animate-sheet-up {
+    animation: sheet-up 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  @keyframes sheet-pop {
     from {
-      transform: translateY(100%);
+      opacity: 0;
+      transform: scale(0.95) translateY(8px);
     }
     to {
-      transform: translateY(0);
+      opacity: 1;
+      transform: scale(1) translateY(0);
     }
   }
-  .animate-sheet-up {
-    animation: sheet-up 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+
+  .animate-sheet-pop {
+    animation: sheet-pop 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  /* ================================================
+     FLOATING TAB BAR — iOS-style
+     ================================================ */
+  .tab-bar {
+    background: rgba(26, 26, 30, 0.78);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 12px 40px rgba(0, 0, 0, 0.35),
+      0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  /* ================================================
+     SAFE-AREA HELPERS
+     ================================================ */
+  .pt-safe {
+    padding-top: max(env(safe-area-inset-top), 1rem);
+  }
+
+  .pb-safe {
+    padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);
+  }
+
+  /* ================================================
+     PREMIUM UTILITY CLASSES
+     ================================================ */
+  .text-gradient {
+    background: linear-gradient(180deg, #FFFFFF 0%, #98989F 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glass-shine {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .glass-shine::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

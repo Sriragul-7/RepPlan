@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 
 
 class ProfileIn(BaseModel):
+    full_name: str | None = None
     age: int = Field(ge=13, le=100)
     weight_kg: float | None = Field(default=None, ge=20, le=400)
     height_cm: float | None = Field(default=None, ge=80, le=280)
@@ -121,6 +122,7 @@ class LogCardioIn(BaseModel):
 class LiftPoint(BaseModel):
     date: datetime
     weight_kg: float | None = None
+    reps: int | None = None
     volume: float = 0
 
 

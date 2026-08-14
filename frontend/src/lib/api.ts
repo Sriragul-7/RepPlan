@@ -10,6 +10,7 @@ import type {
   PlanDay,
   Profile,
   ProfileInput,
+  ProgressOverview,
   Session,
 } from "./types";
 
@@ -85,4 +86,9 @@ export const api = {
   progressForExercise: (exerciseId: string) => request<LiftPoint[]>(`/api/progress/${exerciseId}`),
   loggedLifts: () => request<{ exercise_id: string; name: string; sets: number }[]>("/api/progress/lifts"),
   muscleBalance: () => request<MuscleBalance[]>("/api/progress/muscle-balance"),
+  progressOverview: () => request<ProgressOverview>("/api/progress/overview"),
+
+  workoutHistory: (startDate: string, endDate: string) =>
+    request<Session[]>(`/api/session/history?start=${startDate}&end=${endDate}`),
+  sessionDetail: (sessionId: string) => request<Session>(`/api/session/${sessionId}`),
 };

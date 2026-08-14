@@ -11,8 +11,8 @@ export default defineConfig({
         name: "RepPlan",
         short_name: "RepPlan",
         description: "Discipline made visible — workout split planner & in-gym logger.",
-        theme_color: "#0B0C0F",
-        background_color: "#0B0C0F",
+        theme_color: "#0C0B08",
+        background_color: "#0C0B08",
         display: "standalone",
         start_url: "/",
         icons: [
@@ -33,6 +33,16 @@ export default defineConfig({
     port: 5173,
     proxy: {
       "/api": "http://localhost:8100",
+    },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ["react", "react-dom", "react-router-dom"],
+          query: ["@tanstack/react-query"],
+        },
+      },
     },
   },
 });

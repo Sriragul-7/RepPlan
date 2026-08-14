@@ -44,6 +44,7 @@ export type Plan = {
 
 export type Profile = {
   id: string;
+  full_name?: string | null;
   age: number;
   weight_kg?: number | null;
   height_cm?: number | null;
@@ -90,10 +91,21 @@ export type CardioLog = {
 export type LiftPoint = {
   date: string;
   weight_kg?: number | null;
+  reps?: number | null;
   volume: number;
 };
 
 export type MuscleBalance = {
   muscle: string;
   sets: number;
+};
+
+export type ProgressOverview = {
+  total_workouts: number;
+  total_sets: number;
+  total_volume: number;
+  streak_weeks: number;
+  weekly: { week: string; workouts: number }[];
+  recent: { id: string; started_at: string; sets: number; volume: number }[];
+  best: { exercise_id: string; name: string; best_weight: number; last_weight: number | null; sets: number }[];
 };

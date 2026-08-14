@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { GlassCard } from "../components/GlassCard";
 import { PlusIcon } from "../components/icons";
 import { CardSkeleton, Skeleton } from "../components/Skeleton";
 import { api } from "../lib/api";
-
-const DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+import { DAY_NAMES } from "../lib/constants";
 
 const MUSCLES = [
   "chest",
@@ -26,12 +24,20 @@ const MUSCLES = [
 export function Plan() {
   const navigate = useNavigate();
   const [pickingMuscle, setPickingMuscle] = useState(false);
-  const planQuery = useQuery({ queryKey: ["plan"], queryFn: api.getPlan });
-  const weekQuery = useQuery({ queryKey: ["sessions-week"], queryFn: api.sessionsThisWeek });
+  const planQuery = useQuery({
+    queryKey: ["plan"],
+    queryFn: api.getPlan,
+    placeholderData: (prev) => prev,
+  });
+  const weekQuery = useQuery({
+    queryKey: ["sessions-week"],
+    queryFn: api.sessionsThisWeek,
+    placeholderData: (prev) => prev,
+  });
 
   if (planQuery.isLoading || weekQuery.isLoading) {
     return (
-      <div className="space-y-3">
+      <div className="space-y-4">
         <Skeleton className="h-6 w-40" />
         <CardSkeleton />
         {[0, 1, 2, 3, 4, 5, 6].map((i) => (
@@ -44,86 +50,158 @@ export function Plan() {
   const plan = planQuery.data;
   if (!plan) return null;
 
-  const doneDayIds = new Set(weekQuery.data?.filter((s) => s.completed_at).map((s) => s.plan_day_id));
+  const doneDayIds = new Set(
+    weekQuery.data
+      ?.filter((s) => s.completed_at)
+      .map((s) => s.plan_day_id),
+  );
+  const doneCount = plan.days.filter(
+    (d) => doneDayIds.has(d.id) || d.is_rest_day,
+  ).length;
 
   return (
-    <div className="space-y-6">
-      <header className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-ash">Weekly plan</p>
-          <h1 className="font-display text-3xl font-semibold text-bone">{plan.split_type}</h1>
+    <div className="animate-slide-up space-y-6 pb-10">
+      {/* ── Header ── */}
+      <header className="flex items-end justify-between pt-2">
+        <div className="space-y-1">
+          <p className="font-data text-[10px] uppercase tracking-[0.3em] text-stone">
+            Weekly plan
+          </p>
+          <h1 className="font-display text-[36px] font-bold leading-tight tracking-tight text-white">
+            {plan.split_type}
+          </h1>
         </div>
+        <span className="mb-1 rounded-full border border-white/[0.06] bg-white/[0.04] px-3.5 py-1.5 font-data text-[11px] font-semibold text-silver">
+          {doneCount}/{plan.days.length}
+        </span>
       </header>
 
-      {/* Freeform entry — train a muscle */}
-      <GlassCard active className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="font-display text-lg font-semibold text-bone">Train a muscle</h2>
-          <PlusIcon className="h-5 w-5 text-ember" />
+      {/* ── Glass Summary Bar ── */}
+      <div className="flex items-center gap-2 rounded-[22px] border border-white/[0.06] bg-smoke/50 px-5 py-3.5 backdrop-blur-3xl">
+        <div className="flex flex-1 items-center justify-between">
+          {plan.days.map((d) => {
+            const done = doneDayIds.has(d.id);
+            return (
+              <div
+                key={d.id}
+                className="flex flex-col items-center gap-2"
+              >
+                <div
+                  className={`flex h-9 w-9 items-center justify-center rounded-full text-[11px] font-semibold transition-all ${
+                    done
+                      ? "bg-white text-ink shadow-[0_0_20px_rgba(255,255,255,0.15)]"
+                      : d.is_rest_day
+                        ? "bg-white/[0.04] text-ash"
+                        : "border border-white/[0.1] bg-white/[0.03] text-silver"
+                  }`}
+                >
+                  {done
+                    ? "\u2713"
+                    : DAY_NAMES[d.day_of_week - 1][0]}
+                </div>
+              </div>
+            );
+          })}
         </div>
-        <p className="text-sm text-ash">
-          Off-schedule? Build a focused mini-session for one muscle group.
-        </p>
-        {pickingMuscle ? (
-          <div className="grid grid-cols-3 gap-2">
+      </div>
+
+      {/* ── Train a Muscle (glass picker) ── */}
+      {pickingMuscle ? (
+        <div className="space-y-3">
+          <div className="grid grid-cols-3 gap-2.5">
             {MUSCLES.map((m) => (
               <button
                 key={m}
                 onClick={() => navigate(`/log?muscle=${m}`)}
-                className="rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm capitalize text-bone transition active:scale-95"
+                className="rounded-2xl border border-white/[0.06] bg-white/[0.04] px-3 py-3.5 text-[13px] font-medium capitalize text-silver backdrop-blur-2xl transition hover:bg-white/[0.08] hover:text-white active:scale-95"
               >
                 {m}
               </button>
             ))}
           </div>
-        ) : (
           <button
-            onClick={() => setPickingMuscle(true)}
-            className="w-full rounded-2xl border border-ember/30 bg-ember/10 py-3 text-sm font-semibold text-ember transition active:scale-[0.98]"
+            onClick={() => setPickingMuscle(false)}
+            className="w-full rounded-2xl border border-white/[0.06] bg-white/[0.03] py-3 font-data text-[11px] uppercase tracking-[0.2em] text-stone transition hover:bg-white/[0.06] hover:text-silver active:scale-[0.98]"
           >
-            Choose a muscle
+            Cancel
           </button>
-        )}
-      </GlassCard>
+        </div>
+      ) : (
+        <button
+          onClick={() => setPickingMuscle(true)}
+          className="flex w-full items-center justify-between rounded-2xl border border-white/[0.06] bg-white/[0.03] px-5 py-4 transition hover:bg-white/[0.06] active:scale-[0.98]"
+        >
+          <span className="flex items-center gap-3.5">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.06] bg-white/[0.04] text-silver">
+              <PlusIcon className="h-4 w-4" />
+            </span>
+            <span className="text-[14px] font-semibold text-white">
+              Train a muscle
+            </span>
+          </span>
+          <span className="font-data text-[11px] text-ash">
+            Off-schedule
+          </span>
+        </button>
+      )}
 
-      {/* Week overview */}
-      <div className="space-y-2">
-        <h3 className="text-xs uppercase tracking-[0.2em] text-ash">The week</h3>
-        {plan.days.map((day) => {
-          const done = day.is_rest_day ? false : doneDayIds.has(day.id);
-          return (
-            <GlassCard
-              key={day.id}
-              padded={false}
-              className="px-4 py-3"
-              onClick={() => navigate(`/plan/day/${day.id}`)}
-              active={false}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold ${
-                      done
-                        ? "bg-ember text-bone"
-                        : day.is_rest_day
-                          ? "bg-white/5 text-ash"
-                          : "border border-white/15 text-bone"
-                    }`}
-                  >
-                    {done ? "✓" : DAY_NAMES[day.day_of_week - 1][0]}
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-bone">{day.label}</p>
-                    <p className="text-xs text-ash">
-                      {day.is_rest_day ? "Rest — recovery counts" : day.target_muscles.join(" · ")}
-                    </p>
-                  </div>
+      {/* ── The Week ── */}
+      <div className="space-y-3">
+        <h3 className="font-data text-[10px] uppercase tracking-[0.3em] text-stone">
+          The week
+        </h3>
+        <div className="space-y-1">
+          {plan.days.map((day) => {
+            const done = day.is_rest_day
+              ? false
+              : doneDayIds.has(day.id);
+            return (
+              <button
+                key={day.id}
+                onClick={() =>
+                  navigate(`/plan/day/${day.id}`)
+                }
+                className="flex w-full items-center gap-4 rounded-2xl border border-white/[0.06] bg-white/[0.03] px-4 py-3.5 transition hover:bg-white/[0.06] active:scale-[0.98]"
+              >
+                <div
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-all ${
+                    done
+                      ? "bg-white text-ink shadow-[0_0_20px_rgba(255,255,255,0.15)]"
+                      : day.is_rest_day
+                        ? "bg-white/[0.04] text-ash"
+                        : "border border-white/[0.1] bg-white/[0.03] text-silver"
+                  }`}
+                >
+                  {done
+                    ? "\u2713"
+                    : DAY_NAMES[day.day_of_week - 1][0]}
                 </div>
-                <span className="text-ash">›</span>
-              </div>
-            </GlassCard>
-          );
-        })}
+                <div className="min-w-0 flex-1 text-left">
+                  <p className="text-[14px] font-semibold text-white">
+                    {day.label}
+                  </p>
+                  <p className="truncate text-[11px] text-ash">
+                    {day.is_rest_day
+                      ? "Rest \u2014 recovery counts"
+                      : day.target_muscles.join(
+                          " \u00b7 ",
+                        )}
+                  </p>
+                </div>
+                {day.is_rest_day ? (
+                  <span className="text-xs text-ash">
+                    &mdash;
+                  </span>
+                ) : (
+                  <span className="rounded-full border border-white/[0.06] bg-white/[0.04] px-3 py-1 font-data text-[10px] text-silver">
+                    {day.exercises?.length ?? 0} exercises
+                  </span>
+                )}
+                <span className="text-ash">&rsaquo;</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

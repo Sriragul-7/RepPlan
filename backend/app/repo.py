@@ -51,6 +51,105 @@ class Repo(Protocol):
     def progress_for_exercise(self, user_id: str, exercise_id: str) -> list[dict]: ...
     def logged_lifts(self, user_id: str) -> list[dict]: ...
     def muscle_balance(self, user_id: str, week_start: date, week_end: date) -> list[dict]: ...
+    def progress_overview(self, user_id: str) -> dict: ...
+
+
+def _build_overview(sessions: list[dict], get_exercise) -> dict:
+    """Derive a progress overview from sessions that already carry their sets."""
+    completed = [s for s in sessions if s.get("completed_at")]
+    total_sets = sum(len(s.get("sets", [])) for s in sessions)
+    total_volume = round(
+        sum((x.get("weight_kg") or 0) * (x.get("reps") or 0) for s in sessions for x in s.get("sets", [])),
+        1,
+    )
+
+    today = date.today()
+    week_start = today - timedelta(days=today.weekday())
+
+    def iso_week(d: date) -> date:
+        return d - timedelta(days=d.weekday())
+
+    completed_dates = {iso_week(datetime.fromisoformat(s["completed_at"]).date()) for s in completed}
+    weekly = []
+    for i in range(7, -1, -1):
+        ws = week_start - timedelta(weeks=i)
+        count = sum(1 for d in completed_dates if d == ws)
+        weekly.append({"week": ws.strftime("%b %d"), "workouts": count})
+
+    streak = 0
+    i = 0
+    while True:
+        ws = week_start - timedelta(weeks=i)
+        if ws in completed_dates:
+            streak += 1
+            i += 1
+        elif i == 0:
+            break
+        else:
+            break
+
+    recent = []
+    for s in sorted(completed, key=lambda s: s["completed_at"], reverse=True)[:8]:
+        sets = s.get("sets", [])
+        recent.append(
+            {
+                "id": s["id"],
+                "started_at": s["started_at"],
+                "sets": len(sets),
+                "volume": round(sum((x.get("weight_kg") or 0) * (x.get("reps") or 0) for x in sets), 1),
+            }
+        )
+
+    by_ex: dict[str, dict] = {}
+    for s in sessions:
+        for set_row in s.get("sets", []):
+            ex_id = set_row["exercise_id"]
+            entry = by_ex.setdefault(ex_id, {"best": 0, "last": None, "last_ts": "", "sets": 0})
+            w = set_row.get("weight_kg") or 0
+            if w > entry["best"]:
+                entry["best"] = w
+            ts = set_row.get("logged_at") or ""
+            if ts > entry["last_ts"]:
+                entry["last_ts"] = ts
+                entry["last"] = w
+            entry["sets"] += 1
+
+    best = []
+    for ex_id, e in by_ex.items():
+        ex = get_exercise(ex_id)
+        best.append(
+            {
+                "exercise_id": ex_id,
+                "name": (ex or {}).get("name", ex_id),
+                "best_weight": e["best"],
+                "last_weight": e["last"],
+                "sets": e["sets"],
+            }
+        )
+    best.sort(key=lambda b: -b["best_weight"])
+
+    return {
+        "total_workouts": len(completed),
+        "total_sets": total_sets,
+        "total_volume": total_volume,
+        "streak_weeks": streak,
+        "weekly": weekly,
+        "recent": recent,
+        "best": best[:6],
+    }
+
+
+def _as_list(value) -> list:
+    """jsonb columns may contain a JSON-encoded string from older writes."""
+    if isinstance(value, list):
+        return value
+    if isinstance(value, str):
+        try:
+            parsed = json.loads(value)
+            return parsed if isinstance(parsed, list) else []
+        except (ValueError, TypeError):
+            return []
+    return []
 
 
 # ---------------------------------------------------------------- Supabase
@@ -127,6 +226,7 @@ class SupabaseRepo:
                 or []
             )
             day["exercises"] = exercises
+            day["target_muscles"] = _as_list(day.get("target_muscles"))
             day["label"] = DAY_LABELS.get(day["day_of_week"], "")
         return days
 
@@ -145,6 +245,7 @@ class SupabaseRepo:
             .data
             or []
         )
+        day["target_muscles"] = _as_list(day.get("target_muscles"))
         day["label"] = DAY_LABELS.get(day["day_of_week"], "")
         return day
 
@@ -167,7 +268,7 @@ class SupabaseRepo:
         db = get_db()
         for day in days:
             db.table("plan_days").update(
-                {"target_muscles": json.dumps(day["target_muscles"]), "is_rest_day": day.get("is_rest_day", False)}
+                {"target_muscles": day["target_muscles"], "is_rest_day": day.get("is_rest_day", False)}
             ).eq("id", day["id"]).execute()
 
     def list_exercises(self, filters: dict) -> list[dict]:
@@ -297,6 +398,23 @@ class SupabaseRepo:
             if ex:
                 lifts.append({"exercise_id": exercise_id, "name": ex["name"], "sets": count})
         return sorted(lifts, key=lambda l: -l["sets"])
+
+    def progress_overview(self, user_id: str) -> dict:
+        db = get_db()
+        sessions = (
+            db.table("workout_sessions")
+            .select("*")
+            .eq("user_id", user_id)
+            .order("started_at", desc=True)
+            .execute()
+            .data
+            or []
+        )
+        for s in sessions:
+            s["sets"] = (
+                db.table("logged_sets").select("*").eq("session_id", s["id"]).execute().data or []
+            )
+        return _build_overview(sessions, self.get_exercise)
 
 
 # ---------------------------------------------------------------- Local (JSON)
@@ -507,6 +625,10 @@ class LocalRepo:
                 entry = lifts.setdefault(ex["id"], {"exercise_id": ex["id"], "name": ex["name"], "sets": 0})
                 entry["sets"] += 1
         return sorted(lifts.values(), key=lambda l: -l["sets"])
+
+    def progress_overview(self, user_id: str) -> dict:
+        sessions = [s for s in self._data["sessions"].values() if s["user_id"] == user_id]
+        return _build_overview(sessions, self.get_exercise)
 
 
 def get_repo() -> Repo:

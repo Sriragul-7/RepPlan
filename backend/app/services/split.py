@@ -31,6 +31,9 @@ MUSCLE_ALIASES: dict[str, list[str]] = {
     "calves": ["calves"],
     "forearms": ["forearms"],
     "traps": ["traps"],
+    # Compound groups used by some splits map to their constituent muscles.
+    "legs": ["quads", "hamstrings", "glutes", "calves"],
+    "arms": ["biceps", "triceps", "forearms"],
 }
 
 DAY_LABELS = {

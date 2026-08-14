@@ -5,8 +5,11 @@ import pytest
 from fastapi.testclient import TestClient
 
 os.environ["REPPLAN_STORE_PATH"] = os.path.join(tempfile.mkdtemp(), "store.json")
+os.environ["SUPABASE_URL"] = ""
+os.environ["SUPABASE_SERVICE_KEY"] = ""
 
 from app.main import app  # noqa: E402
+from app.repo import _as_list  # noqa: E402
 
 client = TestClient(app)
 HEADERS = {"X-User-Id": "test-user"}
@@ -82,6 +85,14 @@ def test_replan_skipped_day() -> None:
     merged = {m for d in others for m in d["target_muscles"]}
     for m in day["target_muscles"]:
         assert m in merged
+
+
+def test_as_list_normalizes_json_strings() -> None:
+    assert _as_list(["a", "b"]) == ["a", "b"]
+    assert _as_list('["a", "b"]') == ["a", "b"]
+    assert _as_list("[]") == []
+    assert _as_list("not json") == []
+    assert _as_list(None) == []
 
 
 def test_exercise_search_and_swap() -> None:

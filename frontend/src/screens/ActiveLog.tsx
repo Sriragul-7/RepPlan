@@ -1,17 +1,19 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BottomSheet } from "../components/BottomSheet";
 import { Button } from "../components/Button";
 import { GlassCard } from "../components/GlassCard";
-import { CheckIcon, ChevronDownIcon, CloseIcon, PlusIcon } from "../components/icons";
+import { CheckIcon, ChevronDownIcon, CloseIcon, PlusIcon, TimerIcon } from "../components/icons";
+import { ExerciseImage } from "../components/ExerciseImage";
 import { NumberKeypad } from "../components/NumberKeypad";
 import { RestTimer } from "../components/RestTimer";
 import { Skeleton } from "../components/Skeleton";
 import { Stepper } from "../components/Stepper";
 import { SwipeRow } from "../components/SwipeRow";
 import { api } from "../lib/api";
-import type { DayExercise, LoggedSet } from "../lib/types";
+import { STORAGE_KEYS } from "../lib/constants";
+import type { CardioLog, DayExercise, LiftPoint, LoggedSet, Profile } from "../lib/types";
 
 const COMPOUND_RE = /squat|bench|deadlift|row|press|pull-up|chin-up|push-up|dip|lunge|clean|snatch|thruster|overhead|hip thrust|good morning|farmer/i;
 
@@ -23,9 +25,22 @@ function restSecondsFor(exercise: DayExercise | undefined): number {
   return 90;
 }
 
-function defaultWeight(): number {
-  const prev = Number(localStorage.getItem("repplan_last_weight") ?? 60);
-  return prev > 0 ? prev : 60;
+function roundToPlate(n: number): number {
+  return Math.max(0, Math.round(n / 2.5) * 2.5);
+}
+
+function defaultWeightFor(exercise: DayExercise, profile?: Profile | null, lastWeight?: number | null): number {
+  if (lastWeight && lastWeight > 0) return lastWeight;
+  const name = exercise?.exercise?.name ?? exercise?.name ?? "";
+  const equipment = exercise?.exercise?.equipment ?? "";
+  const bw = profile?.weight_kg;
+  if (bw) {
+    if (/bodyweight/i.test(equipment) || /bodyweight/i.test(name)) return bw;
+    if (COMPOUND_RE.test(name)) return roundToPlate(bw * 0.4);
+    return roundToPlate(bw * 0.2);
+  }
+  const stored = Number(localStorage.getItem(STORAGE_KEYS.LAST_WEIGHT) ?? 0);
+  return stored > 0 ? stored : 20;
 }
 
 export function ActiveLog() {
@@ -35,11 +50,20 @@ export function ActiveLog() {
   const dayId = params.get("day");
   const muscle = params.get("muscle");
 
+  const profileQuery = useQuery({
+    queryKey: ["profile"],
+    queryFn: api.getProfile,
+    placeholderData: (prev) => prev,
+  });
+
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [resolvedDayId, setResolvedDayId] = useState<string | null>(null);
   const [exerciseList, setExerciseList] = useState<DayExercise[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [active, setActive] = useState<DayExercise | null>(null);
   const [loggedSets, setLoggedSets] = useState<LoggedSet[]>([]);
+  const [cardioLogs, setCardioLogs] = useState<CardioLog[]>([]);
   const [cardioOpen, setCardioOpen] = useState(false);
 
   const [rest, setRest] = useState<{ seconds: number; active: boolean; id: number }>({
@@ -49,38 +73,72 @@ export function ActiveLog() {
   });
 
   const loadInit = useCallback(async () => {
-    let list: DayExercise[] = [];
-    let session: Awaited<ReturnType<typeof api.startSession>> | null = null;
+    try {
+      let list: DayExercise[] = [];
+      let session: Awaited<ReturnType<typeof api.startSession>> | null = null;
+      let effectiveDayId = dayId;
 
-    const existing = localStorage.getItem("repplan_active_session");
-    if (existing) {
-      session = await api.getSession(existing).catch(() => null);
-    }
-    if (session?.completed_at) {
-      localStorage.removeItem("repplan_active_session");
-      session = null;
-    }
+      const existing = localStorage.getItem(STORAGE_KEYS.ACTIVE_SESSION);
+      if (existing) {
+        session = await api.getSession(existing).catch(() => null);
+      }
+      if (session?.completed_at) {
+        localStorage.removeItem(STORAGE_KEYS.ACTIVE_SESSION);
+        session = null;
+      }
 
-    if (dayId) {
-      const day = await api.getPlanDay(dayId);
-      list = day.exercises;
-    } else if (muscle) {
-      const profile = await api.getProfile();
-      list = await api.muscleFocus(muscle, profile?.equipment_access ?? "full gym", profile?.goal ?? "hypertrophy");
-    } else if (session?.plan_day_id) {
-      const day = await api.getPlanDay(session.plan_day_id);
-      list = day.exercises;
-    }
+      if (!effectiveDayId && !muscle && session?.plan_day_id) {
+        effectiveDayId = session.plan_day_id;
+      }
 
-    if (!session) {
-      session = await api.startSession(dayId ?? undefined);
-      localStorage.setItem("repplan_active_session", session.id);
-    }
+      if (!effectiveDayId && !muscle) {
+        try {
+          const plan = await api.getPlan();
+          if (!plan) return;
+          const today = ((new Date().getDay() + 6) % 7) + 1;
+          let day = plan.days.find((d) => d.day_of_week === today && !d.is_rest_day);
+          if (!day) {
+            day =
+              [...plan.days]
+                .filter((d) => !d.is_rest_day)
+                .sort((a, b) => {
+                  const da = a.day_of_week > today ? a.day_of_week : a.day_of_week + 7;
+                  const db = b.day_of_week > today ? b.day_of_week : b.day_of_week + 7;
+                  return da - db;
+                })[0] ?? null;
+          }
+          if (day) effectiveDayId = day.id;
+        } catch {
+          // no plan yet
+        }
+      }
 
-    setSessionId(session.id);
-    setExerciseList(list);
-    setLoggedSets(session.sets ?? []);
-    setLoading(false);
+      if (effectiveDayId) {
+        const day = await api.getPlanDay(effectiveDayId);
+        list = day.exercises;
+      } else if (muscle) {
+        const profile = await api.getProfile();
+        list = await api.muscleFocus(muscle, profile?.equipment_access ?? "full gym", profile?.goal ?? "hypertrophy");
+      } else if (session?.plan_day_id) {
+        const day = await api.getPlanDay(session.plan_day_id);
+        list = day.exercises;
+      }
+
+      if (!session) {
+        session = await api.startSession(effectiveDayId ?? undefined);
+        localStorage.setItem(STORAGE_KEYS.ACTIVE_SESSION, session.id);
+      }
+
+      setSessionId(session.id);
+      setResolvedDayId(effectiveDayId);
+      setExerciseList(list);
+      setLoggedSets(session.sets ?? []);
+      setCardioLogs(session.cardio ?? []);
+      setLoading(false);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to load session");
+      setLoading(false);
+    }
   }, [dayId, muscle]);
 
   useEffect(() => {
@@ -101,7 +159,7 @@ export function ActiveLog() {
       weight_kg: weight,
       reps,
     });
-    localStorage.setItem("repplan_last_weight", String(weight));
+    localStorage.setItem(STORAGE_KEYS.LAST_WEIGHT, String(weight));
     setLoggedSets((s) => [...s, row]);
     setRest((r) => ({ seconds: restSecondsFor(exercise), active: true, id: r.id + 1 }));
   };
@@ -110,24 +168,26 @@ export function ActiveLog() {
     mutationFn: async () => {
       if (!sessionId) return;
       await api.completeSession(sessionId);
-      localStorage.removeItem("repplan_active_session");
+      localStorage.removeItem(STORAGE_KEYS.ACTIVE_SESSION);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sessions-week"] });
+      queryClient.invalidateQueries({ queryKey: ["progress-overview"] });
+      queryClient.invalidateQueries({ queryKey: ["lifts"] });
       navigate("/", { replace: true });
     },
   });
 
   if (loading) {
     return (
-      <div className="space-y-4">
-        <Skeleton className="h-6 w-40" />
+      <div className="space-y-5">
+        <Skeleton className="h-8 w-44" />
         {[0, 1, 2, 3].map((i) => (
-          <div key={i} className="glass-card flex items-center gap-4 p-4">
-            <Skeleton variant="circle" className="h-14 w-14" />
-            <div className="flex-1 space-y-2">
-              <Skeleton className="w-1/2" />
-              <Skeleton className="w-1/3" />
+          <div key={i} className="glass-card flex items-center gap-4 p-5">
+            <Skeleton variant="circle" className="h-16 w-16" />
+            <div className="flex-1 space-y-3">
+              <Skeleton className="w-3/5" />
+              <Skeleton className="w-2/5" />
             </div>
           </div>
         ))}
@@ -135,86 +195,196 @@ export function ActiveLog() {
     );
   }
 
-  return (
-    <div className="space-y-4">
-      <header className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-ash">
-            {dayId ? "Today's session" : muscle ? `${muscle} focus` : "Session"}
-          </p>
-          <h1 className="font-display text-3xl font-semibold text-bone">Log workout</h1>
-        </div>
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <p className="text-ivory text-lg font-semibold">Something went wrong</p>
+        <p className="mt-2 text-sm text-stone">{error}</p>
         <button
-          onClick={() => complete.mutate()}
-          disabled={complete.isPending}
-          className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-ash transition active:scale-95"
+          onClick={() => {
+            setError(null);
+            setLoading(true);
+            loadInit();
+          }}
+          className="mt-6 rounded-full bg-ivory px-6 py-3 text-sm font-semibold text-ink transition active:scale-95"
         >
-          {complete.isPending ? "…" : "End"}
+          Try again
         </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="animate-slide-up space-y-5 pb-8">
+      {/* Premium Header */}
+      <header className="flex items-end justify-between pt-3">
+        <div className="flex-1">
+          <p className="font-accent text-[10px] font-semibold uppercase tracking-[0.3em] text-stone">
+            {resolvedDayId ? "Today's session" : muscle ? `${muscle} focus` : "Session"}
+          </p>
+          <h1 className="font-display mt-1.5 text-[40px] font-bold leading-[1.05] text-ivory">
+            Log
+            <br />
+            workout
+          </h1>
+        </div>
+        <div className="flex items-center gap-2 mb-2">
+          <button
+            onClick={() => navigate("/history")}
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/[0.1] bg-white/[0.06] text-silver backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.1] active:scale-95"
+            aria-label="Workout history"
+          >
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+              <rect x="3" y="5" width="18" height="16" rx="3" />
+              <path d="M8 3v4M16 3v4M3 10h18" />
+              <path d="M8 15h.01M12 15h.01M16 15h.01" />
+            </svg>
+          </button>
+          <button
+            onClick={() => complete.mutate()}
+            disabled={complete.isPending}
+            className="flex h-10 items-center rounded-full border border-white/[0.1] bg-white/[0.06] px-5 text-[13px] font-semibold text-silver backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.1] active:scale-95"
+          >
+            {complete.isPending ? "…" : "End session"}
+          </button>
+        </div>
       </header>
 
-      {/* Progress summary */}
-      <div className="flex items-center gap-3">
-        <div className="glass-card flex-1 px-4 py-3">
-          <span className="font-data text-2xl text-bone">
-            {totalLogged}
-            <span className="text-base text-ash">/{totalPrescribed}</span>
+      {/* Premium Progress Bar */}
+      <div className="glass-card glass-shine overflow-hidden px-5 py-4">
+        <div className="flex items-baseline justify-between">
+          <span className="font-accent text-[10px] font-semibold uppercase tracking-[0.25em] text-stone">
+            Progress
           </span>
-          <p className="text-xs text-ash">sets logged</p>
+          <div className="flex items-baseline gap-1">
+            <span className="font-display text-[28px] font-bold leading-none text-ivory">
+              {totalLogged}
+            </span>
+            <span className="font-data text-sm text-ash">/ {totalPrescribed} sets</span>
+          </div>
         </div>
+        <div className="mt-3.5 h-2.5 overflow-hidden rounded-full bg-white/[0.06]">
+          <div
+            className="h-full rounded-full bg-ivory shadow-glow transition-all duration-700 ease-out"
+            style={{ width: `${totalPrescribed ? (totalLogged / totalPrescribed) * 100 : 0}%` }}
+          />
+        </div>
+        <p className="mt-2 text-right font-data text-[10px] text-ash">
+          {totalPrescribed ? Math.round((totalLogged / totalPrescribed) * 100) : 0}% complete
+        </p>
       </div>
 
-      {/* Exercise cards */}
-      <div className="space-y-3">
-        {exerciseList.map((item) => {
-          const ex = item.exercise ?? item;
-          const done = loggedSets.filter((s) => s.exercise_id === item.exercise_id).length;
-          return (
-            <GlassCard
-              key={item.exercise_id}
-              className="flex items-center gap-4"
-              onClick={() => setActive(item)}
-              active={false}
-            >
-              <div className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-xl bg-white/5">
-                {item.thumbnail_url ? (
-                  <img src={item.thumbnail_url} alt={ex?.name ?? ""} className="h-full w-full object-contain" loading="lazy" />
-                ) : null}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-bone">{ex?.name ?? item.exercise_id}</p>
-                <p className="mt-0.5 text-xs text-ash">
-                  {item.prescribed_sets} sets · {item.prescribed_reps ?? "8-12"} reps
-                </p>
-                <div className="mt-1.5 flex gap-1">
-                  {Array.from({ length: item.prescribed_sets }).map((_, i) => (
-                    <div
-                      key={i}
-                      className={`h-1.5 w-5 rounded-full ${i < done ? "bg-ember" : "bg-white/10"}`}
-                    />
-                  ))}
+      {/* Exercise Cards */}
+      <section>
+        <h3 className="font-accent text-[10px] font-semibold uppercase tracking-[0.25em] text-stone px-1 pt-2 pb-2.5">
+          {exerciseList.length} exercises
+        </h3>
+        <div className="ios-list">
+          {exerciseList.map((item) => {
+            const ex = item.exercise ?? item;
+            const done = loggedSets.filter((s) => s.exercise_id === item.exercise_id).length;
+            return (
+              <button
+                key={item.exercise_id}
+                onClick={() => setActive(item)}
+                className="ios-row ios-tap group"
+              >
+                <ExerciseImage
+                  thumbnailUrl={ex?.thumbnail_url}
+                  gifUrl={ex?.gif_url}
+                  alt={ex?.name ?? ""}
+                  className="h-[68px] w-[68px] shrink-0 rounded-[20px] border border-white/[0.08] bg-white/[0.03]"
+                />
+                <div className="min-w-0 flex-1 text-left">
+                  <p className="font-display truncate text-[17px] font-semibold text-ivory leading-tight">
+                    {ex?.name ?? item.exercise_id}
+                  </p>
+                  <p className="mt-1 font-data text-[11px] text-stone">
+                    {item.prescribed_sets} sets{" "}
+                    <span className="text-ash/60">·</span>{" "}
+                    {item.prescribed_reps ?? "8-12"} reps
+                  </p>
+                  <div className="mt-2.5 flex gap-1.5">
+                    {Array.from({ length: item.prescribed_sets }).map((_, i) => (
+                      <div
+                        key={i}
+                        className={`h-[6px] rounded-full transition-all duration-500 ${
+                          i < done
+                            ? "w-[6px] bg-ivory shadow-glow"
+                            : "w-[6px] bg-white/[0.08]"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div className="shrink-0 flex flex-col items-center gap-1">
+                  {done > 0 && (
+                    <span className="font-data text-[11px] font-semibold text-ivory">
+                      {done}/{item.prescribed_sets}
+                    </span>
+                  )}
+                  <ChevronDownIcon className="h-4 w-4 text-ash/60 transition-transform group-hover:text-silver group-hover:translate-x-0.5" />
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Cardio Section */}
+      <section>
+        <h3 className="font-accent text-[10px] font-semibold uppercase tracking-[0.25em] text-stone px-1 pt-2 pb-2.5">
+          Cardio
+        </h3>
+        <div className="ios-list">
+          {cardioLogs.length === 0 ? (
+            <div className="ios-row justify-center py-8">
+              <p className="font-accent text-center text-sm text-ash">Nothing logged yet this session</p>
+            </div>
+          ) : (
+            cardioLogs.map((c) => (
+              <div key={c.id} className="ios-row">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/[0.06] text-silver border border-white/[0.06]">
+                  <TimerIcon className="h-5 w-5" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="font-display text-[15px] font-semibold capitalize text-ivory">{c.activity_type}</p>
+                  <p className="mt-0.5 font-data text-[11px] text-stone">
+                    {c.duration_minutes ?? 0} min
+                    {c.distance_km != null ? ` · ${c.distance_km} km` : ""}
+                    {c.calories != null ? ` · ${c.calories} kcal` : ""}
+                  </p>
                 </div>
               </div>
-              <ChevronDownIcon className="h-4 w-4 shrink-0 rotate-[-90deg] text-ash" />
-            </GlassCard>
-          );
-        })}
-      </div>
-
-      {/* Cardio */}
-      <button
-        onClick={() => setCardioOpen(true)}
-        className="flex w-full items-center justify-center gap-2 rounded-card border border-dashed border-glacier/40 bg-glacier/5 py-4 text-sm font-medium text-glacier transition active:scale-[0.98]"
-      >
-        <PlusIcon className="h-4 w-4" />
-        Add cardio
-      </button>
+            ))
+          )}
+        </div>
+        <button
+          onClick={() => setCardioOpen(true)}
+          className="mt-3 flex w-full items-center justify-center gap-2.5 rounded-[20px] border border-dashed border-white/[0.1] bg-white/[0.03] py-4.5 text-[13px] font-medium text-silver backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.06] active:scale-[0.98]"
+        >
+          <PlusIcon className="h-4 w-4" />
+          Add cardio
+        </button>
+      </section>
 
       <BottomSheet open={!!active} onClose={() => setActive(null)} title={active?.exercise?.name ?? ""}>
-        {active ? <SetSheet exercise={active} loggedSets={loggedSets} onLog={logSet} /> : null}
+        {active ? (
+          <SetSheet
+            exercise={active}
+            loggedSets={loggedSets}
+            profile={profileQuery.data}
+            onLog={logSet}
+          />
+        ) : null}
       </BottomSheet>
 
-      <CardioSheet open={cardioOpen} onClose={() => setCardioOpen(false)} sessionId={sessionId} />
+      <CardioSheet
+        open={cardioOpen}
+        onClose={() => setCardioOpen(false)}
+        sessionId={sessionId}
+        onLog={(log) => setCardioLogs((prev) => [...prev, log])}
+      />
 
       <RestTimer
         seconds={rest.seconds}
@@ -229,17 +399,39 @@ export function ActiveLog() {
 
 /* ---------------------------------------------------------------- Set sheet */
 
+function lastPoint(points: LiftPoint[] | undefined): { weight: number | null; reps: number | null } {
+  const last = points && points.length > 0 ? points[points.length - 1] : undefined;
+  return { weight: last?.weight_kg ?? null, reps: last?.reps ?? null };
+}
+
 function SetSheet({
   exercise,
   loggedSets,
+  profile,
   onLog,
 }: {
   exercise: DayExercise;
   loggedSets: LoggedSet[];
+  profile?: Profile | null;
   onLog: (e: DayExercise, setNumber: number, weight: number, reps: number) => void;
 }) {
   const done = loggedSets.filter((s) => s.exercise_id === exercise.exercise_id);
   const last = done[done.length - 1];
+
+  const historyQuery = useQuery({
+    queryKey: ["lift-progress", exercise.exercise_id],
+    queryFn: () => api.progressForExercise(exercise.exercise_id),
+    enabled: !last,
+  });
+  const lastLog = lastPoint(historyQuery.data);
+  const suggestedWeight = defaultWeightFor(
+    exercise,
+    profile,
+    last?.weight_kg ?? lastLog.weight,
+  );
+  const suggestedReps = last?.reps ?? lastLog.reps ?? Number.parseInt(
+    (exercise.prescribed_reps ?? "10").split("-")[1] ?? "10",
+  );
 
   const [inputs, setInputs] = useState<Record<number, { weight: number; reps: number }>>({});
   const [keypadFor, setKeypadFor] = useState<{ setNumber: number; field: "weight" | "reps" } | null>(null);
@@ -253,41 +445,65 @@ function SetSheet({
   const keypadValue = keypadFor ? inputs[keypadFor.setNumber]?.[keypadFor.field] : undefined;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3.5">
+      <ExerciseImage
+        thumbnailUrl={exercise.exercise?.thumbnail_url ?? exercise.thumbnail_url}
+        gifUrl={exercise.exercise?.gif_url ?? exercise.gif_url}
+        alt={exercise.exercise?.name ?? ""}
+        className="h-44 w-full rounded-[24px] border border-white/[0.08] bg-white/[0.03]"
+      />
       {last ? (
         <button
           onClick={repeatLast}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-ember/30 bg-ember/10 py-3 text-sm font-semibold text-ember transition active:scale-[0.98]"
+          className="flex w-full items-center justify-center gap-2.5 rounded-2xl border border-white/[0.08] bg-white/[0.04] py-3.5 text-[13px] font-semibold text-silver backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.08] active:scale-[0.98]"
         >
+          <span className="text-ivory">↻</span>
           Repeat last set
         </button>
       ) : null}
+
+      {/* Set Counter Header */}
+      <div className="flex items-baseline justify-between px-1 pt-1">
+        <p className="font-accent text-[10px] font-semibold uppercase tracking-[0.25em] text-stone">
+          Sets
+        </p>
+        <p className="font-data text-[11px] text-ash">
+          {done.length} / {exercise.prescribed_sets} logged
+        </p>
+      </div>
 
       {Array.from({ length: exercise.prescribed_sets }).map((_, i) => {
         const n = i + 1;
         const logged = done.find((s) => s.set_number === n);
         if (logged) {
           return (
-            <GlassCard key={n} className="flex items-center justify-between border-ember/30">
-              <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-ember text-bone">
-                  <CheckIcon className="h-4 w-4" />
+            <GlassCard key={n} className="flex items-center justify-between border-white/[0.08] !p-4">
+              <div className="flex items-center gap-3.5">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-ivory text-ink shadow-glow">
+                  <CheckIcon className="h-5 w-5" strokeWidth={2.5} />
                 </div>
                 <div>
-                  <p className="text-xs text-ash">SET {n}</p>
-                  <p className="font-data text-lg text-bone">
-                    {logged.weight_kg ?? 0}kg × {logged.reps ?? 0}
+                  <p className="font-accent text-[10px] font-semibold uppercase tracking-[0.2em] text-stone">
+                    SET {n}
                   </p>
+                  <div className="mt-0.5 flex items-baseline gap-1">
+                    <span className="font-display text-[22px] font-bold text-ivory">
+                      {logged.weight_kg ?? 0}
+                    </span>
+                    <span className="font-data text-[11px] text-ash">kg</span>
+                    <span className="mx-1 text-ash/40">×</span>
+                    <span className="font-display text-[22px] font-bold text-ivory">
+                      {logged.reps ?? 0}
+                    </span>
+                    <span className="font-data text-[11px] text-ash">reps</span>
+                  </div>
                 </div>
               </div>
             </GlassCard>
           );
         }
 
-        const value = inputs[n] ?? {
-          weight: last?.weight_kg ?? defaultWeight(),
-          reps: last?.reps ?? Number.parseInt((exercise.prescribed_reps ?? "10").split("-")[1] ?? "10"),
-        };
+        const value = inputs[n] ?? { weight: suggestedWeight, reps: suggestedReps };
 
         const setValue = (field: "weight" | "reps", v: number) =>
           setInputs((s) => ({ ...s, [n]: { ...(s[n] ?? value), [field]: v } }));
@@ -297,18 +513,25 @@ function SetSheet({
         return (
           <div key={n}>
             {editing ? (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-xs uppercase tracking-[0.15em] text-ash">SET {n}</p>
-                  <button onClick={() => setKeypadFor(null)} className="text-ash">
-                    <CloseIcon className="h-5 w-5" />
+                  <p className="font-accent text-[10px] font-semibold uppercase tracking-[0.2em] text-stone">
+                    SET {n}
+                  </p>
+                  <button
+                    onClick={() => setKeypadFor(null)}
+                    className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/[0.06] text-ash transition-all hover:bg-white/[0.1]"
+                  >
+                    <CloseIcon className="h-4 w-4" />
                   </button>
                 </div>
-                <div className="flex items-center justify-center gap-3">
-                  <span className="font-data text-5xl font-medium text-bone">
+                <div className="flex items-center justify-center gap-2">
+                  <span className="font-display text-[56px] font-bold leading-none text-ivory">
                     {keypadValue ?? (keypadFor.field === "weight" ? value.weight : value.reps)}
                   </span>
-                  <span className="text-sm text-ash">{keypadFor.field === "weight" ? "kg" : "reps"}</span>
+                  <span className="font-data text-sm font-medium text-ash">
+                    {keypadFor.field === "weight" ? "kg" : "reps"}
+                  </span>
                 </div>
                 <NumberKeypad
                   decimals={keypadFor.field === "weight" ? 1 : 0}
@@ -337,41 +560,57 @@ function SetSheet({
               </div>
             ) : (
               <SwipeRow onConfirm={() => onLog(exercise, n, value.weight, value.reps)}>
-                <GlassCard className="space-y-2">
+                <GlassCard className="space-y-3.5 !p-4 border-white/[0.08]">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs uppercase tracking-[0.15em] text-ash">SET {n}</p>
-                    <span className="text-xs text-ash">swipe → to log</span>
+                    <p className="font-accent text-[10px] font-semibold uppercase tracking-[0.2em] text-stone">
+                      SET {n}
+                    </p>
+                    <span className="font-accent text-[10px] text-ash/60">swipe →</span>
                   </div>
-                  <div className="flex items-center justify-between gap-2">
-                    <Stepper
-                      label="kg"
-                      value={value.weight}
-                      step={2.5}
-                      decimals={1}
-                      min={0}
-                      max={400}
-                      onChange={(v) => setValue("weight", v)}
-                    />
-                    <button
-                      onClick={() => setKeypadFor({ setNumber: n, field: "weight" })}
-                      className="h-12 w-12 shrink-0 rounded-full border border-white/10 text-lg text-ash active:scale-90"
-                    >
-                      ⌨
-                    </button>
-                    <Stepper
-                      label="reps"
-                      value={value.reps}
-                      step={1}
-                      min={0}
-                      max={100}
-                      onChange={(v) => setValue("reps", v)}
-                    />
-                    <button
-                      onClick={() => setKeypadFor({ setNumber: n, field: "reps" })}
-                      className="h-12 w-12 shrink-0 rounded-full border border-white/10 text-lg text-ash active:scale-90"
-                    >
-                      ⌨
-                    </button>
+                  <div className="space-y-2.5">
+                    {/* Weight Row */}
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <span className="w-8 font-accent text-[10px] font-semibold uppercase tracking-wider text-ash">kg</span>
+                        <Stepper
+                          value={value.weight}
+                          step={2.5}
+                          decimals={1}
+                          min={0}
+                          max={400}
+                          onChange={(v) => setValue("weight", v)}
+                          onValueTap={() => setKeypadFor({ setNumber: n, field: "weight" })}
+                        />
+                      </div>
+                      <button
+                        onClick={() => setKeypadFor({ setNumber: n, field: "weight" })}
+                        aria-label="Type weight"
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/[0.08] bg-white/[0.04] text-silver backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.08] active:scale-90"
+                      >
+                        <span className="font-data text-xs">⌨</span>
+                      </button>
+                    </div>
+                    {/* Reps Row */}
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <span className="w-8 font-accent text-[10px] font-semibold uppercase tracking-wider text-ash">reps</span>
+                        <Stepper
+                          value={value.reps}
+                          step={1}
+                          min={0}
+                          max={100}
+                          onChange={(v) => setValue("reps", v)}
+                          onValueTap={() => setKeypadFor({ setNumber: n, field: "reps" })}
+                        />
+                      </div>
+                      <button
+                        onClick={() => setKeypadFor({ setNumber: n, field: "reps" })}
+                        aria-label="Type reps"
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/[0.08] bg-white/[0.04] text-silver backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.08] active:scale-90"
+                      >
+                        <span className="font-data text-xs">⌨</span>
+                      </button>
+                    </div>
                   </div>
                 </GlassCard>
               </SwipeRow>
@@ -387,7 +626,17 @@ function SetSheet({
 
 const CARDIO_TYPES = ["Running", "Cycling", "Rowing", "Stair climber", "Elliptical", "Walk"];
 
-function CardioSheet({ open, onClose, sessionId }: { open: boolean; onClose: () => void; sessionId: string | null }) {
+function CardioSheet({
+  open,
+  onClose,
+  sessionId,
+  onLog,
+}: {
+  open: boolean;
+  onClose: () => void;
+  sessionId: string | null;
+  onLog: (log: CardioLog) => void;
+}) {
   const queryClient = useQueryClient();
   const [activity, setActivity] = useState(CARDIO_TYPES[0]);
   const [duration, setDuration] = useState(20);
@@ -402,34 +651,56 @@ function CardioSheet({ open, onClose, sessionId }: { open: boolean; onClose: () 
         distance_km: distance || undefined,
         calories: calories || undefined,
       }),
-    onSuccess: () => {
+    onSuccess: (log) => {
       queryClient.invalidateQueries({ queryKey: ["sessions-week"] });
+      queryClient.invalidateQueries({ queryKey: ["progress-overview"] });
+      onLog(log);
       onClose();
     },
   });
 
   return (
     <BottomSheet open={open} onClose={onClose} title="Cardio">
-      <div className="space-y-4">
+      <div className="space-y-5">
+        {/* Activity Type Pills */}
         <div className="flex flex-wrap gap-2">
           {CARDIO_TYPES.map((c) => (
             <button
               key={c}
               onClick={() => setActivity(c)}
-              className={`rounded-full px-4 py-2 text-sm transition active:scale-95 ${
-                activity === c ? "bg-glacier text-void" : "border border-white/10 bg-white/5 text-ash"
+              className={`rounded-full border px-4 py-2.5 text-[13px] font-medium transition-all duration-300 active:scale-95 ${
+                activity === c
+                  ? "border-ivory/20 bg-ivory text-ink shadow-glow"
+                  : "border-white/[0.08] bg-white/[0.04] text-silver backdrop-blur-xl hover:bg-white/[0.08]"
               }`}
             >
               {c}
             </button>
           ))}
         </div>
-        <GlassCard className="space-y-3">
+
+        {/* Cardio Steppers */}
+        <GlassCard className="space-y-4 border-white/[0.08]">
+          <div className="flex items-center justify-between">
+            <span className="font-accent text-[10px] font-semibold uppercase tracking-[0.2em] text-stone">Duration</span>
+            <span className="font-display text-[18px] font-bold text-ivory">{duration} <span className="font-data text-xs text-ash">min</span></span>
+          </div>
           <Stepper label="mins" value={duration} min={1} max={300} onChange={setDuration} />
+          <div className="h-px bg-white/[0.06]" />
+          <div className="flex items-center justify-between">
+            <span className="font-accent text-[10px] font-semibold uppercase tracking-[0.2em] text-stone">Distance</span>
+            <span className="font-display text-[18px] font-bold text-ivory">{distance || 0} <span className="font-data text-xs text-ash">km</span></span>
+          </div>
           <Stepper label="km" value={distance} step={0.5} decimals={1} min={0} max={100} onChange={setDistance} />
+          <div className="h-px bg-white/[0.06]" />
+          <div className="flex items-center justify-between">
+            <span className="font-accent text-[10px] font-semibold uppercase tracking-[0.2em] text-stone">Calories</span>
+            <span className="font-display text-[18px] font-bold text-ivory">{calories || 0} <span className="font-data text-xs text-ash">kcal</span></span>
+          </div>
           <Stepper label="kcal" value={calories} step={10} min={0} max={2000} onChange={setCalories} />
         </GlassCard>
-        <Button variant="glacier" full onClick={() => mutation.mutate()} disabled={mutation.isPending}>
+
+        <Button variant="chrome" full onClick={() => mutation.mutate()} disabled={mutation.isPending}>
           {mutation.isPending ? "Logging…" : "Log cardio"}
         </Button>
       </div>
