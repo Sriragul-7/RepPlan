@@ -91,4 +91,41 @@ export const api = {
   workoutHistory: (startDate: string, endDate: string) =>
     request<Session[]>(`/api/session/history?start=${startDate}&end=${endDate}`),
   sessionDetail: (sessionId: string) => request<Session>(`/api/session/${sessionId}`),
+
+  // Coach
+  getCoachConversations: () => request<CoachConversation[]>("/api/coach/conversations"),
+  createCoachConversation: () =>
+    request<CoachConversation>("/api/coach/conversations", { method: "POST" }),
+  getCoachMessages: (conversationId: string) =>
+    request<CoachMessage[]>(`/api/coach/conversations/${conversationId}/messages`),
+  coachChat: (message: string, conversationId?: string) =>
+    request<CoachChatResponse>("/api/coach/chat", {
+      method: "POST",
+      body: JSON.stringify({ message, conversation_id: conversationId ?? null }),
+    }),
+};
+
+// ── Coach types ───────────────────────────────────────────────────
+
+export type CoachConversation = {
+  id: string;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
+  title: string | null;
+};
+
+export type CoachMessage = {
+  id: string;
+  conversation_id: string;
+  role: string;
+  content: string;
+  created_at: string;
+};
+
+export type CoachChatResponse = {
+  conversation_id: string;
+  message_id: string;
+  content: string;
+  is_streaming: boolean;
 };

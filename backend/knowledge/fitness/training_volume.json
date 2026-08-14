@@ -1,0 +1,82 @@
+[
+  {
+    "title": "Training Volume for Hypertrophy",
+    "topic": "training_volume",
+    "source": "Evidence-based guidelines, Schoenfeld & Krieger 2017",
+    "year": 2017,
+    "evidence_level": "strong",
+    "content": "For hypertrophy, 10-20 hard sets per muscle group per week is the recommended volume range. Beginners should start at the lower end (10 sets/week) and advanced lifters may benefit from higher volumes (15-20+ sets). Volume should be distributed across at least 2 sessions per week per muscle group for optimal results. Training a muscle 2-3x per week is superior to 1x per week for most people."
+  },
+  {
+    "title": "Training Volume for Strength",
+    "topic": "training_volume",
+    "source": "NSCA Guidelines, 2016",
+    "year": 2016,
+    "evidence_level": "strong",
+    "content": "For strength development, lower rep ranges (1-6 reps) with heavier loads and longer rest periods (3-5 minutes) are most effective. Volume for strength is typically 5-8 sets per exercise per week. Compound movements should form the foundation. Strength gains also occur with higher rep ranges if taken close to failure."
+  },
+  {
+    "title": "Progressive Overload",
+    "topic": "progressive_overload",
+    "source": "Schoenfeld 2010, meta-analysis",
+    "year": 2010,
+    "evidence_level": "strong",
+    "content": "Progressive overload is the gradual increase of stress placed on the body during training. Methods include: increasing weight, increasing reps, increasing sets, improving technique, decreasing rest periods, increasing range of motion. The most practical approach for intermediates is double progression within a rep range (e.g., add weight when you hit the top of the range for all sets)."
+  },
+  {
+    "title": "Sets and Reps for Hypertrophy",
+    "topic": "sets_reps",
+    "source": "Schoenfeld et al. 2021, meta-analysis",
+    "year": 2021,
+    "evidence_level": "strong",
+    "content": "For hypertrophy, 6-12 reps per set is a practical starting point, but muscle growth can occur across a wide rep range (5-30+) as long as sets are taken close to failure. The key driver is proximity to failure (0-3 RIR), not a specific rep range. Most hypertrophy programs use 6-12 reps for compounds and 8-15 for isolation."
+  },
+  {
+    "title": "Rest Intervals for Training",
+    "topic": "rest_intervals",
+    "source": "Schoenfeld et al. 2016",
+    "year": 2016,
+    "evidence_level": "strong",
+    "content": "Rest intervals of 2-5 minutes between sets are generally recommended for strength and hypertrophy. Longer rests (3-5 min) allow better performance on subsequent sets. Shorter rests (1-2 min) may increase metabolic stress but at the cost of performance. For most people, 2-3 minutes for compounds and 1-2 minutes for isolation is practical."
+  },
+  {
+    "title": "RPE and RIR in Training",
+    "topic": "rpe_rir",
+    "source": "Helms et al. 2016",
+    "year": 2016,
+    "evidence_level": "moderate",
+    "content": "RPE (Rate of Perceived Exertion) and RIR (Reps in Reserve) are autoregulation tools. RIR is how many more reps you could have done. For hypertrophy, most sets should be performed with 0-3 RIR. Training too far from failure (4+ RIR) provides less stimulus. Training to absolute failure adds fatigue without much extra growth stimulus for most sets."
+  },
+  {
+    "title": "Training Frequency",
+    "topic": "training_frequency",
+    "source": "Schoenfeld et al. 2016 meta-analysis",
+    "year": 2016,
+    "evidence_level": "strong",
+    "content": "Training each muscle group 2-3 times per week is generally superior to once per week. The minimum effective frequency for most people is 2x per week per muscle group. Higher frequency allows better volume distribution and more practice with movements."
+  },
+  {
+    "title": "Exercise Selection Principles",
+    "topic": "exercise_selection",
+    "source": "Practical guidelines, ISAK",
+    "year": 2020,
+    "evidence_level": "practical",
+    "content": "Prioritize compound movements (squat, bench, deadlift, overhead press, rows, pull-ups) as the foundation of any program. Add isolation exercises for weak points and aesthetic goals. Choose exercises you can perform safely and consistently. Include movements for all planes of motion and muscle groups. Variety in exercise selection helps reduce overuse injuries."
+  },
+  {
+    "title": "Training Splits",
+    "topic": "training_splits",
+    "source": "Practical programming guidelines",
+    "year": 2022,
+    "evidence_level": "practical",
+    "content": "Common effective splits: Push/Pull/Legs (PPL) - 3-6 days/week, Upper/Lower - 4 days/week, Full Body - 3-4 days/week, Bro split - 5-6 days/week. The best split is one that allows adequate frequency (2x/muscle/week) and volume while fitting your schedule. PPL and Upper/Lower are most popular for intermediate lifters."
+  },
+  {
+    "title": "Deload Weeks",
+    "topic": "deload",
+    "source": "Practical guidelines, Helms & Morgan",
+    "year": 2020,
+    "evidence_level": "moderate",
+    "content": "Deloads involve reducing training volume or intensity for a week to allow accumulated fatigue to dissipate. A typical deload reduces volume by 40-60% while maintaining intensity. Most lifters benefit from a deload every 4-8 weeks. Signs you need a deload: persistent fatigue, decreased performance, poor sleep, joint pain."
+  }
+]

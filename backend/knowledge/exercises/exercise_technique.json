@@ -1,0 +1,58 @@
+[
+  {
+    "title": "Bench Press Technique",
+    "topic": "bench_press",
+    "source": "Practical guidelines, NSCA",
+    "year": 2020,
+    "evidence_level": "practical",
+    "content": "Bench press targets chest, front delts, and triceps. Form: feet flat on floor, slight arch, retract shoulder blades, grip slightly wider than shoulder width, lower bar to mid-chest (touching), press up and slightly back. Elbows at 45-75 degrees from body. Common mistakes: bouncing off chest, lifting hips, flaring elbows, half reps. Variations: incline, decline, close-grip, dumbbell."
+  },
+  {
+    "title": "Squat Technique",
+    "topic": "squat",
+    "source": "Practical guidelines, NSCA",
+    "year": 2020,
+    "evidence_level": "practical",
+    "content": "Squat targets quads, glutes, and core. High bar: bar on upper traps, more upright torso, more quad focus. Low bar: bar on rear delts, more hip hinge, more posterior chain. Feet shoulder-width, toes slightly out. Descend by pushing hips back and bending knees simultaneously. Aim for parallel or below. Drive through mid-foot. Common mistakes: knees caving, rising on toes, rounding back."
+  },
+  {
+    "title": "Deadlift Technique",
+    "topic": "deadlift",
+    "source": "Practical guidelines, NSCA",
+    "year": 2020,
+    "evidence_level": "practical",
+    "content": "Deadlift targets hamstrings, glutes, lower back, traps, and forearms. Setup: feet hip-width, bar over mid-foot, grip just outside knees. Flatten back, brace core, chest up. Drive floor away with legs, keep bar close to body. Lock out with hips (don't hyperextend). Common mistakes: rounding back, jerking the bar, bar drifting forward. Variations: sumo, Romanian, trap bar, deficit."
+  },
+  {
+    "title": "Overhead Press Technique",
+    "topic": "overhead_press",
+    "source": "Practical guidelines",
+    "year": 2020,
+    "evidence_level": "practical",
+    "content": "OHP targets shoulders, triceps, and core. Stand tall, feet shoulder-width. Bar at collarbone, hands just outside shoulders. Brace core hard, press bar straight up. Move head back slightly for bar path, then back under bar at lockout. Lock out with biceps by ears. No leg drive (that's push press). Common mistakes: excessive leanback, pressing forward instead of straight up."
+  },
+  {
+    "title": "Barbell Row Technique",
+    "topic": "barbell_row",
+    "source": "Practical guidelines",
+    "year": 2020,
+    "evidence_level": "practical",
+    "content": "Barbell row targets lats, rhomboids, traps, and biceps. Hinge at hips to ~45 degrees. Grip slightly wider than shoulders. Pull bar to lower chest/upper abdomen. Squeeze shoulder blades at top. Control the negative. Keep torso stable - avoid using momentum. Variations: Pendlay row (from floor), Yates row (underhand), Meadows row (landmine)."
+  },
+  {
+    "title": "Pull-up Technique",
+    "topic": "pull_up",
+    "source": "Practical guidelines",
+    "year": 2020,
+    "evidence_level": "practical",
+    "content": "Pull-ups target lats, biceps, and upper back. Overhand grip (pull-up) emphasizes lats; underhand (chin-up) emphasizes biceps. Start from dead hang, pull to chest (not just chin over bar), control the descent. No kipping. Progression: dead hangs, band-assisted, negatives, lat pulldowns, Australian pull-ups."
+  },
+  {
+    "title": "Common Exercise Mistakes",
+    "topic": "common_mistakes",
+    "source": "Practical guidelines",
+    "year": 2022,
+    "evidence_level": "practical",
+    "content": "Universal mistakes across exercises: ego lifting (too much weight, poor form), neglecting warm-up, skipping mobility work, inconsistent progressive overload, not tracking workouts, training too close to failure on every set, ignoring recovery and sleep, poor nutrition, not varying intensity, comparing progress to others."
+  }
+]

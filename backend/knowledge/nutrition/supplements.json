@@ -1,0 +1,58 @@
+[
+  {
+    "title": "Creatine Monohydrate",
+    "topic": "supplements",
+    "source": "ISSN Position Stand, Kreider et al. 2017",
+    "year": 2017,
+    "evidence_level": "strong",
+    "content": "Creatine monohydrate is the most researched and effective supplement for strength and muscle gain. Dose: 3-5g daily (or 20g/day loading for 5-7 days). No need to cycle. Timing doesn't matter. It increases ATP availability for explosive movements, allowing more reps and sets. Safe for healthy individuals. No evidence of kidney damage in healthy people. Very affordable."
+  },
+  {
+    "title": "Whey Protein",
+    "topic": "supplements",
+    "source": "ISSN, 2017",
+    "year": 2017,
+    "evidence_level": "strong",
+    "content": "Whey protein is a convenient way to meet daily protein targets. It is not superior to other protein sources for muscle building. Use it when food intake is insufficient. 25-50g per serving. Whey isolate is better for lactose-intolerant individuals. Total daily protein intake matters more than the source. Real food is equally effective."
+  },
+  {
+    "title": "Caffeine",
+    "topic": "supplements",
+    "source": "ISSN Position Stand, Goldstein et al. 2010",
+    "year": 2010,
+    "evidence_level": "strong",
+    "content": "Caffeine (3-6mg/kg body weight) improves strength, endurance, and focus. Take 30-60 minutes before training. Tolerance builds over time. Avoid late-day use if it affects sleep. Sources: coffee, pre-workout supplements, tea. Avoid combining with other stimulants. Safe up to 400mg/day for healthy adults."
+  },
+  {
+    "title": "BCAAs and EAAs",
+    "topic": "supplements",
+    "source": "ISSN, 2017",
+    "year": 2017,
+    "evidence_level": "moderate",
+    "content": "BCAAs (branched-chain amino acids) are unnecessary if daily protein intake is adequate (1.6g+/kg). Complete protein sources already contain sufficient BCAAs. EAAs are slightly better than BCAAs alone but still generally unnecessary. They may have minor benefits during fasted training. Save your money - spend it on real food or protein powder."
+  },
+  {
+    "title": "Pre-Workout Supplements",
+    "topic": "supplements",
+    "source": "ISSN, various reviews",
+    "year": 2020,
+    "evidence_level": "moderate",
+    "content": "Most pre-workout supplements contain caffeine and proprietary blends. Effective ingredients at proper doses: caffeine (3-6mg/kg), citrulline malate (6-8g), beta-alanine (3-5g). Many ingredients are underdosed. Black coffee is a cheap, effective alternative. Check labels for effective doses of individual ingredients."
+  },
+  {
+    "title": "Vitamin D",
+    "topic": "supplements",
+    "source": "ISSN, 2020",
+    "year": 2020,
+    "evidence_level": "moderate",
+    "content": "Vitamin D deficiency is common, especially in northern climates. It supports bone health, muscle function, and immune function. Supplementation (1000-5000 IU/day) may be beneficial if deficient. Get levels tested via blood work. Sun exposure (15-20 minutes) helps. Take with a fat source for better absorption."
+  },
+  {
+    "title": "Fish Oil / Omega-3s",
+    "topic": "supplements",
+    "source": "ISSN, 2020",
+    "year": 2020,
+    "evidence_level": "moderate",
+    "content": "Omega-3 fatty acids (EPA/DHA) support heart health, reduce inflammation, and may aid recovery. Dose: 1-3g combined EPA/DHA daily. Sources: fatty fish (salmon, mackerel), fish oil supplements, algae-based omega-3. Not essential for muscle building but beneficial for overall health."
+  }
+]

@@ -33,20 +33,12 @@ function getHeatLevel(sets: number): number {
   return 4;
 }
 
-const HEAT_STYLES = [
-  "bg-white/[0.03]",           // Level 0 - no workout
-  "bg-white/[0.08]",           // Level 1 - light
-  "bg-white/[0.15]",           // Level 2 - moderate
-  "bg-white/[0.25]",           // Level 3 - active
-  "bg-ivory",                  // Level 4 - intense
-];
-
-const HEAT_TEXT_STYLES = [
-  "text-ash",                   // Level 0
-  "text-stone",                 // Level 1
-  "text-silver",                // Level 2
-  "text-chrome",                // Level 3
-  "text-ink",                   // Level 4
+const HEAT_COLORS = [
+  "rgba(255,255,255,0.04)",   // Level 0 - no workout (subtle empty)
+  "#0e4429",                   // Level 1 - light green
+  "#006d32",                   // Level 2 - medium green
+  "#26a641",                   // Level 3 - active green
+  "#39d353",                   // Level 4 - intense green
 ];
 
 export function CalendarHeatmap({
@@ -113,13 +105,26 @@ export function CalendarHeatmap({
               className={`relative flex h-10 items-center justify-center rounded-xl text-sm font-medium transition-all duration-200 ${
                 isSelected
                   ? "bg-ivory text-ink shadow-glow scale-105"
-                  : `${HEAT_STYLES[heatLevel]} ${HEAT_TEXT_STYLES[heatLevel]} hover:bg-white/[0.12]`
+                  : "hover:opacity-80"
               } ${isToday && !isSelected ? "ring-1 ring-inset ring-white/20" : ""}`}
+              style={
+                !isSelected
+                  ? {
+                      backgroundColor: HEAT_COLORS[heatLevel],
+                      color: heatLevel >= 3 ? "#000000" : heatLevel >= 1 ? "#e0e0e0" : "#6B6B76",
+                    }
+                  : undefined
+              }
             >
               {day}
               {sets > 0 && !isSelected && (
-                <span className="absolute bottom-0.5 left-1/2 h-1 -translate-x-1/2 rounded-full bg-white/30" 
-                      style={{ width: `${Math.min(100, (sets / 35) * 100)}%` }} />
+                <span
+                  className="absolute bottom-0.5 left-1/2 h-1 -translate-x-1/2 rounded-full"
+                  style={{
+                    backgroundColor: "rgba(57, 211, 83, 0.5)",
+                    width: `${Math.min(100, (sets / 35) * 100)}%`,
+                  }}
+                />
               )}
             </button>
           );

@@ -129,3 +129,34 @@ class LiftPoint(BaseModel):
 class MuscleBalance(BaseModel):
     muscle: str
     sets: int
+
+
+# ── Coach schemas ──────────────────────────────────────────────────
+
+
+class CoachMessageIn(BaseModel):
+    message: str = Field(min_length=1, max_length=1000)
+    conversation_id: str | None = None
+
+
+class CoachConversationOut(BaseModel):
+    id: str
+    user_id: str
+    created_at: datetime
+    updated_at: datetime
+    title: str | None = None
+
+
+class CoachMessageOut(BaseModel):
+    id: str
+    conversation_id: str
+    role: str
+    content: str
+    created_at: datetime
+
+
+class CoachChatResponse(BaseModel):
+    conversation_id: str
+    message_id: str
+    content: str
+    is_streaming: bool = False

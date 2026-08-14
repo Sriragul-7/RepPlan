@@ -1,0 +1,90 @@
+[
+  {
+    "title": "Protein Requirements",
+    "topic": "protein",
+    "source": "ISSN Position Stand, Jager et al. 2017",
+    "year": 2017,
+    "evidence_level": "strong",
+    "content": "For muscle building and strength athletes: 1.6-2.2g of protein per kg of body weight per day. For cutting phases: 2.0-2.4g/kg to preserve muscle mass. Protein should be distributed across 3-5 meals per day (0.4-0.55g/kg per meal) for optimal muscle protein synthesis. Animal sources are complete proteins; plant sources may need combining."
+  },
+  {
+    "title": "Caloric Needs for Muscle Gain",
+    "topic": "calories",
+    "source": "Helms et al. 2014",
+    "year": 2014,
+    "evidence_level": "strong",
+    "content": "For lean muscle gain: a surplus of 200-300 calories above maintenance (TDEE) is recommended. This minimizes fat gain while supporting muscle growth. A dirty bulk with excessive surplus leads to more fat gain without proportional muscle gain. Calculate TDEE based on body weight, activity level, and exercise frequency."
+  },
+  {
+    "title": "Caloric Deficit for Fat Loss",
+    "topic": "calories",
+    "source": "ISSN Position Stand, Aragon et al. 2014",
+    "year": 2014,
+    "evidence_level": "strong",
+    "content": "A moderate caloric deficit of 300-500 calories per day is sustainable for fat loss. This typically results in 0.5-1% of body weight loss per week. Avoid extreme deficits (1000+ calories) as they cause muscle loss and metabolic adaptation. Protein intake should be increased during fat loss (2.0-2.4g/kg) to preserve muscle."
+  },
+  {
+    "title": "Carbohydrates for Performance",
+    "topic": "carbohydrates",
+    "source": "ISSN Position Stand, Kerksick et al. 2018",
+    "year": 2018,
+    "evidence_level": "strong",
+    "content": "Carbohydrates are the primary fuel for high-intensity training. Recommended intake: 3-7g/kg per day depending on training volume. Timing carbohydrates around workouts (1-2 hours before and after) improves performance. Complex carbs (rice, oats, potatoes, whole grains) are preferred for sustained energy."
+  },
+  {
+    "title": "Dietary Fat Requirements",
+    "topic": "fats",
+    "source": "ISSN, 2017",
+    "year": 2017,
+    "evidence_level": "strong",
+    "content": "Minimum fat intake is about 0.5-1g per kg of body weight per day for hormonal health. Very low fat diets (<15% of calories) can impair testosterone production. Healthy fat sources include olive oil, nuts, avocados, fatty fish, and eggs. Fat is essential for hormone production and nutrient absorption."
+  },
+  {
+    "title": "Fiber Intake",
+    "topic": "fiber",
+    "source": "Dietary Guidelines, 2020",
+    "year": 2020,
+    "evidence_level": "strong",
+    "content": "Recommended fiber intake: 25-38g per day for adults. Fiber supports digestive health, satiety, and blood sugar regulation. Sources include vegetables, fruits, legumes, whole grains, and nuts. Increasing fiber too quickly can cause digestive discomfort - increase gradually."
+  },
+  {
+    "title": "Hydration for Exercise",
+    "topic": "hydration",
+    "source": "ACSM Guidelines",
+    "year": 2007,
+    "evidence_level": "strong",
+    "content": "Drink 500ml of water 2 hours before exercise. During exercise, drink 150-250ml every 15-20 minutes. After exercise, replace 150% of fluid lost (weigh before/after). General daily intake: 3-4 liters. Dehydration of >2% body weight significantly reduces performance. Electrolytes are important for sessions lasting >60 minutes."
+  },
+  {
+    "title": "Meal Timing and Frequency",
+    "topic": "meal_timing",
+    "source": "Aragon & Schoenfeld, 2013",
+    "year": 2013,
+    "evidence_level": "moderate",
+    "content": "Total daily protein and calorie intake matters more than exact meal timing. However, distributing protein across 3-5 meals with 0.4-0.55g/kg per meal optimizes muscle protein synthesis. Pre-workout meal (1-2 hours before) and post-workout protein (within 2 hours) are practical recommendations. Don't stress about exact timing - consistency matters more."
+  },
+  {
+    "title": "Micronutrients for Athletes",
+    "topic": "micronutrients",
+    "source": "ISSN, 2018",
+    "year": 2018,
+    "evidence_level": "moderate",
+    "content": "Key micronutrients for active individuals: Vitamin D (supports bone and muscle function), Iron (oxygen transport, especially important for females), Calcium (bone health), Magnesium (muscle function, sleep), Zinc (testosterone support, immune function), B-vitamins (energy metabolism). Eat a varied diet with plenty of fruits and vegetables to cover micronutrient needs."
+  },
+  {
+    "title": "Weight Gain Diet Principles",
+    "topic": "weight_gain",
+    "source": "Helms et al. 2014",
+    "year": 2014,
+    "evidence_level": "strong",
+    "content": "For lean weight gain: consume 200-300 calories above TDEE daily. Prioritize protein (1.6-2.2g/kg), eat calorie-dense foods (nuts, olive oil, rice, whole grain bread), eat frequently (4-6 meals), and train hard with progressive overload. Track weight weekly - aim for 0.25-0.5% of body weight gain per month for lean gains."
+  },
+  {
+    "title": "Fat Loss Diet Principles",
+    "topic": "fat_loss",
+    "source": "ISSN Position Stand, 2014",
+    "year": 2014,
+    "evidence_level": "strong",
+    "content": "Fat loss requires a sustained caloric deficit while maintaining high protein (2.0-2.4g/kg) and resistance training to preserve muscle. Moderate deficit (300-500 cal/day) is sustainable. Diet breaks every 6-12 weeks can help adherence. Avoid crash diets. Prioritize whole foods for satiety. Cardio can increase the deficit without further reducing food."
+  }
+]

@@ -1,6 +1,7 @@
 from datetime import date, timedelta
+from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.deps import get_current_user_id
 from app.repo import get_repo
@@ -20,6 +21,16 @@ def sessions_this_week(user_id: str = Depends(get_current_user_id)) -> list[dict
     today = date.today()
     week_start = today - timedelta(days=today.weekday())
     return repo.get_sessions_between(user_id, week_start, today)
+
+
+@router.get("/history", response_model=list[SessionOut])
+def session_history(
+    start: date = Query(..., description="Start date (YYYY-MM-DD)"),
+    end: date = Query(..., description="End date (YYYY-MM-DD)"),
+    user_id: str = Depends(get_current_user_id),
+) -> list[dict]:
+    repo = get_repo()
+    return repo.get_sessions_between(user_id, start, end)
 
 
 @router.post("/start", response_model=SessionOut)

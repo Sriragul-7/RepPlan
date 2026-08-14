@@ -1,7 +1,11 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { GlassCard } from "../components/GlassCard";
-import { BrainIcon, ChevronRightIcon, FlameIcon, TargetIcon, TimerIcon } from "../components/icons";
-import { getFitnessResponse, getQuickSuggestions } from "../lib/chatbot";
+import { BrainIcon, ChevronRightIcon, CloseIcon, FlameIcon, TargetIcon, TimerIcon } from "../components/icons";
+import {
+  api,
+  type CoachConversation,
+} from "../lib/api";
+import { getUserId } from "../lib/user";
 
 type Message = {
   id: string;
@@ -10,30 +14,33 @@ type Message = {
   timestamp: Date;
 };
 
+const SUGGESTED_PROMPTS = [
+  "How much protein should I eat?",
+  "How many sets should I do for muscle growth?",
+  "Is my current split balanced?",
+  "What should I eat before training?",
+  "How should I progress this workout?",
+  "How long should I rest between sets?",
+];
+
 const AI_SUGGESTIONS = [
   {
     icon: FlameIcon,
     title: "Recovery Status",
     subtitle: "Based on your recent sessions",
     prompt: "How is my recovery status?",
-    response:
-      "Your recovery looks solid. You trained 4 days this week with adequate rest between muscle groups. Consider a lighter session today focusing on mobility and flexibility.",
   },
   {
     icon: TargetIcon,
     title: "Workout Recommendation",
     subtitle: "Optimized for your goals",
     prompt: "What workout should I do today?",
-    response:
-      "Based on your progress, I recommend a Push day with progressive overload on bench press. Your last session was strong — aim for 2.5kg more on your working sets.",
   },
   {
     icon: TimerIcon,
     title: "Rest Optimization",
     subtitle: "Timing between sets",
     prompt: "How long should I rest between sets?",
-    response:
-      "Your rest periods are optimal for hypertrophy (90-120s). For heavy compounds like squat and deadlift, consider extending to 3-4 minutes for maximum force production.",
   },
 ];
 
@@ -44,23 +51,62 @@ const INSIGHTS = [
   "Your workout consistency is at 85% — excellent adherence to the program.",
 ];
 
+function parseMarkdown(text: string): string {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong class="text-ivory font-semibold">$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/`(.*?)`/g, '<code class="rounded bg-white/[0.06] px-1.5 py-0.5 text-[13px] text-ivory">$1</code>')
+    .replace(/^• (.*$)/gm, '<span class="block pl-3 before:content-[\'•\'] before:mr-2 before:text-stone">$1</span>')
+    .replace(/^(\d+)\. (.*$)/gm, '<span class="block pl-3"><span class="text-stone font-data mr-2">$1.</span>$2</span>');
+}
+
 export function Coach() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [conversations, setConversations] = useState<CoachConversation[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, scrollToBottom]);
+
+  useEffect(() => {
+    api.getCoachConversations().then(setConversations).catch(() => {});
+  }, []);
+
+  const loadConversation = async (conv: CoachConversation) => {
+    try {
+      const msgs = await api.getCoachMessages(conv.id);
+      const mapped: Message[] = msgs.map((m) => ({
+        id: m.id,
+        role: m.role === "assistant" ? "ai" : "user",
+        content: m.content,
+        timestamp: new Date(m.created_at),
+      }));
+      setMessages(mapped);
+      setConversationId(conv.id);
+      setShowHistory(false);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const startNewConversation = () => {
+    setMessages([]);
+    setConversationId(null);
+    setShowHistory(false);
+  };
 
   const handleSend = async (content: string) => {
-    if (!content.trim()) return;
+    if (!content.trim() || isStreaming) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -71,49 +117,114 @@ export function Coach() {
 
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
-    setIsTyping(true);
+    setIsStreaming(true);
 
-    await new Promise((resolve) => setTimeout(resolve, 800 + Math.random() * 600));
+    const aiId = (Date.now() + 1).toString();
+    setMessages((prev) => [
+      ...prev,
+      { id: aiId, role: "ai", content: "", timestamp: new Date() },
+    ]);
 
-    const response = getFitnessResponse(content);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL ?? ""}/api/coach/chat/stream`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-User-Id": getUserId(),
+        },
+        body: JSON.stringify({
+          message: content.trim(),
+          conversation_id: conversationId,
+        }),
+      });
 
-    const aiMessage: Message = {
-      id: (Date.now() + 1).toString(),
-      role: "ai",
-      content: response,
-      timestamp: new Date(),
-    };
+      if (!res.ok) {
+        if (res.status === 429) {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === aiId
+                ? { ...m, content: "Rate limit reached. Please wait a moment before trying again." }
+                : m
+            )
+          );
+        } else {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === aiId
+                ? { ...m, content: "Something went wrong. Please try again." }
+                : m
+            )
+          );
+        }
+        setIsStreaming(false);
+        return;
+      }
 
-    setMessages((prev) => [...prev, aiMessage]);
-    setIsTyping(false);
-    inputRef.current?.focus();
+      const reader = res.body?.getReader();
+      if (!reader) {
+        setIsStreaming(false);
+        return;
+      }
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const data = line.slice(6);
+            if (data === "[DONE]") break;
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === aiId ? { ...m, content: m.content + data } : m
+              )
+            );
+          }
+        }
+      }
+
+      if (buffer.startsWith("data: ") && buffer.slice(6) !== "[DONE]") {
+        const data = buffer.slice(6);
+        if (data) {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === aiId ? { ...m, content: m.content + data } : m
+            )
+          );
+        }
+      }
+
+      setMessages((prev) => {
+        const last = prev[prev.length - 1];
+        if (last && last.id === aiId && last.content) {
+          api.getCoachConversations().then(setConversations).catch(() => {});
+        }
+        return prev;
+      });
+    } catch {
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === aiId
+            ? { ...m, content: "Connection error. Please check your network and try again." }
+            : m
+        )
+      );
+    } finally {
+      setIsStreaming(false);
+      inputRef.current?.focus();
+    }
   };
 
-  const handleSuggestion = async (suggestion: (typeof AI_SUGGESTIONS)[0]) => {
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content: suggestion.prompt,
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    setIsTyping(true);
-
-    await new Promise((resolve) => setTimeout(resolve, 800 + Math.random() * 400));
-
-    const aiMessage: Message = {
-      id: (Date.now() + 1).toString(),
-      role: "ai",
-      content: suggestion.response,
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, aiMessage]);
-    setIsTyping(false);
+  const handleSuggestionClick = (prompt: string) => {
+    handleSend(prompt);
   };
-
-  const quickSuggestions = getQuickSuggestions();
 
   return (
     <div className="animate-slide-up flex h-[calc(100vh-8rem)] flex-col">
@@ -127,13 +238,63 @@ export function Coach() {
             Intelligence
           </h1>
         </div>
-        <div className="flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.06] bg-white/[0.04]">
-          <BrainIcon className="h-5 w-5 text-ivory" />
+        <div className="flex gap-2">
+          {messages.length > 0 && (
+            <button
+              onClick={startNewConversation}
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.06] bg-white/[0.04] transition-all hover:bg-white/[0.08] active:scale-95"
+              title="New conversation"
+            >
+              <svg className="h-5 w-5 text-ivory" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            </button>
+          )}
+          <button
+            onClick={() => setShowHistory(!showHistory)}
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.06] bg-white/[0.04] transition-all hover:bg-white/[0.08] active:scale-95"
+          >
+            <BrainIcon className="h-5 w-5 text-ivory" />
+          </button>
         </div>
       </header>
 
+      {/* Conversation History Panel */}
+      {showHistory && (
+        <div className="glass-card mb-4 p-4 max-h-60 overflow-y-auto animate-scale-in">
+          <div className="flex items-center justify-between mb-3">
+            <p className="font-accent text-[11px] uppercase tracking-[0.2em] text-stone">
+              Recent Conversations
+            </p>
+            <button onClick={() => setShowHistory(false)} className="text-stone hover:text-ivory">
+              <CloseIcon className="h-4 w-4" />
+            </button>
+          </div>
+          {conversations.length === 0 ? (
+            <p className="text-[13px] text-stone">No conversations yet</p>
+          ) : (
+            <div className="space-y-2">
+              {conversations.slice(0, 10).map((conv) => (
+                <button
+                  key={conv.id}
+                  onClick={() => loadConversation(conv)}
+                  className="ios-tap w-full rounded-xl p-3 text-left transition-colors hover:bg-white/[0.04]"
+                >
+                  <p className="text-[13px] text-ivory truncate">
+                    {conv.title || "New conversation"}
+                  </p>
+                  <p className="text-[11px] text-stone mt-0.5">
+                    {new Date(conv.updated_at).toLocaleDateString()}
+                  </p>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* AI Orb Visualization */}
-      {messages.length === 0 && (
+      {messages.length === 0 && !showHistory && (
         <div className="mb-6 flex justify-center">
           <div className="relative">
             <div className="h-24 w-24 rounded-full border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl">
@@ -171,7 +332,7 @@ export function Coach() {
             {AI_SUGGESTIONS.map((suggestion, i) => (
               <button
                 key={i}
-                onClick={() => handleSuggestion(suggestion)}
+                onClick={() => handleSuggestionClick(suggestion.prompt)}
                 className="ios-row ios-tap w-full text-left"
               >
                 <div className="glass-card flex h-10 w-10 shrink-0 items-center justify-center">
@@ -185,18 +346,18 @@ export function Coach() {
               </button>
             ))}
 
-            {/* Quick Question Suggestions */}
+            {/* Suggested Questions */}
             <p className="font-data text-[10px] uppercase tracking-[0.2em] text-stone px-1 pt-2">
-              Popular Questions
+              Ask me anything
             </p>
             <div className="flex flex-wrap gap-2 px-1">
-              {quickSuggestions.map((suggestion, i) => (
+              {SUGGESTED_PROMPTS.map((prompt, i) => (
                 <button
                   key={i}
-                  onClick={() => handleSend(suggestion)}
+                  onClick={() => handleSend(prompt)}
                   className="glass-card rounded-full px-3 py-2 text-[13px] text-silver transition-all hover:bg-white/[0.06] active:scale-95"
                 >
-                  {suggestion}
+                  {prompt}
                 </button>
               ))}
             </div>
@@ -215,7 +376,17 @@ export function Coach() {
                       : "glass-card text-silver"
                   }`}
                 >
-                  <p className="text-[15px] leading-relaxed whitespace-pre-line">{message.content}</p>
+                  {message.role === "ai" && message.content ? (
+                    <div
+                      className="text-[15px] leading-relaxed whitespace-pre-line"
+                      dangerouslySetInnerHTML={{ __html: parseMarkdown(message.content) }}
+                    />
+                  ) : (
+                    <p className="text-[15px] leading-relaxed whitespace-pre-line">{message.content}</p>
+                  )}
+                  {message.role === "ai" && isStreaming && message.id === messages[messages.length - 1]?.id && (
+                    <span className="inline-block w-1.5 h-4 bg-stone animate-pulse ml-0.5 align-text-bottom" />
+                  )}
                   <p
                     className={`mt-1 text-[10px] ${
                       message.role === "user" ? "text-ash" : "text-stone"
@@ -229,7 +400,7 @@ export function Coach() {
                 </div>
               </div>
             ))}
-            {isTyping && (
+            {isStreaming && messages[messages.length - 1]?.role === "user" && (
               <div className="flex justify-start">
                 <div className="glass-card flex items-center gap-2 px-4 py-3">
                   <div className="flex gap-1">
@@ -252,27 +423,34 @@ export function Coach() {
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSend(input)}
+          onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend(input)}
           placeholder="Ask about exercises, nutrition, recovery..."
           className="flex-1 bg-transparent text-[15px] text-ivory placeholder:text-ash outline-none"
+          disabled={isStreaming}
         />
         <button
           onClick={() => handleSend(input)}
-          disabled={!input.trim() || isTyping}
+          disabled={!input.trim() || isStreaming}
           className="flex h-10 w-10 items-center justify-center rounded-full bg-ivory text-ink transition-all hover:bg-white active:scale-95 disabled:opacity-30"
         >
-          <svg
-            className="h-4 w-4"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2.5}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M22 2L11 13" />
-            <path d="M22 2L15 22L11 13L2 9L22 2Z" />
-          </svg>
+          {isStreaming ? (
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="6" y="6" width="12" height="12" rx="2" />
+            </svg>
+          ) : (
+            <svg
+              className="h-4 w-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M22 2L11 13" />
+              <path d="M22 2L15 22L11 13L2 9L22 2Z" />
+            </svg>
+          )}
         </button>
       </div>
     </div>

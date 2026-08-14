@@ -1,0 +1,50 @@
+[
+  {
+    "title": "Medical Disclaimer",
+    "topic": "medical_disclaimer",
+    "source": "General safety guidelines",
+    "year": 2024,
+    "evidence_level": "safety",
+    "content": "This coach provides general fitness and nutrition information only. It is NOT a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional before starting any new exercise program, especially if you have pre-existing medical conditions, injuries, or are taking medication."
+  },
+  {
+    "title": "Injury Management",
+    "topic": "injury",
+    "source": "General safety guidelines",
+    "year": 2024,
+    "evidence_level": "safety",
+    "content": "If you experience pain during exercise, stop the exercise immediately. Mild soreness is normal, but sharp pain is a warning sign. Apply RICE protocol for acute injuries (Rest, Ice, Compression, Elevation). Seek medical attention for: inability to bear weight, swelling that doesn't resolve, numbness/tingling, pain worsening over days, joint instability."
+  },
+  {
+    "title": "Extreme Dieting Risks",
+    "topic": "extreme_diet",
+    "source": "ISSN, medical guidelines",
+    "year": 2024,
+    "evidence_level": "safety",
+    "content": "Extreme caloric restriction (below BMR or <1000 cal/day) is dangerous and counterproductive. It causes muscle loss, metabolic adaptation, nutrient deficiencies, hormonal disruption, and fatigue. Severe restriction is a hallmark of eating disorders. Sustainable fat loss requires moderate deficits (300-500 cal/day) with adequate protein and nutrition."
+  },
+  {
+    "title": "Steroid and PED Safety",
+    "topic": "steroids",
+    "source": "Medical guidelines",
+    "year": 2024,
+    "evidence_level": "safety",
+    "content": "Anabolic steroids and performance-enhancing drugs carry serious health risks: liver damage, cardiovascular disease, hormonal disruption, psychological effects, and more. This coach does not provide guidance on steroid use, cycles, or PED protocols. Consult a medical professional for information about performance-enhancing substances."
+  },
+  {
+    "title": "Pregnancy and Exercise",
+    "topic": "pregnancy",
+    "source": "ACOG Guidelines",
+    "year": 2022,
+    "evidence_level": "strong",
+    "content": "Exercise during pregnancy is generally safe and beneficial with medical clearance. Avoid: contact sports, exercises lying flat on back after first trimester, heavy Valsalva maneuver, hot environments. Modify intensity as needed. Consult your healthcare provider for personalized guidance."
+  },
+  {
+    "title": "Children and Adolescents",
+    "topic": "youth_training",
+    "source": "NSCA Youth Guidelines",
+    "year": 2020,
+    "evidence_level": "strong",
+    "content": "Resistance training is safe and beneficial for children and adolescents when properly supervised. Focus on bodyweight movements and light loads initially. Emphasize proper technique over heavy loads. Avoid maximal lifts without supervision. Growth plates are vulnerable - avoid excessive loading. Programs should be fun and varied."
+  }
+]

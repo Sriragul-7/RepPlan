@@ -53,6 +53,11 @@ class Repo(Protocol):
     def muscle_balance(self, user_id: str, week_start: date, week_end: date) -> list[dict]: ...
     def progress_overview(self, user_id: str) -> dict: ...
 
+    def create_coach_conversation(self, user_id: str, title: str | None = None) -> dict: ...
+    def get_coach_conversations(self, user_id: str) -> list[dict]: ...
+    def get_coach_messages(self, conversation_id: str) -> list[dict]: ...
+    def add_coach_message(self, conversation_id: str, role: str, content: str) -> dict: ...
+
 
 def _build_overview(sessions: list[dict], get_exercise) -> dict:
     """Derive a progress overview from sessions that already carry their sets."""
@@ -416,6 +421,57 @@ class SupabaseRepo:
             )
         return _build_overview(sessions, self.get_exercise)
 
+    def create_coach_conversation(self, user_id: str, title: str | None = None) -> dict:
+        db = get_db()
+        row = {"user_id": user_id, "title": title, "created_at": _now_iso(), "updated_at": _now_iso()}
+        try:
+            return db.table("coach_conversations").insert(row).execute().data[0]
+        except Exception:
+            return {"id": uuid.uuid4().hex, **row}
+
+    def get_coach_conversations(self, user_id: str) -> list[dict]:
+        db = get_db()
+        try:
+            return (
+                db.table("coach_conversations")
+                .select("*")
+                .eq("user_id", user_id)
+                .order("updated_at", desc=True)
+                .limit(50)
+                .execute()
+                .data
+                or []
+            )
+        except Exception:
+            return []
+
+    def get_coach_messages(self, conversation_id: str) -> list[dict]:
+        db = get_db()
+        try:
+            return (
+                db.table("coach_messages")
+                .select("*")
+                .eq("conversation_id", conversation_id)
+                .order("created_at")
+                .execute()
+                .data
+                or []
+            )
+        except Exception:
+            return []
+
+    def add_coach_message(self, conversation_id: str, role: str, content: str) -> dict:
+        db = get_db()
+        now = _now_iso()
+        row = {"conversation_id": conversation_id, "role": role, "content": content, "created_at": now}
+        try:
+            msg = db.table("coach_messages").insert(row).execute().data[0]
+            db.table("coach_conversations").update({"updated_at": now}).eq("id", conversation_id).execute()
+            return msg
+        except Exception:
+            row["id"] = uuid.uuid4().hex
+            return row
+
 
 # ---------------------------------------------------------------- Local (JSON)
 
@@ -430,7 +486,9 @@ class LocalRepo:
         if self.path.exists():
             self._data = json.loads(self.path.read_text())
         else:
-            self._data = {"users": {}, "plans": {}, "sessions": {}}
+            self._data = {"users": {}, "plans": {}, "sessions": {}, "coach_conversations": {}, "coach_messages": {}}
+        self._data.setdefault("coach_conversations", {})
+        self._data.setdefault("coach_messages", {})
         if self._exercises is None:
             seeded = DATA_DIR / "exercises.json"
             self._exercises = load_from_file(seeded) if seeded.exists() else []
@@ -629,6 +687,34 @@ class LocalRepo:
     def progress_overview(self, user_id: str) -> dict:
         sessions = [s for s in self._data["sessions"].values() if s["user_id"] == user_id]
         return _build_overview(sessions, self.get_exercise)
+
+    def create_coach_conversation(self, user_id: str, title: str | None = None) -> dict:
+        conv_id = uuid.uuid4().hex
+        now = _now_iso()
+        row = {"id": conv_id, "user_id": user_id, "title": title, "created_at": now, "updated_at": now}
+        self._data["coach_conversations"][conv_id] = row
+        self._save()
+        return row
+
+    def get_coach_conversations(self, user_id: str) -> list[dict]:
+        convs = [c for c in self._data["coach_conversations"].values() if c["user_id"] == user_id]
+        convs.sort(key=lambda c: c.get("updated_at", ""), reverse=True)
+        return convs[:50]
+
+    def get_coach_messages(self, conversation_id: str) -> list[dict]:
+        msgs = [m for m in self._data["coach_messages"].values() if m["conversation_id"] == conversation_id]
+        msgs.sort(key=lambda m: m.get("created_at", ""))
+        return msgs
+
+    def add_coach_message(self, conversation_id: str, role: str, content: str) -> dict:
+        msg_id = uuid.uuid4().hex
+        now = _now_iso()
+        row = {"id": msg_id, "conversation_id": conversation_id, "role": role, "content": content, "created_at": now}
+        self._data["coach_messages"][msg_id] = row
+        if conversation_id in self._data["coach_conversations"]:
+            self._data["coach_conversations"][conversation_id]["updated_at"] = now
+        self._save()
+        return row
 
 
 def get_repo() -> Repo:

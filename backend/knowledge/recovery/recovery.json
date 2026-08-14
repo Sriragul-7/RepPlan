@@ -1,0 +1,50 @@
+[
+  {
+    "title": "Sleep for Recovery",
+    "topic": "sleep",
+    "source": "Watson et al. 2017, Sports Medicine",
+    "year": 2017,
+    "evidence_level": "strong",
+    "content": "7-9 hours of sleep is critical for recovery. Growth hormone is primarily released during deep sleep. Less than 6 hours impairs recovery, performance, and increases injury risk. Consistent sleep schedule improves sleep quality. Cool room (18-20C), no screens before bed, no caffeine after 2PM. Athletes should aim for 8-10 hours."
+  },
+  {
+    "title": "Rest Days",
+    "topic": "rest_days",
+    "source": "Practical guidelines",
+    "year": 2022,
+    "evidence_level": "practical",
+    "content": "Rest days allow muscle repair and nervous system recovery. Most lifters need 1-3 rest days per week depending on intensity and volume. Active recovery (light walking, stretching, yoga) is beneficial. Complete rest is sometimes needed if overtrained. Signs of needing rest: persistent fatigue, decreased performance, joint pain, poor sleep, elevated resting heart rate."
+  },
+  {
+    "title": "Muscle Soreness (DOMS)",
+    "topic": "doms",
+    "source": "Peake et al. 2017, Sports Medicine",
+    "year": 2017,
+    "evidence_level": "moderate",
+    "content": "DOMS (Delayed Onset Muscle Soreness) peaks 24-72 hours post-workout. It's caused by micro-damage to muscle fibers during eccentric loading. Management: light movement, foam rolling, adequate protein (1.6-2.2g/kg), sleep, hydration. Being sore doesn't mean a workout was effective - progressive overload matters more. Soreness decreases with training adaptation."
+  },
+  {
+    "title": "Foam Rolling and Recovery",
+    "topic": "foam_rolling",
+    "source": "Wiewelhove et al. 2019, meta-analysis",
+    "year": 2019,
+    "evidence_level": "moderate",
+    "content": "Foam rolling can reduce DOMS perception modestly. Use 1-2 minutes per muscle group, avoid rolling joints directly. Apply moderate pressure - it shouldn't be extremely painful. Best used post-workout or on rest days. Not a substitute for adequate sleep, nutrition, and programming."
+  },
+  {
+    "title": "Stretching and Mobility",
+    "topic": "mobility",
+    "source": "Behm et al. 2016",
+    "year": 2016,
+    "evidence_level": "moderate",
+    "content": "Dynamic stretching before training improves range of motion and performance. Static stretching post-training or on rest days improves long-term flexibility. Hold static stretches 30 seconds for 2-4 sets. Don't static stretch cold muscles before heavy lifting - it may reduce force output. Daily mobility work (10 minutes) is more effective than occasional long sessions."
+  },
+  {
+    "title": "Overtraining Signs and Prevention",
+    "topic": "overtraining",
+    "source": "Kreher & Schwartz 2012",
+    "year": 2012,
+    "evidence_level": "moderate",
+    "content": "Overtraining syndrome includes: persistent fatigue, decreased performance, elevated resting heart rate, frequent illness, mood changes, sleep disturbances, decreased motivation. Prevention: adequate recovery (sleep, rest days), gradual volume progression, deload weeks every 4-8 weeks. Treatment: reduce training load, increase sleep, address nutritional deficiencies."
+  }
+]
