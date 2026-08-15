@@ -36,7 +36,7 @@ export function Stepper({
   const display = decimals > 0 ? value.toFixed(decimals) : String(value);
 
   return (
-    <div className={`flex items-center gap-1.5 ${className ?? ""}`} style={style}>
+    <div className={`flex items-center gap-1 ${className ?? ""}`} style={style}>
       {label ? (
         <span className="w-9 shrink-0 text-xs uppercase tracking-wider text-ash">{label}</span>
       ) : null}
@@ -44,9 +44,9 @@ export function Stepper({
         type="button"
         aria-label={`Decrease ${label ?? "value"}`}
         onClick={() => onChange(clamp(value - step))}
-        className="flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.06] bg-white/[0.04] text-lg text-ivory backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.08] active:scale-90"
+        className="group flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.06] bg-white/[0.04] text-[15px] text-stone transition-all duration-200 hover:border-white/[0.12] hover:bg-white/[0.08] hover:text-ivory active:scale-90 active:bg-white/[0.12]"
       >
-        −
+        <span className="transition-transform duration-200 group-hover:scale-110">−</span>
       </button>
       <button
         type="button"
@@ -55,7 +55,7 @@ export function Stepper({
           if (onLongPress) onLongPress();
           if (onValueTap) onValueTap();
         }}
-        className="flex h-9 min-w-[4ch] items-center justify-center rounded-xl px-1 font-data text-xl text-silver transition-all duration-300 active:scale-90"
+        className="flex h-8 min-w-[3.5ch] items-center justify-center rounded-lg px-2 font-data text-[15px] tabular-nums text-ivory transition-all duration-200 active:scale-90"
       >
         {display}
       </button>
@@ -63,9 +63,9 @@ export function Stepper({
         type="button"
         aria-label={`Increase ${label ?? "value"}`}
         onClick={() => onChange(clamp(value + step))}
-        className="flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.06] bg-white/[0.04] text-lg text-ivory backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.08] active:scale-90"
+        className="group flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.06] bg-white/[0.04] text-[15px] text-stone transition-all duration-200 hover:border-white/[0.12] hover:bg-white/[0.08] hover:text-ivory active:scale-90 active:bg-white/[0.12]"
       >
-        +
+        <span className="transition-transform duration-200 group-hover:scale-110">+</span>
       </button>
     </div>
   );

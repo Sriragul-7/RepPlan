@@ -97,18 +97,71 @@ export function Onboarding() {
   };
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col px-5 pb-10 pt-safe">
+    <div className="relative min-h-screen w-full">
       <div className="app-bg" aria-hidden />
 
-      <p className="mb-1 mt-2 font-data text-[11px] font-semibold uppercase tracking-[0.28em] text-stone">
-        Set up your profile
-      </p>
-      <h1 className="font-display mb-2 text-[36px] font-semibold leading-[1.1] text-white">
-        Build your plan
-      </h1>
-      <p className="mb-8 text-[15px] leading-relaxed text-stone/70">
-        Tell us a bit about yourself so we can personalize your workout plan.
-      </p>
+      {/* Desktop decorative orbs */}
+      <div className="pointer-events-none fixed inset-0 hidden lg:block" aria-hidden>
+        <div className="absolute left-[8%] top-1/4 h-64 w-64 rounded-full bg-white/[0.02] blur-[100px]" />
+        <div className="absolute bottom-1/4 right-[8%] h-72 w-72 rounded-full bg-white/[0.015] blur-[120px]" />
+      </div>
+
+      <div className="mx-auto flex min-h-screen w-full max-w-md flex-col px-5 pb-10 pt-safe md:max-w-lg lg:max-w-xl lg:flex-row lg:items-center lg:gap-20 lg:px-12 xl:max-w-[1000px] xl:gap-28">
+        {/* Left side — hero content for desktop */}
+        <div className="mb-8 hidden flex-1 lg:mb-0 lg:block xl:flex-1">
+          <p className="mb-3 font-data text-[11px] font-semibold uppercase tracking-[0.28em] text-stone">
+            Set up your profile
+          </p>
+          <h1 className="font-display mb-6 text-[52px] font-semibold leading-[1.02] text-white xl:text-[64px]">
+            Build your<br />perfect plan
+          </h1>
+          <p className="mb-12 max-w-md text-[17px] leading-[1.7] text-stone/60">
+            Tell us a bit about yourself and our AI will craft a workout program tailored to your body, goals, and lifestyle.
+          </p>
+
+          {/* How it works */}
+          <div className="mb-12 space-y-5">
+            <p className="font-data text-[10px] font-semibold uppercase tracking-[0.28em] text-stone/50">
+              How it works
+            </p>
+            {[
+              { step: "01", title: "Tell us about you", desc: "Your body, goals, and experience level" },
+              { step: "02", title: "AI builds your plan", desc: "Personalized splits, sets, and progression" },
+              { step: "03", title: "Track your workouts", desc: "Log sets, reps, and weights in real time" },
+            ].map((item) => (
+              <div key={item.step} className="flex items-start gap-4">
+                <span className="font-data mt-0.5 text-[13px] font-bold text-white/20">{item.step}</span>
+                <div>
+                  <p className="text-[15px] font-semibold text-white/90">{item.title}</p>
+                  <p className="mt-0.5 text-[13px] text-stone/50">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Motivational quote */}
+          <div className="rounded-2xl border border-white/[0.05] bg-white/[0.025] p-7">
+            <p className="text-[16px] font-medium leading-[1.7] text-white/70">
+              "The only bad workout is the one that didn't happen."
+            </p>
+            <p className="mt-3 text-[12px] text-stone/40">— Start now, results follow.</p>
+          </div>
+        </div>
+
+        {/* Right side — form */}
+        <div className="flex flex-1 flex-col lg:flex-none lg:w-[420px] xl:w-[440px]">
+          {/* Mobile headline */}
+          <div className="mb-6 lg:hidden">
+            <p className="mb-1 font-data text-[11px] font-semibold uppercase tracking-[0.28em] text-stone">
+              Set up your profile
+            </p>
+            <h1 className="font-display mb-2 text-[36px] font-semibold leading-[1.1] text-white">
+              Build your plan
+            </h1>
+            <p className="text-[15px] leading-relaxed text-stone/70">
+              Tell us a bit about yourself so we can personalize your workout plan.
+            </p>
+          </div>
 
       <div className="space-y-4">
         <Section label="About you">
@@ -178,9 +231,9 @@ export function Onboarding() {
         </Section>
       </div>
 
-      {error ? <p className="mt-4 text-center text-sm text-rose">{error}</p> : null}
+      {error ? <p className="mt-4 text-center text-sm text-rose lg:text-left">{error}</p> : null}
 
-      <div className="mt-auto pt-8">
+      <div className="mt-8 lg:mt-auto lg:pt-4">
         <Button
           full
           onClick={submit}
@@ -189,6 +242,8 @@ export function Onboarding() {
         >
           {mutation.isPending ? "Building your plan…" : "Build my plan"}
         </Button>
+      </div>
+        </div>
       </div>
     </div>
   );
