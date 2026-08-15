@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { tabs } from "./BottomNav";
 import { GearIcon } from "./icons";
+import { Logo } from "./Logo";
 
 /** Premium desktop side rail — replaces the bottom tab bar on lg+ screens. */
 export function Sidebar() {
@@ -8,9 +9,12 @@ export function Sidebar() {
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-white/[0.06] bg-coal/80 backdrop-blur-3xl lg:flex">
       <div className="flex h-full flex-col px-6 py-9">
         <div>
-          <p className="font-display text-sm font-bold uppercase tracking-[0.15em] text-ivory">
-            RepPlan
-          </p>
+          <div className="flex items-center gap-2.5">
+            <Logo className="h-7 w-7" />
+            <p className="font-display text-sm font-bold uppercase tracking-[0.15em] text-ivory">
+              RepPlan
+            </p>
+          </div>
           <h1 className="font-display mt-1 text-2xl font-bold leading-tight text-ivory">
             Build strong.
           </h1>
