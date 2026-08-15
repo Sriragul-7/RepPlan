@@ -212,7 +212,7 @@ export function Settings() {
             value={f.full_name ?? ""}
             onChange={(e) => set("full_name", e.target.value)}
             placeholder="Enter name"
-            className="ml-auto w-48 rounded-lg bg-transparent px-3 py-1 text-right text-base text-ivory placeholder:text-ash/40 outline-none"
+            className="ml-auto w-48 rounded-lg bg-transparent px-3 py-1 text-left text-base text-ivory placeholder:text-ash/40 outline-none"
           />
         </div>
         <Row label="Age">

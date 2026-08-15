@@ -103,11 +103,14 @@ export function Onboarding() {
       <p className="mb-1 mt-2 font-data text-[11px] font-semibold uppercase tracking-[0.28em] text-stone">
         Set up your profile
       </p>
-      <h1 className="font-display mb-8 text-[36px] font-semibold leading-[1.1] text-white">
+      <h1 className="font-display mb-2 text-[36px] font-semibold leading-[1.1] text-white">
         Build your plan
       </h1>
+      <p className="mb-8 text-[15px] leading-relaxed text-stone/70">
+        Tell us a bit about yourself so we can personalize your workout plan.
+      </p>
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         <Section label="About you">
           <div className="ios-row">
             <span className="flex-1 text-sm text-white">Name</span>
@@ -115,9 +118,9 @@ export function Onboarding() {
               autoFocus
               value={form.full_name ?? ""}
               onChange={(e) => set("full_name", e.target.value)}
-              placeholder="Your name"
+              placeholder="Enter your name"
               enterKeyHint="next"
-              className="w-44 rounded-xl border border-white/[0.08] bg-white/[0.04] px-3.5 py-2 text-right text-sm text-white placeholder:text-stone/50 outline-none backdrop-blur-xl transition-all duration-300 focus:border-white/[0.2] focus:bg-white/[0.06]"
+              className="w-44 rounded-xl border border-white/[0.08] bg-white/[0.04] px-3.5 py-2.5 text-left text-sm text-white placeholder:text-stone/40 outline-none backdrop-blur-xl transition-all duration-300 focus:border-white/[0.2] focus:bg-white/[0.06]"
             />
           </div>
           <FieldRow label="Age">
@@ -177,7 +180,7 @@ export function Onboarding() {
 
       {error ? <p className="mt-4 text-center text-sm text-rose">{error}</p> : null}
 
-      <div className="mt-8">
+      <div className="mt-auto pt-8">
         <Button
           full
           onClick={submit}
