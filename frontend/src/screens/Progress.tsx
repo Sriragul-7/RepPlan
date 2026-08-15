@@ -78,9 +78,8 @@ export function Progress() {
     return allSessions.filter((s) => s.started_at.slice(0, 10) === selectedDate);
   }, [selectedDate, historyQuery.data]);
 
-  const groupedExercises = useMemo(() => {
-    const groups: { name: string; sets: { weight: number | null; reps: number | null }[] }[] = [];
-    for (const session of selectedSessions) {
+  const sessionExercises = useMemo(() => {
+    return selectedSessions.map((session) => {
       const byExercise = new Map<string, { weight: number | null; reps: number | null }[]>();
       for (const set of session.sets ?? []) {
         const exName = exerciseMap.get(set.exercise_id) ?? set.exercise_id;
@@ -88,16 +87,8 @@ export function Progress() {
         existing.push({ weight: set.weight_kg ?? null, reps: set.reps ?? null });
         byExercise.set(exName, existing);
       }
-      for (const [name, sets] of byExercise) {
-        const existingGroup = groups.find((g) => g.name === name);
-        if (existingGroup) {
-          existingGroup.sets.push(...sets);
-        } else {
-          groups.push({ name, sets });
-        }
-      }
-    }
-    return groups;
+      return Array.from(byExercise.entries()).map(([name, sets]) => ({ name, sets }));
+    });
   }, [selectedSessions, exerciseMap]);
 
   const monthNames = [
@@ -160,8 +151,8 @@ export function Progress() {
     <div className="animate-slide-up space-y-6">
       <header className="flex items-end justify-between pt-4">
         <div>
-          <p className="font-data text-[11px] uppercase tracking-[0.28em] text-stone">Progress</p>
-          <h1 className="font-display mt-1.5 text-[38px] font-semibold leading-[1.1] text-white">Your numbers</h1>
+          <p className="font-data text-[11px] uppercase tracking-[0.28em] text-stone">Analytics</p>
+          <h1 className="font-display mt-1.5 text-[38px] font-semibold leading-[1.1] text-white">Monthly report</h1>
         </div>
         {overview && overview.streak_weeks > 0 ? (
           <span className="mb-1.5 rounded-full border border-white/[0.08] bg-white/[0.04] px-3.5 py-1.5 font-data text-[11px] text-chrome backdrop-blur-xl">
@@ -169,24 +160,6 @@ export function Progress() {
           </span>
         ) : null}
       </header>
-
-      {overview ? (
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            { k: "Workouts", v: String(overview.total_workouts) },
-            { k: "Sets", v: String(overview.total_sets) },
-            { k: "Volume", v: overview.total_volume.toFixed(0) },
-          ].map((s) => (
-            <div
-              key={s.k}
-              className="flex flex-col items-center rounded-2xl border border-white/[0.06] bg-white/[0.03] py-4 backdrop-blur-xl"
-            >
-              <span className="font-display text-[32px] font-bold leading-none text-white tracking-tight">{s.v}</span>
-              <span className="mt-1.5 font-data text-[10px] uppercase tracking-[0.18em] text-stone">{s.k}</span>
-            </div>
-          ))}
-        </div>
-      ) : null}
 
       <div>
         <div className="flex items-center justify-between mb-3">
@@ -239,7 +212,7 @@ export function Progress() {
             </div>
           ) : (
             <div className="space-y-3">
-              {selectedSessions.map((session) => (
+              {selectedSessions.map((session, sessionIndex) => (
                 <div key={session.id} className="ios-list">
                   {session.completed_at && (
                     <div className="ios-row">
@@ -251,7 +224,7 @@ export function Progress() {
                       </span>
                     </div>
                   )}
-                  {groupedExercises.map((ex) => (
+                  {sessionExercises[sessionIndex]?.map((ex) => (
                     <div key={ex.name} className="ios-row flex-col items-start !py-3">
                       <span className="text-sm font-semibold text-white">{ex.name}</span>
                       <div className="mt-1 flex flex-wrap gap-1.5">

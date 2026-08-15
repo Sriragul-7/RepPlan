@@ -26,7 +26,7 @@ export function Plan() {
   const [pickingMuscle, setPickingMuscle] = useState(false);
   const planQuery = useQuery({
     queryKey: ["plan"],
-    queryFn: api.getPlan,
+    queryFn: () => api.getPlan(true),
     placeholderData: (prev) => prev,
   });
   const weekQuery = useQuery({

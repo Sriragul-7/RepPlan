@@ -29,7 +29,7 @@ function Gate() {
   const profile = useQuery({ queryKey: ["profile"], queryFn: api.getProfile });
 
   useEffect(() => {
-    void queryClient.prefetchQuery({ queryKey: ["plan"], queryFn: api.getPlan });
+    void queryClient.prefetchQuery({ queryKey: ["plan"], queryFn: () => api.getPlan(true) });
     void queryClient.prefetchQuery({ queryKey: ["sessions-week"], queryFn: api.sessionsThisWeek });
   }, [queryClient]);
 

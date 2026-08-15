@@ -343,6 +343,26 @@ class SupabaseRepo:
 
     def log_set(self, session_id: str, data: dict) -> dict:
         db = get_db()
+        exercise_id = data["exercise_id"]
+        set_number = data["set_number"]
+        existing = (
+            db.table("logged_sets")
+            .select("id")
+            .eq("session_id", session_id)
+            .eq("exercise_id", exercise_id)
+            .eq("set_number", set_number)
+            .limit(1)
+            .execute()
+            .data
+        )
+        if existing:
+            return (
+                db.table("logged_sets")
+                .update({**data, "logged_at": _now_iso()})
+                .eq("id", existing[0]["id"])
+                .execute()
+                .data[0]
+            )
         return db.table("logged_sets").insert({"session_id": session_id, **data, "logged_at": _now_iso()}).execute().data[0]
 
     def log_cardio(self, session_id: str, data: dict) -> dict:
@@ -649,9 +669,17 @@ class LocalRepo:
 
     def log_set(self, session_id: str, data: dict) -> dict:
         session = self._data["sessions"][session_id]
+        exercise_id = data["exercise_id"]
+        set_number = data["set_number"]
+        for i, existing in enumerate(session["sets"]):
+            if existing["exercise_id"] == exercise_id and existing["set_number"] == set_number:
+                session["sets"][i] = {**existing, **data, "logged_at": _now_iso()}
+                self._save()
+                return session["sets"][i]
         row = {"id": uuid.uuid4().hex, "session_id": session_id, **data, "logged_at": _now_iso()}
         session["sets"].append(row)
         self._save()
+        return row
         return row
 
     def log_cardio(self, session_id: str, data: dict) -> dict:

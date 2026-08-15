@@ -12,7 +12,7 @@ export function DayDetail() {
   const queryClient = useQueryClient();
   const planQuery = useQuery({
     queryKey: ["plan"],
-    queryFn: api.getPlan,
+    queryFn: () => api.getPlan(),
     placeholderData: (prev) => prev,
   });
   const dayQuery = useQuery({

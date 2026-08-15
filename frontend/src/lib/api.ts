@@ -51,8 +51,10 @@ export const api = {
   saveProfile: (data: ProfileInput) =>
     request<Profile>("/api/profile", { method: "POST", body: JSON.stringify(data) }),
   generatePlan: () => request<Plan>("/api/plan/generate", { method: "POST" }),
-  getPlan: () => request<Plan>("/api/plan/current").catch((e) => (e.status === 404 ? null : Promise.reject(e))),
-  getPlanDay: (dayId: string) => request<PlanDay>(`/api/plan/day/${dayId}`),
+  getPlan: (skipRecovery = false) =>
+    request<Plan>(`/api/plan/current${skipRecovery ? "?skip_recovery=true" : ""}`).catch((e) => (e.status === 404 ? null : Promise.reject(e))),
+  getPlanDay: (dayId: string, skipRecovery = false) =>
+    request<PlanDay>(`/api/plan/day/${dayId}${skipRecovery ? "?skip_recovery=true" : ""}`),
   replanDay: (dayId: string) => request<Plan>(`/api/plan/day/${dayId}/replan`, { method: "POST" }),
   muscleFocus: (muscle: string, equipmentAccess?: string, goal?: string) =>
     request<DayExercise[]>(`/api/plan/muscle-focus`, {

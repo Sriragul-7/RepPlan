@@ -72,13 +72,17 @@ def generate_plan(user_id: str = Depends(get_current_user_id)) -> dict:
 
 
 @router.get("/current", response_model=PlanOut)
-def current_plan(user_id: str = Depends(get_current_user_id)) -> dict:
+def current_plan(
+    skip_recovery: bool = False,
+    user_id: str = Depends(get_current_user_id),
+) -> dict:
     repo = get_repo()
     plan = repo.get_current_plan(user_id)
     if not plan:
         raise HTTPException(status_code=404, detail="No plan yet")
-    for day in plan["days"]:
-        _attach_recovery_nudges(repo, user_id, day)
+    if not skip_recovery:
+        for day in plan["days"]:
+            _attach_recovery_nudges(repo, user_id, day)
     return plan
 
 
@@ -103,12 +107,17 @@ def muscle_focus(data: MuscleFocusIn, user_id: str = Depends(get_current_user_id
 
 
 @router.get("/day/{day_id}", response_model=DayOut)
-def plan_day(day_id: str, user_id: str = Depends(get_current_user_id)) -> dict:
+def plan_day(
+    day_id: str,
+    skip_recovery: bool = False,
+    user_id: str = Depends(get_current_user_id),
+) -> dict:
     repo = get_repo()
     day = repo.get_plan_day(day_id)
     if not day:
         raise HTTPException(status_code=404, detail="Day not found")
-    _attach_recovery_nudges(repo, user_id, day)
+    if not skip_recovery:
+        _attach_recovery_nudges(repo, user_id, day)
     return day
 
 

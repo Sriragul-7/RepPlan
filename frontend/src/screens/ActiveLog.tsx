@@ -53,6 +53,7 @@ export function ActiveLog() {
   const profileQuery = useQuery({
     queryKey: ["profile"],
     queryFn: api.getProfile,
+    enabled: false,
     placeholderData: (prev) => prev,
   });
 
@@ -118,12 +119,20 @@ export function ActiveLog() {
       let list: DayExercise[] = [];
       let session: Awaited<ReturnType<typeof api.startSession>> | null = null;
       let effectiveDayId = dayId;
+      let planDayExercises: DayExercise[] | null = null;
 
       const existing = localStorage.getItem(STORAGE_KEYS.ACTIVE_SESSION);
 
       const loadSession = existing
         ? api.getSession(existing).catch(() => null).then((s) => {
-            if (s?.completed_at) {
+            if (!s || s.completed_at) {
+              localStorage.removeItem(STORAGE_KEYS.ACTIVE_SESSION);
+              return null;
+            }
+            const sessionDate = s.started_at.slice(0, 10);
+            const now = new Date();
+            const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+            if (sessionDate !== todayStr) {
               localStorage.removeItem(STORAGE_KEYS.ACTIVE_SESSION);
               return null;
             }
@@ -132,7 +141,7 @@ export function ActiveLog() {
         : Promise.resolve(null);
 
       const loadPlan = !effectiveDayId && !muscle
-        ? api.getPlan().catch(() => null)
+        ? api.getPlan(true).catch(() => null)
         : Promise.resolve(null);
 
       const [sessionResult, plan] = await Promise.all([loadSession, loadPlan]);
@@ -140,39 +149,45 @@ export function ActiveLog() {
 
       if (plan) {
         const today = ((new Date().getDay() + 6) % 7) + 1;
-        let day = plan.days.find((d) => d.day_of_week === today && !d.is_rest_day);
-        if (!day) {
-          day =
-            [...plan.days]
-              .filter((d) => !d.is_rest_day)
-              .sort((a, b) => {
-                const da = a.day_of_week > today ? a.day_of_week : a.day_of_week + 7;
-                const db = b.day_of_week > today ? b.day_of_week : b.day_of_week + 7;
-                return da - db;
-              })[0] ?? null;
+        const day = plan.days.find((d) => d.day_of_week === today && !d.is_rest_day);
+        if (day) {
+          effectiveDayId = day.id;
+          planDayExercises = day.exercises as DayExercise[];
         }
-        if (day) effectiveDayId = day.id;
       }
 
       if (!effectiveDayId && !muscle && session?.plan_day_id) {
         effectiveDayId = session.plan_day_id;
       }
 
-      if (effectiveDayId) {
-        const day = await api.getPlanDay(effectiveDayId);
-        list = day.exercises;
+      let listPromise: Promise<DayExercise[]> | null = null;
+      if (planDayExercises) {
+        listPromise = Promise.resolve(planDayExercises);
+      } else if (effectiveDayId) {
+        listPromise = api.getPlanDay(effectiveDayId, true).then((d) => d.exercises);
       } else if (muscle) {
         const profile = await api.getProfile();
-        list = await api.muscleFocus(muscle, profile?.equipment_access ?? "full gym", profile?.goal ?? "hypertrophy");
+        listPromise = api.muscleFocus(muscle, profile?.equipment_access ?? "full gym", profile?.goal ?? "hypertrophy");
       } else if (session?.plan_day_id) {
-        const day = await api.getPlanDay(session.plan_day_id);
-        list = day.exercises;
+        listPromise = api.getPlanDay(session.plan_day_id, true).then((d) => d.exercises);
       }
 
-      if (!session) {
-        session = await api.startSession(effectiveDayId ?? undefined);
-        localStorage.setItem(STORAGE_KEYS.ACTIVE_SESSION, session.id);
-      }
+      const [listResult, newSession] = await Promise.all([
+        listPromise ?? Promise.resolve([]),
+        session
+          ? Promise.resolve(session)
+          : (() => {
+              const now = new Date();
+              const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+              return api.startSession(effectiveDayId ?? undefined, todayStr).then((s) => {
+                localStorage.setItem(STORAGE_KEYS.ACTIVE_SESSION, s.id);
+                return s;
+              });
+            })(),
+      ]);
+
+      session = newSession;
+      list = listResult;
 
       setSessionId(session.id);
       setResolvedDayId(effectiveDayId);
