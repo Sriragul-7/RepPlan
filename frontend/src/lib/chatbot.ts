@@ -9,7 +9,7 @@ const FITNESS_KEYWORDS = [
   "exercise", "workout", "training", "gym", "muscle", "strength",
   "weight", "lift", "reps", "sets", "squat", "deadlift", "bench",
   "press", "curl", "row", "pull", "push", "cardio", "run", "jog",
-  "diet", "nutrition", "protein", "calorie", "eat", "food", "meal",
+  "diet", "nutrition", "protein", "protien", "calorie", "eat", "food", "meal",
   "fat", "weight loss", "gain", "bulk", "cut", "shred", "abs",
   "chest", "back", "shoulders", "arms", "legs", "glutes", "core",
   "stretch", "warmup", "cooldown", "recovery", "rest", "sleep",

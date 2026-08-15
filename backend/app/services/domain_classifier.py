@@ -16,10 +16,10 @@ class Domain(str, Enum):
 
 
 FITNESS_KEYWORDS = [
-    "exercise", "workout", "training", "gym", "muscle", "strength",
+    "exercise", "excercise", "exersize", "workout", "training", "gym", "muscle", "mucle", "strength",
     "weight", "lift", "reps", "sets", "squat", "deadlift", "bench",
     "press", "curl", "pull", "push", "cardio", "run", "jog",
-    "chest", "back", "shoulders", "arms", "legs", "glutes", "core",
+    "chest", "back", "shoulders", "shoulder", "sholder", "arms", "legs", "glutes", "core",
     "stretch", "warmup", "cooldown",
     "form", "technique", "posture", "mobility", "flexibility",
     "split", "routine", "program", "hypertrophy",
@@ -55,7 +55,7 @@ FITNESS_KEYWORDS = [
 ]
 
 NUTRITION_KEYWORDS = [
-    "protein", "calorie", "calories", "bmr",
+    "protein", "protien", "calorie", "calories", "bmr",
     "carb", "carbs", "carbohydrate", "fat", "fiber",
     "vitamin", "mineral", "iron", "zinc", "magnesium",
     "omega", "fish oil", "whey", "bcaa", "eaa",
