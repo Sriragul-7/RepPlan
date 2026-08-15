@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Protocol
 
 from app.config.settings import settings
-from app.db import get_db
+from app.db import get_db, reset_db
 from app.services.exercise_data import load_from_file
 from app.services.split import DAY_LABELS
 
@@ -25,6 +25,18 @@ LOCAL_STORE = Path(os.environ.get("REPPLAN_STORE_PATH", str(DATA_DIR / "local_st
 
 def _now_iso() -> str:
     return datetime.now(tz=timezone.utc).isoformat()
+
+
+def _retry(fn, retries=2):
+    """Run fn(), retrying once on connection errors by resetting the DB client."""
+    for attempt in range(retries + 1):
+        try:
+            return fn()
+        except Exception:
+            if attempt < retries:
+                reset_db()
+                continue
+            raise
 
 
 class Repo(Protocol):
@@ -41,7 +53,7 @@ class Repo(Protocol):
     def get_all_exercises(self) -> list[dict]: ...
     def get_exercise(self, exercise_id: str) -> dict | None: ...
 
-    def start_session(self, user_id: str, plan_day_id: str | None) -> dict: ...
+    def start_session(self, user_id: str, plan_day_id: str | None, started_at: str | None = None) -> dict: ...
     def get_session(self, session_id: str) -> dict | None: ...
     def log_set(self, session_id: str, data: dict) -> dict: ...
     def log_cardio(self, session_id: str, data: dict) -> dict: ...
@@ -279,44 +291,55 @@ class SupabaseRepo:
     def list_exercises(self, filters: dict) -> list[dict]:
         db = get_db()
         query = db.table("exercises").select("*")
+        has_filters = False
         for field, value in filters.items():
             if value is not None and value != "":
                 query = query.eq(field, value)
-        resp = query.limit(100).execute()
+                has_filters = True
+        if has_filters:
+            query = query.limit(100)
+        resp = query.execute()
         return resp.data or []
 
     def get_exercise(self, exercise_id: str) -> dict | None:
-        db = get_db()
-        resp = db.table("exercises").select("*").eq("id", exercise_id).limit(1).execute()
-        rows = resp.data or []
-        return rows[0] if rows else None
+        def _query():
+            db = get_db()
+            resp = db.table("exercises").select("*").eq("id", exercise_id).limit(1).execute()
+            rows = resp.data or []
+            return rows[0] if rows else None
+        return _retry(_query)
 
     def get_all_exercises(self) -> list[dict]:
         db = get_db()
         resp = db.table("exercises").select("*").execute()
         return resp.data or []
 
-    def start_session(self, user_id: str, plan_day_id: str | None) -> dict:
-        db = get_db()
-        row = db.table("workout_sessions").insert(
-            {"user_id": user_id, "plan_day_id": plan_day_id, "started_at": _now_iso()}
-        ).execute().data[0]
-        row["sets"] = []
-        row["cardio"] = []
-        return row
+    def start_session(self, user_id: str, plan_day_id: str | None, started_at: str | None = None) -> dict:
+        def _query():
+            db = get_db()
+            timestamp = started_at + "T12:00:00Z" if started_at else _now_iso()
+            row = db.table("workout_sessions").insert(
+                {"user_id": user_id, "plan_day_id": plan_day_id, "started_at": timestamp}
+            ).execute().data[0]
+            row["sets"] = []
+            row["cardio"] = []
+            return row
+        return _retry(_query)
 
     def get_session(self, session_id: str) -> dict | None:
-        db = get_db()
-        resp = db.table("workout_sessions").select("*").eq("id", session_id).limit(1).execute()
-        rows = resp.data or []
-        if not rows:
-            return None
-        session = rows[0]
-        session["sets"] = (
-            db.table("logged_sets").select("*").eq("session_id", session_id).order("set_number").execute().data or []
-        )
-        session["cardio"] = db.table("cardio_logs").select("*").eq("session_id", session_id).execute().data or []
-        return session
+        def _query():
+            db = get_db()
+            resp = db.table("workout_sessions").select("*").eq("id", session_id).limit(1).execute()
+            rows = resp.data or []
+            if not rows:
+                return None
+            session = rows[0]
+            session["sets"] = (
+                db.table("logged_sets").select("*").eq("session_id", session_id).order("set_number").execute().data or []
+            )
+            session["cardio"] = db.table("cardio_logs").select("*").eq("session_id", session_id).execute().data or []
+            return session
+        return _retry(_query)
 
     def log_set(self, session_id: str, data: dict) -> dict:
         db = get_db()
@@ -332,21 +355,23 @@ class SupabaseRepo:
         return self.get_session(session_id)
 
     def get_sessions_between(self, user_id: str, start: date, end: date) -> list[dict]:
-        db = get_db()
-        resp = (
-            db.table("workout_sessions")
-            .select("*")
-            .eq("user_id", user_id)
-            .gte("started_at", start.isoformat() + "T00:00:00")
-            .lte("started_at", end.isoformat() + "T23:59:59")
-            .execute()
-        )
-        sessions = resp.data or []
-        for s in sessions:
-            s["sets"] = (
-                db.table("logged_sets").select("*").eq("session_id", s["id"]).execute().data or []
+        def _query():
+            db = get_db()
+            resp = (
+                db.table("workout_sessions")
+                .select("*")
+                .eq("user_id", user_id)
+                .gte("started_at", start.isoformat() + "T00:00:00")
+                .lte("started_at", end.isoformat() + "T23:59:59")
+                .execute()
             )
-        return sessions
+            sessions = resp.data or []
+            for s in sessions:
+                s["sets"] = (
+                    db.table("logged_sets").select("*").eq("session_id", s["id"]).execute().data or []
+                )
+            return sessions
+        return _retry(_query)
 
     def progress_for_exercise(self, user_id: str, exercise_id: str) -> list[dict]:
         db = get_db()
@@ -581,13 +606,19 @@ class LocalRepo:
 
     def list_exercises(self, filters: dict) -> list[dict]:
         result = self._exercises
+        has_filters = False
         if filters.get("body_part"):
             result = [e for e in result if e.get("body_part") == filters["body_part"]]
+            has_filters = True
         if filters.get("equipment"):
             result = [e for e in result if e.get("equipment") == filters["equipment"]]
+            has_filters = True
         if filters.get("target_muscle"):
             result = [e for e in result if e.get("target_muscle") == filters["target_muscle"]]
-        return result[:100]
+            has_filters = True
+        if has_filters:
+            return result[:100]
+        return result
 
     def get_exercise(self, exercise_id: str) -> dict | None:
         for e in self._exercises:
@@ -598,12 +629,13 @@ class LocalRepo:
     def get_all_exercises(self) -> list[dict]:
         return self._exercises
 
-    def start_session(self, user_id: str, plan_day_id: str | None) -> dict:
+    def start_session(self, user_id: str, plan_day_id: str | None, started_at: str | None = None) -> dict:
+        timestamp = started_at + "T12:00:00Z" if started_at else _now_iso()
         session = {
             "id": uuid.uuid4().hex,
             "user_id": user_id,
             "plan_day_id": plan_day_id,
-            "started_at": _now_iso(),
+            "started_at": timestamp,
             "completed_at": None,
             "sets": [],
             "cardio": [],

@@ -93,6 +93,7 @@ class ReplanIn(BaseModel):
 
 class SessionStartIn(BaseModel):
     plan_day_id: str | None = None
+    started_at: str | None = None  # ISO date string, e.g. "2025-08-15"
 
 
 class SessionOut(BaseModel):

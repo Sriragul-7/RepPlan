@@ -6,10 +6,17 @@ _client: Client | None = None
 
 
 def get_db() -> Client:
-    """Return a cached Supabase client (service role)."""
+    """Return a cached Supabase client (service role), recreating on error."""
     global _client
     if _client is None:
         if not settings.supabase_url or not settings.supabase_service_key:
             raise RuntimeError("SUPABASE_URL and SUPABASE_SERVICE_KEY must be set")
         _client = create_client(settings.supabase_url, settings.supabase_service_key)
     return _client
+
+
+def reset_db() -> Client:
+    """Reset the cached client and return a fresh one."""
+    global _client
+    _client = None
+    return get_db()

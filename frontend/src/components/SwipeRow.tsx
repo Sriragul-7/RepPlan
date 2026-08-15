@@ -8,7 +8,7 @@ type SwipeRowProps = {
 
 const THRESHOLD = 90;
 
-/** Premium swipe-to-confirm row — white accent reveal. */
+/** Premium swipe-to-confirm row on mobile, tap-to-confirm button on desktop. */
 export function SwipeRow({ onConfirm, children, disabled }: SwipeRowProps) {
   const startX = useRef<number | null>(null);
   const dxRef = useRef(0);
@@ -39,28 +39,47 @@ export function SwipeRow({ onConfirm, children, disabled }: SwipeRowProps) {
   const swiped = Math.abs(dx) > THRESHOLD;
 
   return (
-    <div
-      className="relative touch-pan-y select-none overflow-hidden rounded-2xl"
-      onPointerDown={(e) => onDown(e.clientX)}
-      onPointerMove={(e) => onMove(e.clientX)}
-      onPointerUp={onUp}
-      onPointerCancel={onUp}
-      style={{ cursor: "grab" }}
-    >
-      {/* reveal behind */}
+    <div className="relative select-none overflow-hidden rounded-2xl">
+      {/* Reveal behind — mobile only */}
       <div
-        className="absolute inset-0 flex items-center justify-end rounded-2xl bg-white/[0.12] pr-5 backdrop-blur-xl"
+        className="pointer-events-none absolute inset-0 flex items-center justify-end rounded-2xl bg-white/[0.12] pr-5 backdrop-blur-xl lg:hidden"
         style={{ opacity: swiped ? 1 : 0.25 + Math.min(0.75, Math.abs(dx) / THRESHOLD) * 0.75 }}
       >
         <span className="text-sm font-semibold text-ivory">Log set</span>
       </div>
+
+      {/* Swipe layer — mobile only */}
       <div
-        className={`relative rounded-2xl transition-transform duration-150 ${
-          swiped ? "animate-set-pulse" : ""
-        }`}
-        style={{ transform: `translateX(${dx}px)` }}
+        className="touch-pan-y lg:hidden"
+        style={{ cursor: "grab" }}
+        onPointerDown={(e) => onDown(e.clientX)}
+        onPointerMove={(e) => onMove(e.clientX)}
+        onPointerUp={onUp}
+        onPointerCancel={onUp}
       >
+        <div
+          className={`relative rounded-2xl transition-transform duration-150 ${
+            swiped ? "animate-set-pulse" : ""
+          }`}
+          style={{ transform: `translateX(${dx}px)` }}
+        >
+          {children}
+        </div>
+      </div>
+
+      {/* Desktop: children + log button */}
+      <div className="hidden lg:block">
         {children}
+        <div className="mt-3 flex justify-end">
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={disabled}
+            className="rounded-xl border border-white/[0.08] bg-white/[0.06] px-5 py-2 text-[13px] font-semibold text-ivory backdrop-blur-xl transition-all duration-200 hover:bg-white/[0.12] hover:border-white/[0.15] active:scale-95 disabled:opacity-40"
+          >
+            Log set
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { GlassCard } from "../components/GlassCard";
-import { BrainIcon, ChevronRightIcon, CloseIcon, FlameIcon, TargetIcon, TimerIcon } from "../components/icons";
+import { BrainIcon, ChevronRightIcon, CloseIcon, DumbbellIcon, TargetIcon, ChartBarIcon, FlameIcon } from "../components/icons";
 import {
   api,
   type CoachConversation,
@@ -15,40 +14,30 @@ type Message = {
 };
 
 const SUGGESTED_PROMPTS = [
-  "How much protein should I eat?",
-  "How many sets should I do for muscle growth?",
-  "Is my current split balanced?",
-  "What should I eat before training?",
-  "How should I progress this workout?",
-  "How long should I rest between sets?",
-];
-
-const AI_SUGGESTIONS = [
   {
-    icon: FlameIcon,
-    title: "Recovery Status",
-    subtitle: "Based on your recent sessions",
-    prompt: "How is my recovery status?",
+    icon: DumbbellIcon,
+    title: "Protein intake",
+    subtitle: "How much should you eat daily?",
+    prompt: "How much protein should I eat?",
   },
   {
     icon: TargetIcon,
-    title: "Workout Recommendation",
-    subtitle: "Optimized for your goals",
-    prompt: "What workout should I do today?",
+    title: "Set volume",
+    subtitle: "Optimal sets for muscle growth",
+    prompt: "How many sets should I do for muscle growth?",
   },
   {
-    icon: TimerIcon,
-    title: "Rest Optimization",
-    subtitle: "Timing between sets",
-    prompt: "How long should I rest between sets?",
+    icon: ChartBarIcon,
+    title: "Split check",
+    subtitle: "Is your current split balanced?",
+    prompt: "Is my current split balanced?",
   },
-];
-
-const INSIGHTS = [
-  "Your bench press has increased 12% over the last 4 weeks. Consistent progressive overload is paying off.",
-  "You've hit a new PR on deadlift this week. Your posterior chain is responding well to the current programming.",
-  "Volume distribution looks balanced across muscle groups. Chest and back are evenly developed.",
-  "Your workout consistency is at 85% — excellent adherence to the program.",
+  {
+    icon: FlameIcon,
+    title: "Pre-workout fuel",
+    subtitle: "What to eat before training",
+    prompt: "What should I eat before training?",
+  },
 ];
 
 function parseMarkdown(text: string): string {
@@ -222,12 +211,8 @@ export function Coach() {
     }
   };
 
-  const handleSuggestionClick = (prompt: string) => {
-    handleSend(prompt);
-  };
-
   return (
-    <div className="animate-slide-up flex h-[calc(100vh-8rem)] flex-col">
+    <div className="animate-slide-up flex h-[calc(100vh-9rem)] flex-col lg:h-[calc(100vh-7rem)]">
       {/* Header */}
       <header className="flex items-center justify-between pt-2 pb-4">
         <div>
@@ -293,71 +278,29 @@ export function Coach() {
         </div>
       )}
 
-      {/* AI Orb Visualization */}
-      {messages.length === 0 && !showHistory && (
-        <div className="mb-6 flex justify-center">
-          <div className="relative">
-            <div className="h-24 w-24 rounded-full border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="h-12 w-12 rounded-full bg-white/[0.06] backdrop-blur-xl" />
-              </div>
-              <div className="absolute inset-0 animate-glow-pulse rounded-full bg-white/[0.04]" />
-            </div>
-            <div className="absolute -inset-4 rounded-full border border-white/[0.04] animate-pulse-soft" />
-          </div>
-        </div>
-      )}
-
       {/* Messages */}
       <div className="flex-1 overflow-y-auto pb-4">
         {messages.length === 0 ? (
-          <div className="space-y-3">
-            {/* Daily Insight */}
-            <GlassCard className="space-y-3">
-              <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-ivory" />
-                <p className="font-accent text-[11px] uppercase tracking-[0.2em] text-stone">
-                  Daily Insight
-                </p>
-              </div>
-              <p className="text-[15px] leading-relaxed text-silver">
-                {INSIGHTS[new Date().getDay() % INSIGHTS.length]}
-              </p>
-            </GlassCard>
-
-            {/* Quick Actions */}
-            <p className="font-data text-[10px] uppercase tracking-[0.2em] text-stone px-1 pt-2">
-              Quick Analysis
-            </p>
-            {AI_SUGGESTIONS.map((suggestion, i) => (
-              <button
-                key={i}
-                onClick={() => handleSuggestionClick(suggestion.prompt)}
-                className="ios-row ios-tap w-full text-left"
-              >
-                <div className="glass-card flex h-10 w-10 shrink-0 items-center justify-center">
-                  <suggestion.icon className="h-5 w-5 text-ivory" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[15px] font-semibold text-ivory">{suggestion.title}</p>
-                  <p className="text-xs text-stone">{suggestion.subtitle}</p>
-                </div>
-                <ChevronRightIcon className="h-4 w-4 shrink-0 text-ash" />
-              </button>
-            ))}
-
+          <div className="flex min-h-full flex-col items-center justify-center space-y-3 px-1">
             {/* Suggested Questions */}
             <p className="font-data text-[10px] uppercase tracking-[0.2em] text-stone px-1 pt-2">
               Ask me anything
             </p>
-            <div className="flex flex-wrap gap-2 px-1">
-              {SUGGESTED_PROMPTS.map((prompt, i) => (
+            <div className="space-y-2 px-1">
+              {SUGGESTED_PROMPTS.map((suggestion, i) => (
                 <button
                   key={i}
-                  onClick={() => handleSend(prompt)}
-                  className="glass-card rounded-full px-3 py-2 text-[13px] text-silver transition-all hover:bg-white/[0.06] active:scale-95"
+                  onClick={() => handleSend(suggestion.prompt)}
+                  className="ios-row ios-tap w-full text-left"
                 >
-                  {prompt}
+                  <div className="glass-card flex h-10 w-10 shrink-0 items-center justify-center">
+                    <suggestion.icon className="h-5 w-5 text-ivory" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[15px] font-semibold text-ivory">{suggestion.title}</p>
+                    <p className="text-xs text-stone">{suggestion.subtitle}</p>
+                  </div>
+                  <ChevronRightIcon className="h-4 w-4 shrink-0 text-ash" />
                 </button>
               ))}
             </div>

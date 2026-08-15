@@ -18,10 +18,13 @@ def _attach_recovery_nudges(repo, user_id: str, day: dict) -> None:
     recent = repo.get_sessions_between(user_id, today - timedelta(days=2), today)
     recent_days: list[tuple[date, list[str]]] = []
     for s in recent:
-        muscles = {
-            (repo.get_exercise(set_row["exercise_id"]) or {}).get("target_muscle", "unknown")
-            for set_row in s.get("sets", [])
-        }
+        muscles: set[str] = set()
+        for set_row in s.get("sets", []):
+            try:
+                exercise = repo.get_exercise(set_row["exercise_id"])
+                muscles.add((exercise or {}).get("target_muscle", "unknown"))
+            except Exception:
+                muscles.add("unknown")
         started = date.fromisoformat(s["started_at"][:10])
         recent_days.append((started, sorted(m for m in muscles if m)))
     flagged = flagged_muscles(day.get("target_muscles", []), recent_days, today)

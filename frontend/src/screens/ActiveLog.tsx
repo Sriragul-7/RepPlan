@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BottomSheet } from "../components/BottomSheet";
@@ -65,6 +65,47 @@ export function ActiveLog() {
   const [loggedSets, setLoggedSets] = useState<LoggedSet[]>([]);
   const [cardioLogs, setCardioLogs] = useState<CardioLog[]>([]);
   const [cardioOpen, setCardioOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  const exercisesQuery = useQuery({
+    queryKey: ["exercises-all"],
+    queryFn: () => api.searchExercises(),
+    enabled: searchOpen,
+    placeholderData: (prev) => prev,
+  });
+
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return exercisesQuery.data ?? [];
+    const q = searchQuery.toLowerCase();
+    return (exercisesQuery.data ?? []).filter(
+      (ex) =>
+        ex.name.toLowerCase().includes(q) ||
+        (ex.body_part ?? "").toLowerCase().includes(q) ||
+        (ex.target_muscle ?? "").toLowerCase().includes(q) ||
+        (ex.equipment ?? "").toLowerCase().includes(q),
+    );
+  }, [searchQuery, exercisesQuery.data]);
+
+  const addExercise = (exercise: (typeof searchResults)[number]) => {
+    const existing = exerciseList.find((e) => e.exercise_id === exercise.id);
+    if (existing) return;
+    const newEntry: DayExercise = {
+      id: crypto.randomUUID(),
+      exercise_id: exercise.id,
+      name: exercise.name,
+      target_muscle: exercise.target_muscle ?? undefined,
+      equipment: exercise.equipment ?? undefined,
+      thumbnail_url: exercise.thumbnail_url ?? undefined,
+      gif_url: exercise.gif_url ?? undefined,
+      prescribed_sets: 3,
+      prescribed_reps: "8-12",
+      exercise,
+    };
+    setExerciseList((prev) => [...prev, newEntry]);
+    setSearchOpen(false);
+    setSearchQuery("");
+  };
 
   const [rest, setRest] = useState<{ seconds: number; active: boolean; id: number }>({
     seconds: 0,
@@ -79,38 +120,42 @@ export function ActiveLog() {
       let effectiveDayId = dayId;
 
       const existing = localStorage.getItem(STORAGE_KEYS.ACTIVE_SESSION);
-      if (existing) {
-        session = await api.getSession(existing).catch(() => null);
-      }
-      if (session?.completed_at) {
-        localStorage.removeItem(STORAGE_KEYS.ACTIVE_SESSION);
-        session = null;
+
+      const loadSession = existing
+        ? api.getSession(existing).catch(() => null).then((s) => {
+            if (s?.completed_at) {
+              localStorage.removeItem(STORAGE_KEYS.ACTIVE_SESSION);
+              return null;
+            }
+            return s;
+          })
+        : Promise.resolve(null);
+
+      const loadPlan = !effectiveDayId && !muscle
+        ? api.getPlan().catch(() => null)
+        : Promise.resolve(null);
+
+      const [sessionResult, plan] = await Promise.all([loadSession, loadPlan]);
+      session = sessionResult;
+
+      if (plan) {
+        const today = ((new Date().getDay() + 6) % 7) + 1;
+        let day = plan.days.find((d) => d.day_of_week === today && !d.is_rest_day);
+        if (!day) {
+          day =
+            [...plan.days]
+              .filter((d) => !d.is_rest_day)
+              .sort((a, b) => {
+                const da = a.day_of_week > today ? a.day_of_week : a.day_of_week + 7;
+                const db = b.day_of_week > today ? b.day_of_week : b.day_of_week + 7;
+                return da - db;
+              })[0] ?? null;
+        }
+        if (day) effectiveDayId = day.id;
       }
 
       if (!effectiveDayId && !muscle && session?.plan_day_id) {
         effectiveDayId = session.plan_day_id;
-      }
-
-      if (!effectiveDayId && !muscle) {
-        try {
-          const plan = await api.getPlan();
-          if (!plan) return;
-          const today = ((new Date().getDay() + 6) % 7) + 1;
-          let day = plan.days.find((d) => d.day_of_week === today && !d.is_rest_day);
-          if (!day) {
-            day =
-              [...plan.days]
-                .filter((d) => !d.is_rest_day)
-                .sort((a, b) => {
-                  const da = a.day_of_week > today ? a.day_of_week : a.day_of_week + 7;
-                  const db = b.day_of_week > today ? b.day_of_week : b.day_of_week + 7;
-                  return da - db;
-                })[0] ?? null;
-          }
-          if (day) effectiveDayId = day.id;
-        } catch {
-          // no plan yet
-        }
       }
 
       if (effectiveDayId) {
@@ -173,6 +218,7 @@ export function ActiveLog() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sessions-week"] });
       queryClient.invalidateQueries({ queryKey: ["progress-overview"] });
+      queryClient.invalidateQueries({ queryKey: ["session-history"] });
       queryClient.invalidateQueries({ queryKey: ["lifts"] });
       navigate("/", { replace: true });
     },
@@ -331,6 +377,15 @@ export function ActiveLog() {
         </div>
       </section>
 
+      {/* Add Exercise */}
+      <button
+        onClick={() => setSearchOpen(true)}
+        className="flex w-full items-center justify-center gap-2.5 rounded-[20px] border border-dashed border-white/[0.1] bg-white/[0.03] py-4.5 text-[13px] font-medium text-silver backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.06] active:scale-[0.98]"
+      >
+        <PlusIcon className="h-4 w-4" />
+        Add exercise
+      </button>
+
       {/* Cardio Section */}
       <section>
         <h3 className="font-accent text-[10px] font-semibold uppercase tracking-[0.25em] text-stone px-1 pt-2 pb-2.5">
@@ -385,6 +440,61 @@ export function ActiveLog() {
         sessionId={sessionId}
         onLog={(log) => setCardioLogs((prev) => [...prev, log])}
       />
+
+      <BottomSheet open={searchOpen} onClose={() => { setSearchOpen(false); setSearchQuery(""); }} title="Add exercise">
+        <div className="space-y-3">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search exercises..."
+            autoFocus
+            className="w-full rounded-2xl border border-white/[0.08] bg-white/[0.04] px-4 py-3 text-[15px] text-ivory placeholder-ash outline-none backdrop-blur-xl transition-all focus:border-white/[0.15] focus:bg-white/[0.06]"
+          />
+          <div className="max-h-[50vh] overflow-y-auto space-y-1">
+            {exercisesQuery.isLoading ? (
+              <div className="py-8 text-center text-sm text-ash">Loading exercises...</div>
+            ) : searchResults.length === 0 ? (
+              <div className="py-8 text-center text-sm text-ash">No exercises found</div>
+            ) : (
+              searchResults.map((ex) => {
+                const alreadyAdded = exerciseList.some((e) => e.exercise_id === ex.id);
+                return (
+                  <button
+                    key={ex.id}
+                    onClick={() => !alreadyAdded && addExercise(ex)}
+                    disabled={alreadyAdded}
+                    className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-all ${
+                      alreadyAdded
+                        ? "opacity-40"
+                        : "hover:bg-white/[0.04] active:scale-[0.98]"
+                    }`}
+                  >
+                    <ExerciseImage
+                      thumbnailUrl={ex.thumbnail_url}
+                      gifUrl={ex.gif_url}
+                      alt={ex.name}
+                      className="h-12 w-12 shrink-0 rounded-xl border border-white/[0.08] bg-white/[0.03]"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[15px] font-semibold text-ivory">{ex.name}</p>
+                      <p className="mt-0.5 text-[11px] text-stone">
+                        {ex.target_muscle ?? ex.body_part ?? ""}
+                        {ex.equipment ? ` · ${ex.equipment}` : ""}
+                      </p>
+                    </div>
+                    {alreadyAdded ? (
+                      <span className="text-[11px] text-ash">Added</span>
+                    ) : (
+                      <PlusIcon className="h-4 w-4 text-silver" />
+                    )}
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </div>
+      </BottomSheet>
 
       <RestTimer
         seconds={rest.seconds}
@@ -565,7 +675,10 @@ function SetSheet({
                     <p className="font-accent text-[10px] font-semibold uppercase tracking-[0.2em] text-stone">
                       SET {n}
                     </p>
-                    <span className="font-accent text-[10px] text-ash/60">swipe →</span>
+                    <span className="font-accent text-[10px] text-ash/60">
+                      <span className="lg:hidden">swipe →</span>
+                      <span className="hidden lg:inline">tap below to log</span>
+                    </span>
                   </div>
                   <div className="space-y-2.5">
                     {/* Weight Row */}

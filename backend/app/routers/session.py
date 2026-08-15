@@ -39,7 +39,7 @@ def start_session(
     user_id: str = Depends(get_current_user_id),
 ) -> dict:
     repo = get_repo()
-    return repo.start_session(user_id, data.plan_day_id)
+    return repo.start_session(user_id, data.plan_day_id, data.started_at)
 
 
 @router.get("/{session_id}", response_model=SessionOut)

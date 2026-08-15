@@ -70,8 +70,11 @@ export const api = {
   swapExercise: (exerciseId: string, equipmentAccess: string) =>
     request<Exercise>(`/api/exercises/${exerciseId}/swap?equipment_access=${encodeURIComponent(equipmentAccess)}`),
 
-  startSession: (planDayId?: string) =>
-    request<Session>("/api/session/start", { method: "POST", body: JSON.stringify({ plan_day_id: planDayId ?? null }) }),
+  startSession: (planDayId?: string, startedAt?: string) =>
+    request<Session>("/api/session/start", {
+      method: "POST",
+      body: JSON.stringify({ plan_day_id: planDayId ?? null, started_at: startedAt ?? null }),
+    }),
   sessionsThisWeek: () => request<Session[]>("/api/session/week"),
   getSession: (sessionId: string) => request<Session>(`/api/session/${sessionId}`),
   logSet: (sessionId: string, data: { exercise_id: string; set_number: number; weight_kg?: number; reps?: number }) =>
