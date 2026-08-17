@@ -49,6 +49,7 @@ export function ActiveLog() {
   const queryClient = useQueryClient();
   const dayId = params.get("day");
   const muscle = params.get("muscle");
+  const calendarDate = params.get("date");
 
   const profileQuery = useQuery({
     queryKey: ["profile"],
@@ -72,9 +73,18 @@ export function ActiveLog() {
   const exercisesQuery = useQuery({
     queryKey: ["exercises-all"],
     queryFn: () => api.searchExercises(),
-    enabled: searchOpen,
+    enabled: searchOpen || !!muscle,
     placeholderData: (prev) => prev,
   });
+
+  const muscleSearchResults = useMemo(() => {
+    if (!muscle || !exercisesQuery.data) return [];
+    const m = muscle.toLowerCase();
+    return exercisesQuery.data.filter(
+      (ex) => (ex.target_muscle ?? "").toLowerCase().includes(m) ||
+              (ex.body_part ?? "").toLowerCase().includes(m),
+    );
+  }, [muscle, exercisesQuery.data]);
 
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return exercisesQuery.data ?? [];
@@ -132,7 +142,8 @@ export function ActiveLog() {
             const sessionDate = s.started_at.slice(0, 10);
             const now = new Date();
             const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-            if (sessionDate !== todayStr) {
+            const targetDate = calendarDate ?? todayStr;
+            if (sessionDate !== targetDate) {
               localStorage.removeItem(STORAGE_KEYS.ACTIVE_SESSION);
               return null;
             }
@@ -140,7 +151,7 @@ export function ActiveLog() {
           })
         : Promise.resolve(null);
 
-      const loadPlan = !effectiveDayId && !muscle
+      const loadPlan = !effectiveDayId && !muscle && !calendarDate
         ? api.getPlan(true).catch(() => null)
         : Promise.resolve(null);
 
@@ -165,21 +176,21 @@ export function ActiveLog() {
         listPromise = Promise.resolve(planDayExercises);
       } else if (effectiveDayId) {
         listPromise = api.getPlanDay(effectiveDayId, true).then((d) => d.exercises);
-      } else if (muscle) {
+      } else if (muscle && !calendarDate) {
         const profile = await api.getProfile();
         listPromise = api.muscleFocus(muscle, profile?.equipment_access ?? "full gym", profile?.goal ?? "hypertrophy");
       } else if (session?.plan_day_id) {
         listPromise = api.getPlanDay(session.plan_day_id, true).then((d) => d.exercises);
       }
 
+      const sessionDate = calendarDate ?? new Date().toISOString().slice(0, 10);
+
       const [listResult, newSession] = await Promise.all([
         listPromise ?? Promise.resolve([]),
         session
           ? Promise.resolve(session)
           : (() => {
-              const now = new Date();
-              const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-              return api.startSession(effectiveDayId ?? undefined, todayStr).then((s) => {
+              return api.startSession(effectiveDayId ?? undefined, sessionDate).then((s) => {
                 localStorage.setItem(STORAGE_KEYS.ACTIVE_SESSION, s.id);
                 return s;
               });
@@ -199,7 +210,7 @@ export function ActiveLog() {
       setError(e instanceof Error ? e.message : "Failed to load session");
       setLoading(false);
     }
-  }, [dayId, muscle]);
+  }, [dayId, muscle, calendarDate]);
 
   useEffect(() => {
     loadInit();
@@ -335,7 +346,79 @@ export function ActiveLog() {
         </p>
       </div>
 
+      {/* Muscle Search UI - shown when coming from calendar with muscle */}
+      {muscle && calendarDate && exerciseList.length === 0 && (
+        <div className="space-y-4">
+          <div className="glass-card px-5 py-4">
+            <p className="font-accent text-[10px] font-semibold uppercase tracking-[0.25em] text-stone">
+              Training
+            </p>
+            <p className="font-display mt-1 text-[24px] font-bold capitalize text-ivory">
+              {muscle}
+            </p>
+          </div>
+
+          <div className="relative">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={`Search ${muscle} exercises...`}
+              className="w-full rounded-2xl border border-white/[0.08] bg-white/[0.04] px-4 py-3.5 pl-11 text-[15px] text-ivory placeholder-ash outline-none backdrop-blur-xl transition-all focus:border-white/[0.15] focus:bg-white/[0.06]"
+            />
+            <svg className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ash" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+          </div>
+
+          <div className="ios-list">
+            {exercisesQuery.isLoading ? (
+              <div className="ios-row justify-center py-8">
+                <p className="text-sm text-ash">Loading exercises...</p>
+              </div>
+            ) : (searchQuery.trim() ? searchResults : muscleSearchResults).length === 0 ? (
+              <div className="ios-row justify-center py-8">
+                <p className="text-sm text-ash">No exercises found for {muscle}</p>
+              </div>
+            ) : (
+              (searchQuery.trim() ? searchResults : muscleSearchResults).map((ex) => {
+                const alreadyAdded = exerciseList.some((e) => e.exercise_id === ex.id);
+                return (
+                  <button
+                    key={ex.id}
+                    onClick={() => !alreadyAdded && addExercise(ex)}
+                    disabled={alreadyAdded}
+                    className={`ios-row ${alreadyAdded ? "opacity-40" : "ios-tap"}`}
+                  >
+                    <ExerciseImage
+                      thumbnailUrl={ex.thumbnail_url}
+                      gifUrl={ex.gif_url}
+                      alt={ex.name}
+                      className="h-12 w-12 shrink-0 rounded-xl border border-white/[0.08] bg-white/[0.03]"
+                    />
+                    <div className="min-w-0 flex-1 text-left">
+                      <p className="truncate text-[15px] font-semibold text-ivory">{ex.name}</p>
+                      <p className="mt-0.5 text-[11px] text-stone">
+                        {ex.target_muscle ?? ex.body_part ?? ""}
+                        {ex.equipment ? ` · ${ex.equipment}` : ""}
+                      </p>
+                    </div>
+                    {alreadyAdded ? (
+                      <span className="text-[11px] text-ash">Added</span>
+                    ) : (
+                      <PlusIcon className="h-4 w-4 text-silver" />
+                    )}
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Exercise Cards */}
+      {exerciseList.length > 0 && (
       <section>
         <h3 className="font-accent text-[10px] font-semibold uppercase tracking-[0.25em] text-stone px-1 pt-2 pb-2.5">
           {exerciseList.length} exercises
@@ -391,11 +474,12 @@ export function ActiveLog() {
           })}
         </div>
       </section>
+      )}
 
       {/* Add Exercise */}
       <button
         onClick={() => setSearchOpen(true)}
-        className="flex w-full items-center justify-center gap-2.5 rounded-[20px] border border-dashed border-white/[0.1] bg-white/[0.03] py-4.5 text-[13px] font-medium text-silver backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.06] active:scale-[0.98]"
+        className="flex w-full items-center justify-center gap-2.5 rounded-[20px] border border-dashed border-white/[0.1] bg-white/[0.03] py-5 text-[13px] font-medium text-silver backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.06] active:scale-[0.98]"
       >
         <PlusIcon className="h-4 w-4" />
         Add exercise
@@ -431,7 +515,7 @@ export function ActiveLog() {
         </div>
         <button
           onClick={() => setCardioOpen(true)}
-          className="mt-3 flex w-full items-center justify-center gap-2.5 rounded-[20px] border border-dashed border-white/[0.1] bg-white/[0.03] py-4.5 text-[13px] font-medium text-silver backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.06] active:scale-[0.98]"
+          className="mt-3 flex w-full items-center justify-center gap-2.5 rounded-[20px] border border-dashed border-white/[0.1] bg-white/[0.03] py-5 text-[13px] font-medium text-silver backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.06] active:scale-[0.98]"
         >
           <PlusIcon className="h-4 w-4" />
           Add cardio

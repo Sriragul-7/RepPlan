@@ -4,6 +4,7 @@ import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { api } from "../lib/api";
 import { CalendarHeatmap, formatDateKey } from "../components/CalendarHeatmap";
 import { GlassCard } from "../components/GlassCard";
+import { MuscleCategoryPicker } from "../components/MuscleCategoryPicker";
 import { CardSkeleton, Skeleton } from "../components/Skeleton";
 import { ChevronRightIcon, CheckIcon, TimerIcon } from "../components/icons";
 import { STORAGE_KEYS } from "../lib/constants";
@@ -129,16 +130,31 @@ export function WorkoutHistory() {
     return workoutData.get(selectedDate) ?? null;
   }, [selectedDate, workoutData]);
 
+  const [musclePickerOpen, setMusclePickerOpen] = useState(false);
+  const [pendingDate, setPendingDate] = useState<string | null>(null);
+
   const startForDate = useMutation({
-    mutationFn: async (dateStr: string) => {
+    mutationFn: async ({ dateStr, muscle }: { dateStr: string; muscle: string }) => {
       return api.startSession(undefined, dateStr);
     },
-    onSuccess: (session) => {
+    onSuccess: (session, variables) => {
       localStorage.setItem(STORAGE_KEYS.ACTIVE_SESSION, session.id);
       queryClient.invalidateQueries({ queryKey: ["workout-history"] });
-      navigate("/log", { replace: true });
+      navigate(`/log?muscle=${variables.muscle}&date=${variables.dateStr}`, { replace: true });
     },
   });
+
+  const handleLogWorkout = (dateStr: string) => {
+    setPendingDate(dateStr);
+    setMusclePickerOpen(true);
+  };
+
+  const handleMuscleSelect = (muscle: string) => {
+    if (pendingDate) {
+      startForDate.mutate({ dateStr: pendingDate, muscle });
+    }
+    setPendingDate(null);
+  };
 
   const monthStats = useMemo(() => {
     const sessions = sessionsQuery.data ?? [];
@@ -299,7 +315,7 @@ export function WorkoutHistory() {
             </button>
           </div>
 
-          {selectedDayData ? (
+          {selectedDayData && (
             <>
               {/* Day Summary */}
               <div className="grid grid-cols-2 gap-2">
@@ -360,18 +376,21 @@ export function WorkoutHistory() {
                 </GlassCard>
               ))}
             </>
-          ) : (
-            <GlassCard className="space-y-4 py-8 text-center">
+          )}
+
+          {!selectedDayData && (
+            <GlassCard className="py-6 text-center">
               <p className="text-sm text-stone">No workouts logged on this day</p>
-              <button
-                onClick={() => startForDate.mutate(selectedDate!)}
-                disabled={startForDate.isPending}
-                className="rounded-xl border border-white/[0.08] bg-white/[0.06] px-5 py-2.5 text-[13px] font-semibold text-ivory backdrop-blur-xl transition-all duration-200 hover:bg-white/[0.12] hover:border-white/[0.15] active:scale-95 disabled:opacity-40"
-              >
-                {startForDate.isPending ? "Starting..." : "Log workout for this day"}
-              </button>
             </GlassCard>
           )}
+
+          <button
+            onClick={() => handleLogWorkout(selectedDate!)}
+            disabled={startForDate.isPending}
+            className="w-full rounded-2xl border border-white/[0.08] bg-white/[0.06] px-5 py-3 text-[13px] font-semibold text-ivory backdrop-blur-xl transition-all duration-200 hover:bg-white/[0.12] hover:border-white/[0.15] active:scale-95 disabled:opacity-40"
+          >
+            {startForDate.isPending ? "Starting..." : "Log workout for this day"}
+          </button>
         </div>
       )}
 
@@ -381,6 +400,15 @@ export function WorkoutHistory() {
           Tap any day to see workout details
         </p>
       )}
+
+      <MuscleCategoryPicker
+        open={musclePickerOpen}
+        onClose={() => {
+          setMusclePickerOpen(false);
+          setPendingDate(null);
+        }}
+        onSelect={handleMuscleSelect}
+      />
     </div>
   );
 }

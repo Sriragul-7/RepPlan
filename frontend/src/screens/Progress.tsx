@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { CalendarHeatmap } from "../components/CalendarHeatmap";
+import { MuscleCategoryPicker } from "../components/MuscleCategoryPicker";
 import { CardSkeleton, Skeleton } from "../components/Skeleton";
 import { api } from "../lib/api";
 import { STORAGE_KEYS } from "../lib/constants";
@@ -121,17 +122,32 @@ export function Progress() {
     return weeks.slice(-4);
   }, [overviewQuery.data]);
 
+  const [musclePickerOpen, setMusclePickerOpen] = useState(false);
+  const [pendingDate, setPendingDate] = useState<string | null>(null);
+
   const startForDate = useMutation({
-    mutationFn: async (dateStr: string) => {
+    mutationFn: async ({ dateStr, muscle }: { dateStr: string; muscle: string }) => {
       const session = await api.startSession(undefined, dateStr);
       return session;
     },
-    onSuccess: (session) => {
+    onSuccess: (session, variables) => {
       localStorage.setItem(STORAGE_KEYS.ACTIVE_SESSION, session.id);
       queryClient.invalidateQueries({ queryKey: ["session-history"] });
-      navigate("/log", { replace: true });
+      navigate(`/log?muscle=${variables.muscle}&date=${variables.dateStr}`, { replace: true });
     },
   });
+
+  const handleLogWorkout = (dateStr: string) => {
+    setPendingDate(dateStr);
+    setMusclePickerOpen(true);
+  };
+
+  const handleMuscleSelect = (muscle: string) => {
+    if (pendingDate) {
+      startForDate.mutate({ dateStr: pendingDate, muscle });
+    }
+    setPendingDate(null);
+  };
 
   const maxMonthly = Math.max(1, ...monthlyWorkouts.map((w) => w.workouts));
 
@@ -199,15 +215,8 @@ export function Progress() {
           </h3>
           {selectedSessions.length === 0 ? (
             <div className="ios-list">
-              <div className="ios-row flex-col items-center gap-3 py-8">
+              <div className="ios-row justify-center py-4">
                 <p className="text-center text-sm text-stone">No workouts logged on this day.</p>
-                <button
-                  onClick={() => startForDate.mutate(selectedDate)}
-                  disabled={startForDate.isPending}
-                  className="rounded-xl border border-white/[0.08] bg-white/[0.06] px-5 py-2.5 text-[13px] font-semibold text-ivory backdrop-blur-xl transition-all duration-200 hover:bg-white/[0.12] hover:border-white/[0.15] active:scale-95 disabled:opacity-40"
-                >
-                  {startForDate.isPending ? "Starting..." : "Log workout for this day"}
-                </button>
               </div>
             </div>
           ) : (
@@ -263,6 +272,14 @@ export function Progress() {
               ))}
             </div>
           )}
+
+          <button
+            onClick={() => handleLogWorkout(selectedDate)}
+            disabled={startForDate.isPending}
+            className="mt-3 w-full rounded-2xl border border-white/[0.08] bg-white/[0.06] px-5 py-3 text-[13px] font-semibold text-ivory backdrop-blur-xl transition-all duration-200 hover:bg-white/[0.12] hover:border-white/[0.15] active:scale-95 disabled:opacity-40"
+          >
+            {startForDate.isPending ? "Starting..." : "Log workout for this day"}
+          </button>
         </div>
       )}
 
@@ -295,6 +312,15 @@ export function Progress() {
           )}
         </div>
       </div>
+
+      <MuscleCategoryPicker
+        open={musclePickerOpen}
+        onClose={() => {
+          setMusclePickerOpen(false);
+          setPendingDate(null);
+        }}
+        onSelect={handleMuscleSelect}
+      />
     </div>
   );
 }
