@@ -36,7 +36,7 @@ export function ExerciseImage({ thumbnailUrl, gifUrl, alt, className }: Exercise
             setOpen(true);
           }
         }}
-        className={`relative cursor-pointer overflow-hidden border border-white/[0.06] bg-white/[0.04] ${className ?? ""}`}
+        className={`relative cursor-pointer overflow-hidden border border-black/[0.08] bg-black/[0.04] dark:border-white/[0.06] dark:bg-white/[0.04] ${className ?? ""}`}
       >
         {thumbnailUrl ? (
           <img
@@ -48,7 +48,7 @@ export function ExerciseImage({ thumbnailUrl, gifUrl, alt, className }: Exercise
           />
         ) : null}
         {canAnimate ? (
-          <span className="absolute right-1 top-1 rounded-md bg-black/40 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-ivory/70">
+          <span className="absolute right-1 top-1 rounded-md bg-white/40 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-black/70 dark:bg-black/40 dark:text-ivory/70">
             gif
           </span>
         ) : null}
@@ -63,23 +63,23 @@ export function ExerciseImage({ thumbnailUrl, gifUrl, alt, className }: Exercise
               aria-label={`${name} preview`}
               onClick={() => setOpen(false)}
             >
-              <div className="animate-fade-in absolute inset-0 bg-ink/80 backdrop-blur-md" />
+              <div className="animate-fade-in absolute inset-0 bg-white/80 backdrop-blur-md dark:bg-ink/80" />
               <div
                 className="animate-card-pop relative w-full max-w-sm"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="glass-card overflow-hidden rounded-[28px] shadow-2xl shadow-black/60">
-                  <div className="relative h-72 w-full bg-white/[0.04]">
+                  <div className="relative h-72 w-full bg-black/[0.04] dark:bg-white/[0.04]">
                     {previewSrc ? (
                       <img src={previewSrc} alt={name} className="h-full w-full object-contain" />
                     ) : null}
                   </div>
                   <div className="flex items-center justify-between px-4 py-3">
-                    <p className="font-display truncate pr-2 text-lg font-semibold text-ivory">{name}</p>
+                    <p className="font-display truncate pr-2 text-lg font-semibold text-black dark:text-ivory">{name}</p>
                     <button
                       onClick={() => setOpen(false)}
                       aria-label="Close preview"
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/[0.06] bg-white/[0.04] text-ivory backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.08] active:scale-95"
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-black/[0.08] bg-black/[0.04] text-black backdrop-blur-xl transition-all duration-300 hover:bg-black/[0.08] active:scale-95 dark:border-white/[0.06] dark:bg-white/[0.04] dark:text-ivory dark:hover:bg-white/[0.08]"
                     >
                       <CloseIcon className="h-4 w-4" />
                     </button>

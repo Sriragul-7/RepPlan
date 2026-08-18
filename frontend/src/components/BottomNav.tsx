@@ -23,7 +23,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-1/2 z-40 w-full max-w-md -translate-x-1/2 pb-safe lg:hidden">
-      <div className="mx-3 mb-2 flex items-center justify-around rounded-[28px] border border-white/[0.06] bg-coal/80 px-2 py-1.5 shadow-lg backdrop-blur-xl">
+      <div className="mx-3 mb-2 flex items-center justify-around rounded-[28px] border border-black/[0.08] bg-white/80 px-2 py-1.5 shadow-lg backdrop-blur-xl dark:border-white/[0.06] dark:bg-coal/80">
         {tabs.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
@@ -31,14 +31,14 @@ export function BottomNav() {
             end={to === "/"}
             className={({ isActive }) =>
               `group relative flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-2xl px-2 py-1.5 transition-all duration-300 ${
-                isActive ? "text-ivory" : "text-ash hover:text-stone"
+                isActive ? "text-black dark:text-ivory" : "text-ash hover:text-stone"
               }`
             }
           >
             {({ isActive }) => (
               <>
                 {isActive ? (
-                  <span className="absolute -top-0.5 bottom-0 left-1/2 -z-10 w-12 -translate-x-1/2 rounded-2xl bg-white/[0.08] shadow-glow blur-[2px]" />
+                  <span className="absolute -top-0.5 bottom-0 left-1/2 -z-10 w-12 -translate-x-1/2 rounded-2xl bg-black/[0.08] shadow-glow blur-[2px] dark:bg-white/[0.08]" />
                 ) : null}
                 <Icon
                   className={`h-[22px] w-[22px] transition-transform duration-300 group-active:scale-90 ${
@@ -48,7 +48,7 @@ export function BottomNav() {
                 />
                 <span
                   className={`text-[10px] font-semibold tracking-wide transition-colors ${
-                    isActive ? "text-ivory" : "text-ash"
+                    isActive ? "text-black dark:text-ivory" : "text-ash"
                   }`}
                 >
                   {label}

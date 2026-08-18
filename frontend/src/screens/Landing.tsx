@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/auth";
+import { useTheme } from "../lib/theme";
 import { Logo } from "../components/Logo";
 import { DisciplineRing } from "../components/DisciplineRing";
 
@@ -112,7 +113,7 @@ function RepCounter() {
         <span
           key={n}
           className={`text-[13px] font-bold transition-all duration-500 ${
-            count >= n ? "text-white opacity-100" : "text-white/10 opacity-40"
+            count >= n ? "text-black dark:text-white opacity-100" : "text-black/40 dark:text-white/10 opacity-100"
           }`}
         >
           {String(n).padStart(2, "0")}
@@ -141,7 +142,7 @@ function DisciplineMeter() {
   }, []);
   return (
     <DisciplineRing value={val} size={80} strokeWidth={6}>
-      <span className="font-data text-[11px] font-bold text-white/80">
+      <span className="font-data text-[11px] font-bold text-black dark:text-white/80">
         {Math.round(val * 100)}%
       </span>
     </DisciplineRing>
@@ -155,7 +156,7 @@ function WorkoutTicker() {
         {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
           <span
             key={i}
-            className="font-accent text-[11px] font-semibold uppercase tracking-[0.15em] text-white/25"
+            className="font-accent text-[11px] font-semibold uppercase tracking-[0.15em] text-black/30 dark:text-white/25"
           >
             {item}
           </span>
@@ -184,10 +185,10 @@ function FeatureCard({
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
       } ${large ? "p-6" : "p-5"} ${large ? "col-span-2" : ""}`}
     >
-      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-white/[0.06]">
+      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-black/[0.06] dark:bg-white/[0.06]">
         {icon}
       </div>
-      <h3 className="font-display mb-1.5 text-[17px] font-bold text-white">{title}</h3>
+      <h3 className="font-display mb-1.5 text-[17px] font-bold text-black dark:text-white">{title}</h3>
       <p className="text-[14px] leading-[1.6] text-stone/70">{desc}</p>
     </div>
   );
@@ -204,17 +205,17 @@ function ProductPreview() {
     >
       <div className="glass-card glass-shine relative mx-auto max-w-sm overflow-hidden p-0">
         {/* Top bar */}
-        <div className="flex items-center justify-between border-b border-white/[0.04] px-5 py-3">
-          <span className="font-display text-[13px] font-bold uppercase tracking-wider text-white/60">
-            Today's Session
-          </span>
-          <span className="font-data text-[11px] font-semibold text-white/30">
+        <div className="flex items-center justify-between border-b border-black/[0.04] dark:border-white/[0.04] px-5 py-3">
+            <span className="font-display text-[13px] font-bold uppercase tracking-wider text-black dark:text-white/60">
+              Today's Session
+            </span>
+            <span className="font-data text-[11px] font-semibold text-black/30 dark:text-white/30">
             Push Day
           </span>
         </div>
 
         {/* Stats row */}
-        <div className="grid grid-cols-3 gap-px border-b border-white/[0.04]">
+        <div className="grid grid-cols-3 gap-px border-b border-black/[0.04] dark:border-white/[0.04]">
           {[
             { label: "SETS", value: "18", sub: "completed" },
             { label: "VOLUME", value: "4.2T", sub: "kg total" },
@@ -224,7 +225,7 @@ function ProductPreview() {
               <span className="font-data text-[10px] font-semibold uppercase tracking-[0.2em] text-stone/50">
                 {s.label}
               </span>
-              <span className="font-display mt-1 text-[22px] font-bold text-white">
+              <span className="font-display mt-1 text-[22px] font-bold text-black dark:text-white">
                 {s.value}
               </span>
               <span className="font-data text-[10px] text-stone/40">{s.sub}</span>
@@ -233,7 +234,7 @@ function ProductPreview() {
         </div>
 
         {/* Exercise rows */}
-        <div className="divide-y divide-white/[0.04]">
+        <div className="divide-y divide-black/[0.04] dark:divide-white/[0.04]">
           {[
             { name: "Bench Press", sets: "4 × 8", weight: "80 kg", done: true },
             { name: "OHP", sets: "3 × 10", weight: "50 kg", done: true },
@@ -243,23 +244,23 @@ function ProductPreview() {
               <div
                 className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full ${
                   ex.done
-                    ? "bg-white/10"
-                    : "border border-white/[0.08] bg-white/[0.02]"
+                    ? "bg-black/10 dark:bg-white/10"
+                    : "border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.02] dark:bg-white/[0.02]"
                 }`}
               >
                 {ex.done && (
-                  <svg className="h-3.5 w-3.5 text-white" viewBox="0 0 16 16" fill="none">
+                  <svg className="h-3.5 w-3.5 text-black dark:text-white" viewBox="0 0 16 16" fill="none">
                     <path d="M3 8l3 3 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className={`text-[14px] font-medium ${ex.done ? "text-white/50 line-through" : "text-white"}`}>
+                <p className={`text-[14px] font-medium ${ex.done ? "text-black/40 dark:text-white/50 line-through" : "text-black dark:text-white"}`}>
                   {ex.name}
                 </p>
                 <p className="font-data text-[11px] text-stone/50">{ex.sets}</p>
               </div>
-              <span className="font-data text-[12px] font-semibold text-white/40">
+              <span className="font-data text-[12px] font-semibold text-black/40 dark:text-white/40">
                 {ex.weight}
               </span>
             </div>
@@ -267,12 +268,12 @@ function ProductPreview() {
         </div>
 
         {/* Progress ring bottom */}
-        <div className="flex items-center justify-center gap-4 border-t border-white/[0.04] py-5">
+        <div className="flex items-center justify-center gap-4 border-t border-black/[0.04] dark:border-white/[0.04] py-5">
           <DisciplineRing value={0.67} size={48} strokeWidth={4}>
-            <span className="font-data text-[9px] font-bold text-white/70">67%</span>
+            <span className="font-data text-[9px] font-bold text-black dark:text-white/70">67%</span>
           </DisciplineRing>
           <div>
-            <p className="text-[13px] font-semibold text-white/80">Session Progress</p>
+            <p className="text-[13px] font-semibold text-black dark:text-white/80">Session Progress</p>
             <p className="font-data text-[11px] text-stone/50">2 of 3 exercises done</p>
           </div>
         </div>
@@ -284,6 +285,7 @@ function ProductPreview() {
 export function Landing() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [quoteIdx] = useState(() => Math.floor(Math.random() * QUOTES.length));
 
   const handleGetStarted = () => {
@@ -304,23 +306,46 @@ export function Landing() {
 
       {/* Floating orbs */}
       <div className="pointer-events-none fixed inset-0" aria-hidden>
-        <div className="absolute -left-32 top-1/4 h-80 w-80 rounded-full bg-white/[0.02] blur-[120px]" />
-        <div className="absolute bottom-1/3 right-0 h-64 w-64 rounded-full bg-white/[0.015] blur-[100px]" />
+        <div className="absolute -left-32 top-1/4 h-80 w-80 rounded-full bg-black/[0.02] dark:bg-white/[0.02] blur-[120px]" />
+        <div className="absolute bottom-1/3 right-0 h-64 w-64 rounded-full bg-black/[0.015] dark:bg-white/[0.015] blur-[100px]" />
       </div>
 
       {/* ─── NAV ─── */}
       <nav className="relative z-10 flex items-center justify-between px-5 pt-safe pb-4 md:px-10">
         <div className="flex items-center gap-2.5">
           <Logo className="h-7 w-7" />
-          <span className="font-display text-[15px] font-bold uppercase tracking-[0.12em] text-white">
+          <span className="font-display text-[15px] font-bold uppercase tracking-[0.12em] text-black dark:text-white">
             RepPlan
           </span>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-black/[0.08] dark:border-white/[0.06] bg-black/[0.04] dark:bg-white/[0.04] text-stone transition-all duration-300 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] hover:text-black dark:hover:text-ivory active:scale-95"
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? (
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="5" />
+                <line x1="12" y1="1" x2="12" y2="3" />
+                <line x1="12" y1="21" x2="12" y2="23" />
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                <line x1="1" y1="12" x2="3" y2="12" />
+                <line x1="21" y1="12" x2="23" y2="12" />
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+              </svg>
+            ) : (
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+              </svg>
+            )}
+          </button>
           {user ? (
             <button
               onClick={() => navigate("/app")}
-              className="rounded-full border border-white/[0.06] bg-white/[0.04] px-5 py-2 text-[13px] font-medium text-ivory backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.08] active:scale-[0.97]"
+              className="rounded-full border border-black/[0.08] dark:border-white/[0.06] bg-black/[0.04] dark:bg-white/[0.04] px-5 py-2 text-[13px] font-medium text-black dark:text-ivory backdrop-blur-xl transition-all duration-300 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] active:scale-[0.97]"
             >
               Open app
             </button>
@@ -328,7 +353,7 @@ export function Landing() {
             <>
               <button
                 onClick={handleGetStarted}
-                className="rounded-full border border-white/[0.06] bg-white/[0.04] px-5 py-2 text-[13px] font-medium text-ivory backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.08] active:scale-[0.97]"
+                className="rounded-full border border-black/[0.08] dark:border-white/[0.06] bg-black/[0.04] dark:bg-white/[0.04] px-5 py-2 text-[13px] font-medium text-black dark:text-ivory backdrop-blur-xl transition-all duration-300 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] active:scale-[0.97]"
               >
                 Quick start
               </button>
@@ -347,14 +372,14 @@ export function Landing() {
       <section className="relative z-10 mx-auto max-w-3xl px-5 pt-12 pb-16 md:pt-20 md:pb-24">
         {/* Brand label */}
         <div className="mb-6 flex items-center gap-3">
-          <div className="h-px flex-1 max-w-[40px] bg-white/10" />
+          <div className="h-px flex-1 max-w-[40px] bg-black/10 dark:bg-white/10" />
           <span className="font-data text-[10px] font-semibold uppercase tracking-[0.3em] text-stone/60">
             REPPLAN / TRAIN WITH INTENT
           </span>
         </div>
 
         {/* Headline */}
-        <h1 className="font-display text-[44px] font-bold leading-[1.04] tracking-tight text-white sm:text-[56px] md:text-[68px] lg:text-[76px]">
+        <h1 className="font-display text-[44px] font-bold leading-[1.04] tracking-tight text-black dark:text-white sm:text-[56px] md:text-[68px] lg:text-[76px]">
           Discipline
           <br />
           made visible.
@@ -385,7 +410,7 @@ export function Landing() {
               </button>
               <button
                 onClick={handleLogin}
-                className="rounded-full border border-white/[0.06] bg-white/[0.04] px-7 py-4 text-[15px] font-medium text-ivory backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.08] active:scale-[0.97]"
+                className="rounded-full border border-black/[0.08] dark:border-white/[0.06] bg-black/[0.04] dark:bg-white/[0.04] px-7 py-4 text-[15px] font-medium text-black dark:text-ivory backdrop-blur-xl transition-all duration-300 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] active:scale-[0.97]"
               >
                 Sign in
               </button>
@@ -400,7 +425,7 @@ export function Landing() {
       </section>
 
       {/* ─── WORKOUT TICKER ─── */}
-      <div className="relative z-10 border-y border-white/[0.03] py-4">
+      <div className="relative z-10 border-y border-black/[0.03] dark:border-white/[0.03] py-4">
         <WorkoutTicker />
       </div>
 
@@ -417,7 +442,7 @@ export function Landing() {
               <p className="font-data text-[10px] font-semibold uppercase tracking-[0.25em] text-stone/40">
                 Discipline Level
               </p>
-              <p className="font-display mt-1 text-[13px] font-bold text-white/50">
+              <p className="font-display mt-1 text-[13px] font-bold text-black/50 dark:text-white/50">
                 Increasing
               </p>
             </div>
@@ -446,7 +471,7 @@ export function Landing() {
             {["Consistency", "Structure", "Progress", "Simplicity"].map((w) => (
               <span
                 key={w}
-                className="rounded-full border border-white/[0.06] bg-white/[0.03] px-4 py-1.5 text-[12px] font-semibold uppercase tracking-[0.12em] text-white/50"
+                className="rounded-full border border-black/[0.08] dark:border-white/[0.06] bg-black/[0.03] dark:bg-white/[0.03] px-4 py-1.5 text-[12px] font-semibold uppercase tracking-[0.12em] text-black/50 dark:text-white/50"
               >
                 {w}
               </span>
@@ -454,8 +479,8 @@ export function Landing() {
           </div>
         </div>
 
-        <div className="mt-10 rounded-2xl border border-white/[0.05] bg-white/[0.02] p-6">
-          <p className="font-display text-[20px] font-bold leading-[1.5] text-white/80">
+        <div className="mt-10 rounded-2xl border border-black/[0.05] dark:border-white/[0.05] bg-black/[0.02] dark:bg-white/[0.02] p-6">
+          <p className="font-display text-[20px] font-bold leading-[1.5] text-black dark:text-white/80">
             Train without distraction.
             <br />
             Track without friction.
@@ -470,33 +495,33 @@ export function Landing() {
         <SectionHeader label="FEATURES" title="Built for the grind." />
         <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
           <FeatureCard
-            icon={<ClipboardIcon className="h-5 w-5 text-white/70" />}
+            icon={<ClipboardIcon className="h-5 w-5 text-black dark:text-white/70" />}
             title="Build Your Split"
             desc="AI-powered workout plans tailored to your body, goals, and schedule."
             large
           />
           <FeatureCard
-            icon={<DumbbellIcon className="h-5 w-5 text-white/70" />}
+            icon={<DumbbellIcon className="h-5 w-5 text-black dark:text-white/70" />}
             title="Log Every Set"
             desc="Quick weight, rep, and set tracking designed for the gym floor."
           />
           <FeatureCard
-            icon={<ChartIcon className="h-5 w-5 text-white/70" />}
+            icon={<ChartIcon className="h-5 w-5 text-black dark:text-white/70" />}
             title="Track Progress"
             desc="Strength curves, volume trends, and training history at a glance."
           />
           <FeatureCard
-            icon={<BrainIcon className="h-5 w-5 text-white/70" />}
+            icon={<BrainIcon className="h-5 w-5 text-black dark:text-white/70" />}
             title="AI Coach"
             desc="Ask fitness and nutrition questions, get personalized guidance."
           />
           <FeatureCard
-            icon={<PhoneIcon className="h-5 w-5 text-white/70" />}
+            icon={<PhoneIcon className="h-5 w-5 text-black dark:text-white/70" />}
             title="Mobile First"
             desc="PWA designed to work naturally on your phone between sets."
           />
           <FeatureCard
-            icon={<FlameIcon className="h-5 w-5 text-white/70" />}
+            icon={<FlameIcon className="h-5 w-5 text-black dark:text-white/70" />}
             title="Train With Structure"
             desc="Walk into the gym knowing exactly what to do today."
             large
@@ -505,19 +530,19 @@ export function Landing() {
       </section>
 
       {/* ─── MOTIVATIONAL BREAK ─── */}
-      <section className="relative z-10 border-y border-white/[0.03] py-16 md:py-20">
+      <section className="relative z-10 border-y border-black/[0.03] dark:border-white/[0.03] py-16 md:py-20">
         <div className="mx-auto max-w-2xl px-5 text-center">
-          <p className="font-display text-[28px] font-bold leading-[1.4] text-white/80 md:text-[36px]">
+          <p className="font-display text-[28px] font-bold leading-[1.4] text-black dark:text-white/80 md:text-[36px]">
             {QUOTES[(quoteIdx + 1) % QUOTES.length]}
           </p>
-          <div className="mx-auto mt-6 h-px w-16 bg-white/10" />
+          <div className="mx-auto mt-6 h-px w-16 bg-black/10 dark:bg-white/10" />
         </div>
       </section>
 
       {/* ─── SOCIAL PROOF (Philosophy) ─── */}
       <section className="relative z-10 mx-auto max-w-3xl px-5 py-16 md:py-24">
         <div className="glass-card glass-shine p-8 text-center md:p-12">
-          <p className="font-display text-[22px] font-bold leading-[1.5] text-white/80 md:text-[28px]">
+          <p className="font-display text-[22px] font-bold leading-[1.5] text-black dark:text-white/80 md:text-[28px]">
             Built for the days when motivation disappears.
           </p>
           <p className="mx-auto mt-4 max-w-md text-[15px] leading-[1.7] text-stone/50">
@@ -528,9 +553,9 @@ export function Landing() {
       </section>
 
       {/* ─── FINAL CTA ─── */}
-      <section className="relative z-10 border-t border-white/[0.03] py-20 md:py-28">
+      <section className="relative z-10 border-t border-black/[0.03] dark:border-white/[0.03] py-20 md:py-28">
         <div className="mx-auto max-w-2xl px-5 text-center">
-          <p className="font-display text-[36px] font-bold leading-[1.2] text-white md:text-[48px]">
+          <p className="font-display text-[36px] font-bold leading-[1.2] text-black dark:text-white md:text-[48px]">
             Ready to lock in?
           </p>
           <p className="mt-4 text-[16px] leading-[1.7] text-stone/50">
@@ -546,11 +571,11 @@ export function Landing() {
       </section>
 
       {/* ─── FOOTER ─── */}
-      <footer className="relative z-10 border-t border-white/[0.03] py-8">
+      <footer className="relative z-10 border-t border-black/[0.03] dark:border-white/[0.03] py-8">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-5">
           <div className="flex items-center gap-2">
             <Logo className="h-5 w-5" />
-            <span className="font-display text-[12px] font-bold uppercase tracking-[0.12em] text-white/30">
+            <span className="font-display text-[12px] font-bold uppercase tracking-[0.12em] text-black/30 dark:text-white/30">
               RepPlan
             </span>
           </div>
@@ -575,7 +600,7 @@ function SectionHeader({ label, title }: { label: string; title: string }) {
       <p className="font-data mb-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-stone/50">
         {label}
       </p>
-      <h2 className="font-display text-[28px] font-bold text-white md:text-[34px]">
+      <h2 className="font-display text-[28px] font-bold text-black dark:text-white md:text-[34px]">
         {title}
       </h2>
     </div>

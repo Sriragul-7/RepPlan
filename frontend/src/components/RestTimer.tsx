@@ -49,9 +49,9 @@ export function RestTimer({ seconds, id, onFinish, onSkip, active }: RestTimerPr
 
   return (
     <div className="animate-scale-in pointer-events-none fixed inset-x-0 bottom-24 z-40 flex justify-center px-6 lg:bottom-10">
-      <div className="glass-card pointer-events-auto flex items-center gap-4 rounded-[28px] border border-white/[0.06] p-4 pr-2 shadow-card backdrop-blur-xl">
+      <div className="glass-card pointer-events-auto flex items-center gap-4 rounded-[28px] border border-black/[0.08] p-4 pr-2 shadow-card backdrop-blur-xl dark:border-white/[0.06]">
         <DisciplineRing value={progress} size={64} strokeWidth={5} color="#FFFFFF">
-          <span className="font-data text-sm text-ivory">
+          <span className="font-data text-sm text-black dark:text-ivory">
             {mm}:{ss}
           </span>
         </DisciplineRing>
@@ -59,7 +59,7 @@ export function RestTimer({ seconds, id, onFinish, onSkip, active }: RestTimerPr
           <p className="font-data text-[10px] uppercase tracking-[0.2em] text-ash">Rest</p>
           <button
             onClick={onSkip}
-            className="mt-1 flex items-center gap-1.5 rounded-full border border-white/[0.06] bg-white/[0.04] px-4 py-2 text-sm font-medium text-silver backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.08] active:scale-95"
+            className="mt-1 flex items-center gap-1.5 rounded-full border border-black/[0.08] bg-black/[0.04] px-4 py-2 text-sm font-medium text-gray-500 backdrop-blur-xl transition-all duration-300 hover:bg-black/[0.08] active:scale-95 dark:border-white/[0.06] dark:bg-white/[0.04] dark:text-silver dark:hover:bg-white/[0.08]"
           >
             <SkipIcon className="h-4 w-4" />
             Skip

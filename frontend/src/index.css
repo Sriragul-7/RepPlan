@@ -6,10 +6,45 @@
 
 @layer base {
   :root {
+    color-scheme: light;
+    --glass-bg: rgba(255, 255, 255, 0.65);
+    --glass-border: rgba(0, 0, 0, 0.08);
+    --glass-highlight: rgba(255, 255, 255, 0.8);
+    --surface: #f2f2f7;
+    --surface-elevated: #ffffff;
+    --surface-card: rgba(255, 255, 255, 0.7);
+    --text-primary: #1c1c1e;
+    --text-secondary: #6b6b76;
+    --text-tertiary: #8e8e93;
+    --text-muted: #aeaeb2;
+    --border-default: rgba(0, 0, 0, 0.08);
+    --border-subtle: rgba(0, 0, 0, 0.04);
+    --bg-overlay: rgba(0, 0, 0, 0.3);
+    --accent-ring: rgba(0, 122, 255, 0.2);
+    --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    --shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    --gradient-glow: rgba(0, 0, 0, 0.04);
+  }
+
+  .dark {
     color-scheme: dark;
     --glass-bg: rgba(26, 26, 30, 0.55);
     --glass-border: rgba(255, 255, 255, 0.06);
     --glass-highlight: rgba(255, 255, 255, 0.08);
+    --surface: #000000;
+    --surface-elevated: #111111;
+    --surface-card: rgba(26, 26, 30, 0.55);
+    --text-primary: #f2f2f7;
+    --text-secondary: #6b6b76;
+    --text-tertiary: #98989f;
+    --text-muted: #3a3a42;
+    --border-default: rgba(255, 255, 255, 0.06);
+    --border-subtle: rgba(255, 255, 255, 0.04);
+    --bg-overlay: rgba(0, 0, 0, 0.7);
+    --accent-ring: rgba(255, 255, 255, 0.25);
+    --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    --shadow-elevated: 0 16px 48px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    --gradient-glow: rgba(255, 255, 255, 0.04);
   }
 
   html {
@@ -19,7 +54,9 @@
   }
 
   body {
-    @apply bg-ink text-ivory antialiased;
+    background: var(--surface);
+    color: var(--text-primary);
+    @apply antialiased;
     font-family: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display",
       "Segoe UI", Roboto, sans-serif;
     overscroll-behavior-y: none;
@@ -55,7 +92,7 @@
     inset: 0;
     z-index: -1;
     overflow: hidden;
-    background: #000000;
+    background: var(--surface);
   }
 
   .app-bg::before,
@@ -72,7 +109,7 @@
     height: 60vw;
     top: -20vw;
     left: -15vw;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.04), transparent 55%);
+    background: radial-gradient(circle, var(--gradient-glow), transparent 55%);
     animation: float-slow 24s ease-in-out infinite;
   }
 
@@ -81,8 +118,16 @@
     height: 50vw;
     bottom: -20vw;
     right: -15vw;
-    background: radial-gradient(circle, rgba(200, 200, 210, 0.025), transparent 55%);
+    background: radial-gradient(circle, var(--gradient-glow), transparent 55%);
     animation: float-slow 28s ease-in-out infinite reverse;
+  }
+
+  .dark .app-bg::before {
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.04), transparent 55%);
+  }
+
+  .dark .app-bg::after {
+    background: radial-gradient(circle, rgba(200, 200, 210, 0.025), transparent 55%);
   }
 
   /* ================================================
@@ -94,13 +139,16 @@
     border-radius: 24px;
     -webkit-backdrop-filter: blur(40px) saturate(150%);
     backdrop-filter: blur(40px) saturate(150%);
-    box-shadow:
-      inset 0 1px 0 var(--glass-highlight),
-      0 8px 32px rgba(0, 0, 0, 0.3),
-      0 1px 2px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-card);
   }
 
   .glass-active {
+    border-color: var(--glass-border);
+    background: var(--glass-bg);
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .dark .glass-active {
     border-color: rgba(255, 255, 255, 0.1);
     background: rgba(34, 34, 40, 0.6);
     box-shadow:
@@ -116,13 +164,11 @@
   .ios-list {
     overflow: hidden;
     border-radius: 22px;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    background: rgba(26, 26, 30, 0.5);
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
     -webkit-backdrop-filter: blur(40px) saturate(150%);
     backdrop-filter: blur(40px) saturate(150%);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.06),
-      0 6px 24px rgba(0, 0, 0, 0.25);
+    box-shadow: var(--shadow-card);
   }
 
   .ios-row {
@@ -134,7 +180,7 @@
   }
 
   .ios-list > .ios-row + .ios-row {
-    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    border-top: 1px solid var(--border-subtle);
   }
 
   .ios-section-label {
@@ -145,7 +191,7 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.2em;
-    color: #6B6B76;
+    color: var(--text-secondary);
   }
 
   /* ================================================
@@ -157,7 +203,7 @@
   }
 
   .ios-tap:active {
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--gradient-glow);
     transform: scale(0.98);
   }
 
@@ -166,7 +212,7 @@
      ================================================ */
   .hairline {
     height: 1px;
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--border-subtle);
   }
 
   /* ================================================
@@ -175,7 +221,7 @@
   .skeleton {
     position: relative;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--gradient-glow);
     border-radius: 12px;
   }
 
@@ -187,7 +233,7 @@
     background: linear-gradient(
       90deg,
       transparent,
-      rgba(255, 255, 255, 0.04),
+      var(--gradient-glow),
       transparent
     );
     animation: shimmer 2s ease-in-out infinite;
@@ -203,15 +249,15 @@
   @keyframes set-pulse {
     0% {
       transform: scale(1);
-      box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.3);
+      box-shadow: 0 0 0 0 var(--accent-ring);
     }
     40% {
       transform: scale(1.04);
-      box-shadow: 0 0 0 12px rgba(255, 255, 255, 0);
+      box-shadow: 0 0 0 12px transparent;
     }
     100% {
       transform: scale(1);
-      box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+      box-shadow: 0 0 0 0 transparent;
     }
   }
 
@@ -250,14 +296,15 @@
      FLOATING TAB BAR — iOS-style
      ================================================ */
   .tab-bar {
-    background: rgba(26, 26, 30, 0.78);
+    background: var(--glass-bg);
     -webkit-backdrop-filter: blur(40px) saturate(180%);
     backdrop-filter: blur(40px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.06),
-      0 12px 40px rgba(0, 0, 0, 0.35),
-      0 2px 8px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .dark .tab-bar {
+    background: rgba(26, 26, 30, 0.78);
   }
 
   /* ================================================
@@ -275,7 +322,7 @@
      PREMIUM UTILITY CLASSES
      ================================================ */
   .text-gradient {
-    background: linear-gradient(180deg, #FFFFFF 0%, #98989F 100%);
+    background: linear-gradient(180deg, var(--text-primary) 0%, var(--text-secondary) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -296,7 +343,7 @@
     background: linear-gradient(
       90deg,
       transparent,
-      rgba(255, 255, 255, 0.1),
+      var(--glass-highlight),
       transparent
     );
   }

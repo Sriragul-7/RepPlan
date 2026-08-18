@@ -32,9 +32,9 @@ export function MuscleCategoryPicker({ open, onClose, onSelect }: MuscleCategory
               onSelect(m.name);
               onClose();
             }}
-            className="group flex flex-col items-center gap-2 rounded-2xl border border-white/[0.06] bg-white/[0.03] p-2 backdrop-blur-2xl transition-all duration-300 hover:bg-white/[0.08] hover:border-white/[0.12] active:scale-95"
+            className="group flex flex-col items-center gap-2 rounded-2xl border border-black/[0.08] bg-black/[0.03] p-2 backdrop-blur-2xl transition-all duration-300 hover:bg-black/[0.08] hover:border-black/[0.12] active:scale-95 dark:border-white/[0.06] dark:bg-white/[0.03] dark:hover:bg-white/[0.08] dark:hover:border-white/[0.12]"
           >
-            <div className="h-16 w-16 overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.04]">
+            <div className="h-16 w-16 overflow-hidden rounded-xl border border-black/[0.08] bg-black/[0.04] dark:border-white/[0.08] dark:bg-white/[0.04]">
               <img
                 src={m.image}
                 alt={m.label}
@@ -42,7 +42,7 @@ export function MuscleCategoryPicker({ open, onClose, onSelect }: MuscleCategory
                 loading="lazy"
               />
             </div>
-            <span className="text-[13px] font-bold capitalize text-ivory transition-colors group-hover:text-white">
+            <span className="text-[13px] font-bold capitalize text-black transition-colors group-hover:text-black dark:text-ivory dark:group-hover:text-white">
               {m.label}
             </span>
           </button>

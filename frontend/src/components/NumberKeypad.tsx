@@ -18,7 +18,7 @@ export function NumberKeypad({ onDigit, onBackspace, onClear, onDone, decimals =
               key={k}
               type="button"
               onClick={onBackspace}
-              className="h-14 rounded-2xl border border-white/[0.06] bg-white/[0.04] text-lg text-ivory backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.08] active:scale-95"
+              className="h-14 rounded-2xl border border-black/[0.08] bg-black/[0.04] text-lg text-black backdrop-blur-xl transition-all duration-300 hover:bg-black/[0.08] active:scale-95 dark:border-white/[0.06] dark:bg-white/[0.04] dark:text-ivory dark:hover:bg-white/[0.08]"
             >
               ⌫
             </button>
@@ -29,7 +29,7 @@ export function NumberKeypad({ onDigit, onBackspace, onClear, onDone, decimals =
               key={k}
               type="button"
               onClick={onClear}
-              className="h-14 rounded-2xl border border-white/[0.06] bg-white/[0.04] text-xs text-ash backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.08] active:scale-95"
+              className="h-14 rounded-2xl border border-black/[0.08] bg-black/[0.04] text-xs text-ash backdrop-blur-xl transition-all duration-300 hover:bg-black/[0.08] active:scale-95 dark:border-white/[0.06] dark:bg-white/[0.04] dark:hover:bg-white/[0.08]"
             >
               clear
             </button>
@@ -39,7 +39,7 @@ export function NumberKeypad({ onDigit, onBackspace, onClear, onDone, decimals =
             key={k}
             type="button"
             onClick={() => onDigit(k)}
-            className="h-14 rounded-2xl border border-white/[0.06] bg-white/[0.04] text-xl text-ivory backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.08] active:scale-95"
+            className="h-14 rounded-2xl border border-black/[0.08] bg-black/[0.04] text-xl text-black backdrop-blur-xl transition-all duration-300 hover:bg-black/[0.08] active:scale-95 dark:border-white/[0.06] dark:bg-white/[0.04] dark:text-ivory dark:hover:bg-white/[0.08]"
           >
             {k}
           </button>

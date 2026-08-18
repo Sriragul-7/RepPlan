@@ -50,9 +50,9 @@ export function AuthCallback() {
   }, [navigate]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-ink">
+    <div className="flex min-h-screen items-center justify-center bg-white dark:bg-ink">
       <div className="flex flex-col items-center gap-4">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/10 border-t-white/60" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-black/10 dark:border-white/10 border-t-black/60 dark:border-t-white/60" />
         <p className="font-data text-[12px] text-stone/50">Signing you in…</p>
       </div>
     </div>

@@ -53,8 +53,8 @@ function SessionExercises({ sets, exerciseNameMap }: { sets: { exercise_id: stri
   return (
     <>
       {exerciseMap.map(([id, data]) => (
-        <div key={id} className="flex items-center justify-between rounded-lg bg-white/[0.03] px-3 py-2">
-          <span className="truncate text-sm text-ivory">{data.name}</span>
+        <div key={id} className="flex items-center justify-between rounded-lg bg-black/[0.03] dark:bg-white/[0.03] px-3 py-2">
+          <span className="truncate text-sm text-black dark:text-ivory">{data.name}</span>
           <span className="font-data ml-2 shrink-0 text-xs text-stone">
             {data.sets} × {data.weight}kg
           </span>
@@ -210,13 +210,13 @@ export function WorkoutHistory() {
           <p className="font-data text-[10px] uppercase tracking-[0.26em] text-stone">
             Calendar
           </p>
-          <h1 className="font-display mt-1 text-[34px] leading-tight text-ivory">
+          <h1 className="font-display mt-1 text-[34px] leading-tight text-black dark:text-ivory">
             Workout history
           </h1>
         </div>
         <button
           onClick={goToToday}
-          className="rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-2 text-sm font-medium text-ivory transition-all hover:bg-white/[0.08] active:scale-95"
+          className="rounded-full border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] px-4 py-2 text-sm font-medium text-black dark:text-ivory transition-all hover:bg-black/[0.08] dark:hover:bg-white/[0.08] active:scale-95"
         >
           Today
         </button>
@@ -233,7 +233,7 @@ export function WorkoutHistory() {
             key={stat.label}
             className="glass-card flex flex-col items-center py-3"
           >
-            <span className="font-data text-xl text-ivory">{stat.value}</span>
+            <span className="font-data text-xl text-black dark:text-ivory">{stat.value}</span>
             <span className="mt-0.5 text-[10px] uppercase tracking-wider text-stone">
               {stat.label}
             </span>
@@ -247,21 +247,21 @@ export function WorkoutHistory() {
         <div className="mb-4 flex items-center justify-between">
           <button
             onClick={goToPrevMonth}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.04] text-ivory transition-all hover:bg-white/[0.08] active:scale-95"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] text-black dark:text-ivory transition-all hover:bg-black/[0.08] dark:hover:bg-white/[0.08] active:scale-95"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
               <path d="M15 18l-6-6 6-6" />
             </svg>
           </button>
           <div className="text-center">
-            <h2 className="font-display text-lg font-bold text-ivory">
+            <h2 className="font-display text-lg font-bold text-black dark:text-ivory">
               {MONTH_NAMES[selectedMonth]}
             </h2>
             <p className="text-xs text-stone">{selectedYear}</p>
           </div>
           <button
             onClick={goToNextMonth}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.04] text-ivory transition-all hover:bg-white/[0.08] active:scale-95"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] text-black dark:text-ivory transition-all hover:bg-black/[0.08] dark:hover:bg-white/[0.08] active:scale-95"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
               <path d="M9 18l6-6-6-6" />
@@ -285,14 +285,14 @@ export function WorkoutHistory() {
               key={level}
               className={`h-3 w-3 rounded-sm ${
                 level === 0
-                  ? "bg-white/[0.03]"
+                  ? "bg-black/[0.03] dark:bg-white/[0.03]"
                   : level === 1
-                    ? "bg-white/[0.08]"
+                    ? "bg-black/[0.08] dark:bg-white/[0.08]"
                     : level === 2
-                      ? "bg-white/[0.15]"
+                      ? "bg-black/[0.15] dark:bg-white/[0.15]"
                       : level === 3
-                        ? "bg-white/[0.25]"
-                        : "bg-ivory"
+                        ? "bg-black/[0.25] dark:bg-white/[0.25]"
+                        : "bg-black dark:bg-ivory"
               }`}
             />
           ))}
@@ -304,12 +304,12 @@ export function WorkoutHistory() {
       {selectedDate && (
         <div className="animate-slide-up space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="font-display text-lg font-bold text-ivory">
+            <h3 className="font-display text-lg font-bold text-black dark:text-ivory">
               {formatDateDisplay(selectedDate)}
             </h3>
             <button
               onClick={() => setSelectedDate(null)}
-              className="text-sm text-stone hover:text-ivory transition-colors"
+              className="text-sm text-stone hover:text-black dark:text-ivory transition-colors"
             >
               Clear
             </button>
@@ -320,11 +320,11 @@ export function WorkoutHistory() {
               {/* Day Summary */}
               <div className="grid grid-cols-2 gap-2">
                 <div className="glass-card flex flex-col items-center py-3">
-                  <span className="font-data text-xl text-ivory">{selectedDayData.sets}</span>
+                  <span className="font-data text-xl text-black dark:text-ivory">{selectedDayData.sets}</span>
                   <span className="mt-0.5 text-[10px] uppercase tracking-wider text-stone">Sets</span>
                 </div>
                 <div className="glass-card flex flex-col items-center py-3">
-                  <span className="font-data text-xl text-ivory">
+                  <span className="font-data text-xl text-black dark:text-ivory">
                     {selectedDayData.volume > 0 ? `${(selectedDayData.volume / 1000).toFixed(1)}k` : "0"}
                   </span>
                   <span className="mt-0.5 text-[10px] uppercase tracking-wider text-stone">Volume</span>
@@ -336,11 +336,11 @@ export function WorkoutHistory() {
                 <GlassCard key={session.id} className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/[0.06]">
-                        <CheckIcon className="h-4 w-4 text-ivory" />
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-black/[0.06] dark:bg-white/[0.06]">
+                        <CheckIcon className="h-4 w-4 text-black dark:text-ivory" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-ivory">
+                        <p className="text-sm font-semibold text-black dark:text-ivory">
                           {session.completed_at ? "Completed" : "In progress"}
                         </p>
                         <p className="text-xs text-stone">
@@ -363,9 +363,9 @@ export function WorkoutHistory() {
 
                   {/* Cardio summary */}
                   {session.cardio && session.cardio.length > 0 && (
-                    <div className="flex items-center gap-2 rounded-lg bg-white/[0.03] px-3 py-2">
+                    <div className="flex items-center gap-2 rounded-lg bg-black/[0.03] dark:bg-white/[0.03] px-3 py-2">
                       <TimerIcon className="h-4 w-4 text-stone" />
-                      <span className="text-sm text-ivory">
+                      <span className="text-sm text-black dark:text-ivory">
                         {session.cardio.map((c) => c.activity_type).join(", ")}
                       </span>
                       <span className="font-data text-xs text-stone">
@@ -387,7 +387,7 @@ export function WorkoutHistory() {
           <button
             onClick={() => handleLogWorkout(selectedDate!)}
             disabled={startForDate.isPending}
-            className="w-full rounded-2xl border border-white/[0.08] bg-white/[0.06] px-5 py-3 text-[13px] font-semibold text-ivory backdrop-blur-xl transition-all duration-200 hover:bg-white/[0.12] hover:border-white/[0.15] active:scale-95 disabled:opacity-40"
+            className="w-full rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.06] dark:bg-white/[0.06] px-5 py-3 text-[13px] font-semibold text-black dark:text-ivory backdrop-blur-xl transition-all duration-200 hover:bg-black/[0.12] dark:hover:bg-white/[0.12] hover:border-black/[0.15] dark:hover:border-white/[0.15] active:scale-95 disabled:opacity-40"
           >
             {startForDate.isPending ? "Starting..." : "Log workout for this day"}
           </button>

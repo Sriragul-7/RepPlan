@@ -61,6 +61,8 @@ def log_set(
     session = repo.get_session(session_id)
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
+    if session.get("user_id") != user_id:
+        raise HTTPException(status_code=403, detail="Session does not belong to you")
     return repo.log_set(session_id, data.model_dump())
 
 
@@ -74,6 +76,8 @@ def log_cardio(
     session = repo.get_session(session_id)
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
+    if session.get("user_id") != user_id:
+        raise HTTPException(status_code=403, detail="Session does not belong to you")
     return repo.log_cardio(session_id, data.model_dump())
 
 
@@ -86,4 +90,6 @@ def complete_session(
     session = repo.get_session(session_id)
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
+    if session.get("user_id") != user_id:
+        raise HTTPException(status_code=403, detail="Session does not belong to you")
     return repo.complete_session(session_id)

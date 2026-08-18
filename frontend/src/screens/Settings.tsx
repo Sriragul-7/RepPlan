@@ -39,7 +39,7 @@ function Row({
 }) {
   return (
     <div className={`ios-row ${className ?? ""}`}>
-      <span className="flex-1 text-[15px] text-ivory">{label}</span>
+      <span className="flex-1 text-[15px] text-black dark:text-ivory">{label}</span>
       {children}
     </div>
   );
@@ -65,7 +65,7 @@ function SelectRow({
         onClick={() => setOpen(!open)}
         className="ios-row ios-tap w-full"
       >
-        <span className="flex-1 text-[15px] text-ivory">{label}</span>
+        <span className="flex-1 text-[15px] text-black dark:text-ivory">{label}</span>
         <span className="text-[15px] text-stone">{selected?.label}</span>
         <ChevronRightIcon
           className={`h-4 w-4 shrink-0 text-ash transition-transform duration-200 ${
@@ -74,7 +74,7 @@ function SelectRow({
         />
       </button>
       {open && (
-        <div className="border-t border-white/[0.04] px-4 py-3">
+        <div className="border-t border-black/[0.04] dark:border-white/[0.04] px-4 py-3">
           <div className="flex flex-wrap gap-2">
             {options.map((opt) => (
               <button
@@ -85,8 +85,8 @@ function SelectRow({
                 }}
                 className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 ${
                   value === opt.value
-                    ? "bg-ivory text-ink shadow-glow"
-                    : "border border-white/[0.08] bg-white/[0.04] text-stone hover:bg-white/[0.06] hover:text-ivory"
+                    ? "bg-black dark:bg-ivory text-white dark:text-ink shadow-glow"
+                    : "border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] text-stone hover:bg-black/[0.06] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-ivory"
                 }`}
               >
                 {opt.label}
@@ -108,7 +108,7 @@ function DaysRow({
 }) {
   return (
     <div className="ios-row">
-      <span className="flex-1 text-[15px] text-ivory">Training days</span>
+      <span className="flex-1 text-[15px] text-black dark:text-ivory">Training days</span>
       <div className="flex gap-1.5">
         {[2, 3, 4, 5, 6].map((d) => (
           <button
@@ -116,8 +116,8 @@ function DaysRow({
             onClick={() => onChange(d)}
             className={`flex h-9 w-9 items-center justify-center rounded-xl text-sm font-medium transition-all duration-200 ${
               value === d
-                ? "bg-ivory text-ink shadow-glow"
-                : "border border-white/[0.08] bg-white/[0.04] text-stone hover:bg-white/[0.06]"
+                ? "bg-black dark:bg-ivory text-white dark:text-ink shadow-glow"
+                : "border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] text-stone hover:bg-black/[0.06] dark:hover:bg-white/[0.06]"
             }`}
           >
             {d}
@@ -156,13 +156,23 @@ export function Settings() {
   );
 
   const save = useMutation({
-    mutationFn: () => {
-      if (!form && profile) return api.saveProfile({ ...profile });
-      if (!form) return Promise.reject(new Error("No changes to save"));
-      return api.saveProfile(form);
+    mutationFn: async () => {
+      if (!form && profile) {
+        await api.saveProfile({ ...profile });
+      } else if (form) {
+        await api.saveProfile(form);
+      } else {
+        return Promise.reject(new Error("No changes to save"));
+      }
+      try {
+        await api.generatePlan();
+      } catch {
+        // Plan generation is best-effort
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profile"] });
+      queryClient.invalidateQueries({ queryKey: ["plan"] });
       setHasChanges(false);
     },
   });
@@ -197,7 +207,7 @@ export function Settings() {
           <p className="font-data text-[10px] uppercase tracking-[0.26em] text-stone">
             Settings
           </p>
-          <h1 className="font-display mt-1 text-[34px] leading-tight text-ivory">
+          <h1 className="font-display mt-1 text-[34px] leading-tight text-black dark:text-ivory">
             Profile
           </h1>
         </div>
@@ -205,7 +215,7 @@ export function Settings() {
           <button
             onClick={() => save.mutate()}
             disabled={save.isPending}
-            className="rounded-full bg-ivory px-5 py-2.5 text-sm font-semibold text-ink transition-all hover:bg-white active:scale-95 disabled:opacity-50"
+            className="rounded-full bg-black dark:bg-ivory px-5 py-2.5 text-sm font-semibold text-white dark:text-ink transition-all hover:bg-gray-800 dark:hover:bg-white active:scale-95 disabled:opacity-50"
           >
             {save.isPending ? "Saving..." : "Save"}
           </button>
@@ -217,29 +227,29 @@ export function Settings() {
           onClick={() => navigate("/profile-setup")}
           className="ios-row ios-tap"
         >
-          <span className="flex-1 text-[15px] text-ivory">Edit profile</span>
+          <span className="flex-1 text-[15px] text-black dark:text-ivory">Edit profile</span>
           <ChevronRightIcon className="h-4 w-4 shrink-0 text-ash" />
         </button>
         <div className="ios-row">
-          <span className="text-[15px] text-ivory">Name</span>
+          <span className="text-[15px] text-black dark:text-ivory">Name</span>
           <input
             value={f.full_name ?? ""}
             onChange={(e) => set("full_name", e.target.value)}
             placeholder="Enter name"
-            className="ml-auto w-48 rounded-lg bg-transparent px-3 py-1 text-left text-base text-ivory placeholder:text-ash/40 outline-none"
+            className="ml-auto w-48 rounded-lg bg-transparent px-3 py-1 text-left text-base text-black dark:text-ivory placeholder:text-ash/40 outline-none"
           />
         </div>
         <Row label="Age">
-          <span className="font-data text-lg text-ivory">{f.computed_age ?? f.age ?? "—"} <span className="text-sm text-stone">yrs</span></span>
+          <span className="font-data text-lg text-black dark:text-ivory">{f.computed_age ?? f.age ?? "—"} <span className="text-sm text-stone">yrs</span></span>
         </Row>
         <Row label="Weight">
-          <span className="font-data text-lg text-ivory">{Math.round(f.weight_kg ?? 70)} <span className="text-sm text-stone">kg</span></span>
+          <span className="font-data text-lg text-black dark:text-ivory">{Math.round(f.weight_kg ?? 70)} <span className="text-sm text-stone">kg</span></span>
         </Row>
         <Row label="Height">
-          <span className="font-data text-lg text-ivory">{Math.round(f.height_cm ?? 170)} <span className="text-sm text-stone">cm</span></span>
+          <span className="font-data text-lg text-black dark:text-ivory">{Math.round(f.height_cm ?? 170)} <span className="text-sm text-stone">cm</span></span>
         </Row>
         <div className="ios-row">
-          <span className="flex-1 text-[15px] text-ivory">Experience</span>
+          <span className="flex-1 text-[15px] text-black dark:text-ivory">Experience</span>
           <Stepper
             value={f.experience_years}
             step={0.5}

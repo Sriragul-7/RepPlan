@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTheme } from "../lib/theme";
 
 type CalendarHeatmapProps = {
   year: number;
@@ -33,8 +34,16 @@ function getHeatLevel(sets: number): number {
   return 4;
 }
 
-const HEAT_COLORS = [
-  "rgba(255,255,255,0.04)",   // Level 0 - no workout (subtle empty)
+const HEAT_COLORS_LIGHT = [
+  "rgba(0,0,0,0.04)",   // Level 0 - no workout
+  "#9be9a8",            // Level 1 - light green
+  "#40c463",            // Level 2 - medium green
+  "#30a14e",            // Level 3 - active green
+  "#216e39",            // Level 4 - intense green
+];
+
+const HEAT_COLORS_DARK = [
+  "rgba(255,255,255,0.04)",   // Level 0 - no workout
   "#0e4429",                   // Level 1 - light green
   "#006d32",                   // Level 2 - medium green
   "#26a641",                   // Level 3 - active green
@@ -48,8 +57,10 @@ export function CalendarHeatmap({
   selectedDate,
   onDateSelect,
 }: CalendarHeatmapProps) {
+  const { theme } = useTheme();
   const daysInMonth = getDaysInMonth(year, month);
   const firstDay = getFirstDayOfMonth(year, month);
+  const heatColors = theme === "dark" ? HEAT_COLORS_DARK : HEAT_COLORS_LIGHT;
 
   const calendarDays = useMemo(() => {
     const days: (number | null)[] = [];
@@ -104,14 +115,14 @@ export function CalendarHeatmap({
               onClick={() => onDateSelect(dateKey)}
               className={`relative flex h-10 items-center justify-center rounded-xl text-sm font-medium transition-all duration-200 ${
                 isSelected
-                  ? "bg-ivory text-ink shadow-glow scale-105"
+                  ? "bg-black text-white shadow-glow scale-105 dark:bg-ivory dark:text-ink"
                   : "hover:opacity-80"
-              } ${isToday && !isSelected ? "ring-1 ring-inset ring-white/20" : ""}`}
+              } ${isToday && !isSelected ? "ring-1 ring-inset ring-black/20 dark:ring-white/20" : ""}`}
               style={
                 !isSelected
                   ? {
-                      backgroundColor: HEAT_COLORS[heatLevel],
-                      color: heatLevel >= 3 ? "#000000" : heatLevel >= 1 ? "#e0e0e0" : "#6B6B76",
+                      backgroundColor: heatColors[heatLevel],
+                      color: heatLevel >= 3 ? (theme === "dark" ? "#000000" : "#ffffff") : heatLevel >= 1 ? (theme === "dark" ? "#e0e0e0" : "#ffffff") : (theme === "dark" ? "#6B6B76" : "#6B6B76"),
                     }
                   : undefined
               }

@@ -22,8 +22,8 @@ const WorkoutHistory = lazy(() => import("./screens/WorkoutHistory").then((m) =>
 
 function LoadingFallback() {
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="h-8 w-40 animate-pulse rounded-full bg-white/[0.06]" />
+    <div className="flex min-h-screen items-center justify-center bg-white dark:bg-transparent">
+      <div className="h-8 w-40 animate-pulse rounded-full bg-black/[0.06] dark:bg-white/[0.06]" />
     </div>
   );
 }
@@ -62,13 +62,13 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-white/[0.06] border border-white/[0.08]">
+        <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-black/[0.06] dark:bg-white/[0.06] border border-black/[0.08] dark:border-white/[0.08]">
           <svg className="h-7 w-7 text-stone" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
             <path d="M7 11V7a5 5 0 0110 0v4" />
           </svg>
         </div>
-        <h2 className="font-display text-[22px] font-bold text-ivory">Sign in required</h2>
+        <h2 className="font-display text-[22px] font-bold text-black dark:text-ivory">Sign in required</h2>
         <p className="mt-2 max-w-xs text-[14px] leading-relaxed text-stone">
           This feature requires an account. Sign in to unlock workout logging, progress tracking, and the AI coach.
         </p>
@@ -81,7 +81,7 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
           </button>
           <button
             onClick={() => window.history.back()}
-            className="w-full rounded-full border border-white/[0.06] bg-white/[0.04] px-6 py-3 text-[14px] font-medium text-ivory backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.08] active:scale-[0.97]"
+            className="w-full rounded-full border border-black/[0.08] dark:border-white/[0.06] bg-black/[0.04] dark:bg-white/[0.04] px-6 py-3 text-[14px] font-medium text-black dark:text-ivory backdrop-blur-xl transition-all duration-300 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] active:scale-[0.97]"
           >
             Go back
           </button>

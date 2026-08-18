@@ -773,7 +773,6 @@ class LocalRepo:
         session["sets"].append(row)
         self._save()
         return row
-        return row
 
     def log_cardio(self, session_id: str, data: dict) -> dict:
         session = self._data["sessions"][session_id]

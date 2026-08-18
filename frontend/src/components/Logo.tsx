@@ -9,17 +9,17 @@ export function Logo({ className = "h-7 w-7" }: { className?: string }) {
       {/* Dumbbell in right hand — extended forward */}
       <g>
         {/* Handle */}
-        <line x1="28" y1="14" x2="36" y2="10" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
+        <line x1="28" y1="14" x2="36" y2="10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         {/* Left plate */}
-        <rect x="35" y="8" width="2.5" height="4" rx="0.8" fill="#ffffff" transform="rotate(-26 36 10)" />
+        <rect x="35" y="8" width="2.5" height="4" rx="0.8" fill="currentColor" transform="rotate(-26 36 10)" />
         {/* Right plate */}
-        <rect x="26" y="12.5" width="2.5" height="4" rx="0.8" fill="#ffffff" transform="rotate(-26 27 14.5)" />
+        <rect x="26" y="12.5" width="2.5" height="4" rx="0.8" fill="currentColor" transform="rotate(-26 27 14.5)" />
       </g>
 
       {/* Kicking leg — extended high right */}
       <path
         d="M22 25 L30 18 L36 16"
-        stroke="#ffffff"
+        stroke="currentColor"
         strokeWidth="3"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -28,7 +28,7 @@ export function Logo({ className = "h-7 w-7" }: { className?: string }) {
       {/* Foot */}
       <path
         d="M36 16 L38 15"
-        stroke="#ffffff"
+        stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
       />
@@ -36,19 +36,19 @@ export function Logo({ className = "h-7 w-7" }: { className?: string }) {
       {/* Body / torso — leaning back for the kick */}
       <path
         d="M16 18 L22 25"
-        stroke="#ffffff"
+        stroke="currentColor"
         strokeWidth="3.5"
         strokeLinecap="round"
         fill="none"
       />
 
       {/* Head */}
-      <circle cx="15" cy="14" r="3.5" fill="#ffffff" />
+      <circle cx="15" cy="14" r="3.5" fill="currentColor" />
 
       {/* Left arm — back for balance */}
       <path
         d="M16 18 L10 14 L6 16"
-        stroke="#ffffff"
+        stroke="currentColor"
         strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -56,12 +56,12 @@ export function Logo({ className = "h-7 w-7" }: { className?: string }) {
       />
 
       {/* Fist on left hand */}
-      <circle cx="6" cy="16" r="1.2" fill="#ffffff" />
+      <circle cx="6" cy="16" r="1.2" fill="currentColor" />
 
       {/* Supporting leg — planted */}
       <path
         d="M22 25 L18 32 L16 38"
-        stroke="#ffffff"
+        stroke="currentColor"
         strokeWidth="3"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -71,7 +71,7 @@ export function Logo({ className = "h-7 w-7" }: { className?: string }) {
       {/* Foot on ground */}
       <path
         d="M16 38 L14 38.5"
-        stroke="#ffffff"
+        stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
       />
@@ -82,7 +82,7 @@ export function Logo({ className = "h-7 w-7" }: { className?: string }) {
         cy="39"
         rx="5"
         ry="1"
-        fill="#ffffff"
+        fill="currentColor"
         opacity="0.2"
       />
     </svg>

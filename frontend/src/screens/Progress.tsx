@@ -186,10 +186,10 @@ export function Progress() {
       <header className="flex items-end justify-between pt-4">
         <div>
           <p className="font-data text-[11px] uppercase tracking-[0.28em] text-stone">Analytics</p>
-          <h1 className="font-display mt-1.5 text-[38px] font-semibold leading-[1.1] text-white">Monthly report</h1>
+          <h1 className="font-display mt-1.5 text-[38px] font-semibold leading-[1.1] text-black dark:text-white">Monthly report</h1>
         </div>
         {overview && overview.streak_weeks > 0 ? (
-          <span className="mb-1.5 rounded-full border border-white/[0.08] bg-white/[0.04] px-3.5 py-1.5 font-data text-[11px] text-chrome backdrop-blur-xl">
+          <span className="mb-1.5 rounded-full border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] px-3.5 py-1.5 font-data text-[11px] text-chrome backdrop-blur-xl">
             {overview.streak_weeks}-week streak
           </span>
         ) : null}
@@ -197,7 +197,7 @@ export function Progress() {
 
       <div>
         <div className="flex items-center justify-between mb-3">
-          <button onClick={prevMonth} className="text-stone hover:text-white transition-colors px-2 py-1">
+          <button onClick={prevMonth} className="text-stone hover:text-black dark:hover:text-white transition-colors px-2 py-1">
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
             </svg>
@@ -205,13 +205,13 @@ export function Progress() {
           <h3 className="font-data text-[11px] uppercase tracking-[0.22em] text-stone">
             {monthNames[month]} {year}
           </h3>
-          <button onClick={nextMonth} className="text-stone hover:text-white transition-colors px-2 py-1">
+          <button onClick={nextMonth} className="text-stone hover:text-black dark:hover:text-white transition-colors px-2 py-1">
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
             </svg>
           </button>
         </div>
-        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4 backdrop-blur-xl">
+        <div className="rounded-2xl border border-black/[0.08] dark:border-white/[0.06] bg-black/[0.03] dark:bg-white/[0.03] p-4 backdrop-blur-xl">
           <CalendarHeatmap
             year={year}
             month={month}
@@ -253,12 +253,12 @@ export function Progress() {
                   )}
                   {sessionExercises[sessionIndex]?.map((ex) => (
                     <div key={ex.name} className="ios-row flex-col items-start !py-3">
-                      <span className="text-sm font-semibold text-white">{ex.name}</span>
+                      <span className="text-sm font-semibold text-black dark:text-white">{ex.name}</span>
                       <div className="mt-1 flex flex-wrap gap-1.5">
                         {ex.sets.map((set, i) => (
                           <span
                             key={i}
-                            className="rounded-lg bg-white/[0.06] px-2 py-1 font-data text-[11px] text-chrome"
+                            className="rounded-lg bg-black/[0.06] dark:bg-white/[0.06] px-2 py-1 font-data text-[11px] text-chrome"
                           >
                             {set.weight != null ? `${set.weight}kg` : "—"} × {set.reps ?? "—"}
                           </span>
@@ -294,7 +294,7 @@ export function Progress() {
           <button
             onClick={() => handleLogWorkout(selectedDate)}
             disabled={startForDate.isPending}
-            className="mt-3 w-full rounded-2xl border border-white/[0.08] bg-white/[0.06] px-5 py-3 text-[13px] font-semibold text-ivory backdrop-blur-xl transition-all duration-200 hover:bg-white/[0.12] hover:border-white/[0.15] active:scale-95 disabled:opacity-40"
+            className="mt-3 w-full rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.06] dark:bg-white/[0.06] px-5 py-3 text-[13px] font-semibold text-black dark:text-ivory backdrop-blur-xl transition-all duration-200 hover:bg-black/[0.12] dark:hover:bg-white/[0.12] hover:border-black/[0.15] dark:hover:border-white/[0.15] active:scale-95 disabled:opacity-40"
           >
             {startForDate.isPending ? "Starting..." : "Log workout for this day"}
           </button>
@@ -307,12 +307,12 @@ export function Progress() {
           {monthlyWorkouts.length > 0 ? (
             monthlyWorkouts.map((w, i) => (
               <div key={w.week} className="ios-row">
-                <span className={`w-16 shrink-0 text-sm ${i === monthlyWorkouts.length - 1 ? "font-semibold text-white" : "text-stone"}`}>
+                <span className={`w-16 shrink-0 text-sm ${i === monthlyWorkouts.length - 1 ? "font-semibold text-black dark:text-white" : "text-stone"}`}>
                   {w.week}
                 </span>
-                <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-white/[0.04]">
+                <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-black/[0.04] dark:bg-white/[0.04]">
                   <div
-                    className="h-full rounded-full bg-white transition-all duration-700"
+                    className="h-full rounded-full bg-black dark:bg-white transition-all duration-700"
                     style={{ width: `${(w.workouts / maxMonthly) * 100}%` }}
                   />
                 </div>
@@ -352,10 +352,26 @@ export function Progress() {
                 <svg className="h-full w-full" viewBox={`0 0 ${weightTrend.sorted.length * 20} 100`} preserveAspectRatio="none">
                   <polyline
                     fill="none"
+                    stroke="rgba(0,0,0,0.4)"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="dark:hidden"
+                    points={weightTrend.sorted.map((m, i) => {
+                      const x = i * 20;
+                      const w = m.weight_kg ?? 0;
+                      const range = weightTrend.maxW - weightTrend.minW || 1;
+                      const y = 100 - ((w - weightTrend.minW) / range) * 80 - 10;
+                      return `${x},${y}`;
+                    }).join(" ")}
+                  />
+                  <polyline
+                    fill="none"
                     stroke="rgba(255,255,255,0.6)"
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
+                    className="hidden dark:block"
                     points={weightTrend.sorted.map((m, i) => {
                       const x = i * 20;
                       const w = m.weight_kg ?? 0;

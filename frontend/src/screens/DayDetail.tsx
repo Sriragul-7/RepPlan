@@ -79,12 +79,12 @@ export function DayDetail() {
 
       <header>
         <p className="font-data text-[11px] uppercase tracking-[0.28em] text-stone">{splitType}</p>
-        <h1 className="font-display mt-1.5 text-[38px] font-semibold leading-[1.1] text-white">{day.label}</h1>
+        <h1 className="font-display mt-1.5 text-[38px] font-semibold leading-[1.1] text-black dark:text-white">{day.label}</h1>
         <div className="mt-3 flex flex-wrap gap-2">
           {day.target_muscles.map((m) => (
             <span
               key={m}
-              className="rounded-full border border-white/[0.08] bg-white/[0.04] px-3.5 py-1.5 text-xs font-medium capitalize text-chrome backdrop-blur-xl"
+              className="rounded-full border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] px-3.5 py-1.5 text-xs font-medium capitalize text-chrome backdrop-blur-xl"
             >
               {m}
             </span>
@@ -93,7 +93,7 @@ export function DayDetail() {
       </header>
 
       {day.recovery_nudges.length > 0 ? (
-        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] px-5 py-4 text-sm text-silver backdrop-blur-xl">
+        <div className="rounded-2xl border border-black/[0.08] dark:border-white/[0.06] bg-black/[0.03] dark:bg-white/[0.03] px-5 py-4 text-sm text-gray-500 dark:text-silver backdrop-blur-xl">
           {day.recovery_nudges.join(" ")}
         </div>
       ) : null}
@@ -114,13 +114,13 @@ export function DayDetail() {
                   className="h-14 w-14 shrink-0 rounded-xl"
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-white">
+                  <p className="truncate text-sm font-semibold text-black dark:text-white">
                     <span className="mr-1.5 font-data text-xs text-stone">{i + 1}.</span>
                     {ex?.name ?? item.exercise_id}
                   </p>
                   <p className="mt-0.5 text-xs capitalize text-stone">{ex?.target_muscle ?? ""}</p>
                   <div className="mt-2 flex items-center gap-2 text-xs text-stone">
-                    <span className="rounded-full bg-white/[0.04] px-2.5 py-0.5 capitalize backdrop-blur-xl">
+                    <span className="rounded-full bg-black/[0.04] dark:bg-white/[0.04] px-2.5 py-0.5 capitalize backdrop-blur-xl">
                       {ex?.equipment}
                     </span>
                     <span className="font-data text-chrome">
@@ -133,7 +133,7 @@ export function DayDetail() {
                     onClick={() => swap.mutate(ex.id)}
                     disabled={swap.isPending}
                     aria-label="Swap exercise"
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.04] text-stone transition-all duration-200 active:scale-90 hover:bg-white/[0.08] hover:text-white backdrop-blur-xl"
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] text-stone transition-all duration-200 active:scale-90 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] hover:text-black dark:hover:text-white backdrop-blur-xl"
                   >
                     <SwapIcon className="h-4 w-4" />
                   </button>
@@ -151,7 +151,7 @@ export function DayDetail() {
         <button
           onClick={() => replan.mutate()}
           disabled={replan.isPending}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/[0.08] bg-white/[0.03] py-3.5 text-sm text-stone transition-all duration-200 active:scale-[0.98] hover:bg-white/[0.06]"
+          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.03] dark:bg-white/[0.03] py-3.5 text-sm text-stone transition-all duration-200 active:scale-[0.98] hover:bg-black/[0.06] dark:hover:bg-white/[0.06]"
         >
           <ChevronDownIcon className="h-4 w-4 rotate-180" />
           {replan.isPending ? "Redistributing…" : "Missed this day? Redistribute targets"}

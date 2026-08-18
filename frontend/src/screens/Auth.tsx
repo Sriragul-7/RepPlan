@@ -1,15 +1,17 @@
 import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/auth";
+import { useTheme } from "../lib/theme";
 import { Logo } from "../components/Logo";
 
 export function Auth() {
   const navigate = useNavigate();
   const { signInWithGoogle, user, loading } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-ink">
-        <div className="h-6 w-32 animate-pulse rounded-full bg-white/[0.06]" />
+      <div className="flex min-h-screen items-center justify-center bg-white dark:bg-ink">
+        <div className="h-6 w-32 animate-pulse rounded-full bg-black/[0.06] dark:bg-white/[0.06]" />
       </div>
     );
   }
@@ -19,13 +21,38 @@ export function Auth() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-ink px-5">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-white dark:bg-ink px-5">
       <div className="app-bg" aria-hidden />
+
+      {/* Theme toggle */}
+      <button
+        onClick={toggleTheme}
+        className="fixed right-4 top-4 z-50 flex h-10 w-10 items-center justify-center rounded-full border border-black/[0.08] dark:border-white/[0.06] bg-white/[0.8] dark:bg-white/[0.04] text-stone backdrop-blur-xl transition-all duration-300 hover:bg-white dark:hover:bg-white/[0.08] hover:text-black dark:hover:text-ivory active:scale-95"
+        aria-label="Toggle theme"
+      >
+        {theme === "dark" ? (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="5" />
+            <line x1="12" y1="1" x2="12" y2="3" />
+            <line x1="12" y1="21" x2="12" y2="23" />
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+            <line x1="1" y1="12" x2="3" y2="12" />
+            <line x1="21" y1="12" x2="23" y2="12" />
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+          </svg>
+        ) : (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+        )}
+      </button>
 
       {/* Floating orbs */}
       <div className="pointer-events-none fixed inset-0" aria-hidden>
-        <div className="absolute left-1/4 top-1/3 h-72 w-72 rounded-full bg-white/[0.02] blur-[120px]" />
-        <div className="absolute bottom-1/4 right-1/4 h-56 w-56 rounded-full bg-white/[0.015] blur-[100px]" />
+        <div className="absolute left-1/4 top-1/3 h-72 w-72 rounded-full bg-black/[0.02] dark:bg-white/[0.02] blur-[120px]" />
+        <div className="absolute bottom-1/4 right-1/4 h-56 w-56 rounded-full bg-black/[0.015] dark:bg-white/[0.015] blur-[100px]" />
       </div>
 
       {/* Card */}
@@ -34,13 +61,13 @@ export function Auth() {
           {/* Logo */}
           <div className="mb-8 flex flex-col items-center">
             <Logo className="mb-4 h-12 w-12" />
-            <h1 className="font-display text-[24px] font-bold text-white">RepPlan</h1>
+            <h1 className="font-display text-[24px] font-bold text-black dark:text-white">RepPlan</h1>
             <p className="mt-1 text-[14px] text-stone/50">Lock in.</p>
           </div>
 
           {/* Tagline */}
           <div className="mb-8 text-center">
-            <p className="font-display text-[18px] font-bold text-white/90">
+            <p className="font-display text-[18px] font-bold text-black dark:text-white/90">
               Get started with RepPlan.
             </p>
             <p className="mt-2 text-[14px] text-stone/50">
@@ -51,7 +78,7 @@ export function Auth() {
           {/* Google button */}
           <button
             onClick={signInWithGoogle}
-            className="flex w-full items-center justify-center gap-3 rounded-full border border-white/[0.08] bg-white/[0.05] px-6 py-4 text-[15px] font-medium text-white backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.1] active:scale-[0.97]"
+            className="flex w-full items-center justify-center gap-3 rounded-full border border-black/[0.08] dark:border-white/[0.08] bg-white/[0.05] px-6 py-4 text-[15px] font-medium text-black dark:text-white backdrop-blur-xl transition-all duration-300 hover:bg-black/[0.1] dark:hover:bg-white/[0.1] active:scale-[0.97]"
           >
             {/* Google icon */}
             <svg className="h-5 w-5" viewBox="0 0 24 24">
@@ -86,7 +113,7 @@ export function Auth() {
         {/* Back link */}
         <button
           onClick={() => navigate("/")}
-          className="mt-6 block w-full text-center text-[13px] text-stone/40 transition-colors hover:text-white/60"
+          className="mt-6 block w-full text-center text-[13px] text-stone/40 transition-colors hover:text-black dark:text-black/60 dark:text-white/60"
         >
           ← Back to home
         </button>

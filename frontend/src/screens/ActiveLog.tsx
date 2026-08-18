@@ -299,7 +299,7 @@ export function ActiveLog() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <p className="text-ivory text-lg font-semibold">Something went wrong</p>
+        <p className="text-black dark:text-ivory text-lg font-semibold">Something went wrong</p>
         <p className="mt-2 text-sm text-stone">{error}</p>
         <button
           onClick={() => {
@@ -307,7 +307,7 @@ export function ActiveLog() {
             setLoading(true);
             loadInit();
           }}
-          className="mt-6 rounded-full bg-ivory px-6 py-3 text-sm font-semibold text-ink transition active:scale-95"
+          className="mt-6 rounded-full bg-black dark:bg-ivory px-6 py-3 text-sm font-semibold text-black dark:text-ink transition active:scale-95"
         >
           Try again
         </button>
@@ -323,7 +323,7 @@ export function ActiveLog() {
           <p className="font-accent text-[10px] font-semibold uppercase tracking-[0.3em] text-stone">
             {resolvedDayId ? "Today's session" : muscle ? `${muscle} focus` : "Session"}
           </p>
-          <h1 className="font-display mt-1.5 text-[40px] font-bold leading-[1.05] text-ivory">
+          <h1 className="font-display mt-1.5 text-[40px] font-bold leading-[1.05] text-black dark:text-ivory">
             Log
             <br />
             workout
@@ -332,7 +332,7 @@ export function ActiveLog() {
         <div className="flex items-center gap-2 mb-2">
           <button
             onClick={() => navigate("/app/history")}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/[0.1] bg-white/[0.06] text-silver backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.1] active:scale-95"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-black/[0.1] dark:border-white/[0.1] bg-black/[0.06] dark:bg-white/[0.06] text-gray-500 dark:text-silver backdrop-blur-xl transition-all duration-300 hover:bg-black/[0.1] dark:hover:bg-white/[0.1] active:scale-95"
             aria-label="Workout history"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
@@ -344,7 +344,7 @@ export function ActiveLog() {
           <button
             onClick={() => complete.mutate()}
             disabled={complete.isPending}
-            className="flex h-10 items-center rounded-full border border-white/[0.1] bg-white/[0.06] px-5 text-[13px] font-semibold text-silver backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.1] active:scale-95"
+            className="flex h-10 items-center rounded-full border border-black/[0.1] dark:border-white/[0.1] bg-black/[0.06] dark:bg-white/[0.06] px-5 text-[13px] font-semibold text-gray-500 dark:text-silver backdrop-blur-xl transition-all duration-300 hover:bg-black/[0.1] dark:hover:bg-white/[0.1] active:scale-95"
           >
             {complete.isPending ? "…" : "End session"}
           </button>
@@ -358,15 +358,15 @@ export function ActiveLog() {
             Progress
           </span>
           <div className="flex items-baseline gap-1">
-            <span className="font-display text-[28px] font-bold leading-none text-ivory">
+            <span className="font-display text-[28px] font-bold leading-none text-black dark:text-ivory">
               {totalLogged}
             </span>
             <span className="font-data text-sm text-ash">/ {totalPrescribed} sets</span>
           </div>
         </div>
-        <div className="mt-3.5 h-2.5 overflow-hidden rounded-full bg-white/[0.06]">
+        <div className="mt-3.5 h-2.5 overflow-hidden rounded-full bg-black/[0.06] dark:bg-white/[0.06]">
           <div
-            className="h-full rounded-full bg-ivory shadow-glow transition-all duration-700 ease-out"
+            className="h-full rounded-full bg-black dark:bg-ivory shadow-glow transition-all duration-700 ease-out"
             style={{ width: `${totalPrescribed ? (totalLogged / totalPrescribed) * 100 : 0}%` }}
           />
         </div>
@@ -382,7 +382,7 @@ export function ActiveLog() {
             <p className="font-accent text-[10px] font-semibold uppercase tracking-[0.25em] text-stone">
               Training
             </p>
-            <p className="font-display mt-1 text-[24px] font-bold capitalize text-ivory">
+            <p className="font-display mt-1 text-[24px] font-bold capitalize text-black dark:text-ivory">
               {muscle}
             </p>
           </div>
@@ -393,7 +393,7 @@ export function ActiveLog() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={`Search ${muscle} exercises...`}
-              className="w-full rounded-2xl border border-white/[0.08] bg-white/[0.04] px-4 py-3.5 pl-11 text-[15px] text-ivory placeholder-ash outline-none backdrop-blur-xl transition-all focus:border-white/[0.15] focus:bg-white/[0.06]"
+              className="w-full rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] px-4 py-3.5 pl-11 text-[15px] text-black dark:text-ivory placeholder-ash outline-none backdrop-blur-xl transition-all focus:border-white/[0.15] focus:bg-black/[0.06] dark:bg-white/[0.06]"
             />
             <svg className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ash" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
               <circle cx="11" cy="11" r="8" />
@@ -424,10 +424,10 @@ export function ActiveLog() {
                       thumbnailUrl={ex.thumbnail_url}
                       gifUrl={ex.gif_url}
                       alt={ex.name}
-                      className="h-12 w-12 shrink-0 rounded-xl border border-white/[0.08] bg-white/[0.03]"
+                      className="h-12 w-12 shrink-0 rounded-xl border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.03] dark:bg-white/[0.03]"
                     />
                     <div className="min-w-0 flex-1 text-left">
-                      <p className="truncate text-[15px] font-semibold text-ivory">{ex.name}</p>
+                      <p className="truncate text-[15px] font-semibold text-black dark:text-ivory">{ex.name}</p>
                       <p className="mt-0.5 text-[11px] text-stone">
                         {ex.target_muscle ?? ex.body_part ?? ""}
                         {ex.equipment ? ` · ${ex.equipment}` : ""}
@@ -436,7 +436,7 @@ export function ActiveLog() {
                     {alreadyAdded ? (
                       <span className="text-[11px] text-ash">Added</span>
                     ) : (
-                      <PlusIcon className="h-4 w-4 text-silver" />
+                      <PlusIcon className="h-4 w-4 text-gray-500 dark:text-silver" />
                     )}
                   </button>
                 );
@@ -466,10 +466,10 @@ export function ActiveLog() {
                   thumbnailUrl={ex?.thumbnail_url}
                   gifUrl={ex?.gif_url}
                   alt={ex?.name ?? ""}
-                  className="h-[68px] w-[68px] shrink-0 rounded-[20px] border border-white/[0.08] bg-white/[0.03]"
+                  className="h-[68px] w-[68px] shrink-0 rounded-[20px] border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.03] dark:bg-white/[0.03]"
                 />
                 <div className="min-w-0 flex-1 text-left">
-                  <p className="font-display truncate text-[17px] font-semibold text-ivory leading-tight">
+                  <p className="font-display truncate text-[17px] font-semibold text-black dark:text-ivory leading-tight">
                     {ex?.name ?? item.exercise_id}
                   </p>
                   <p className="mt-1 font-data text-[11px] text-stone">
@@ -483,8 +483,8 @@ export function ActiveLog() {
                         key={i}
                         className={`h-[6px] rounded-full transition-all duration-500 ${
                           i < done
-                            ? "w-[6px] bg-ivory shadow-glow"
-                            : "w-[6px] bg-white/[0.08]"
+                            ? "w-[6px] bg-black dark:bg-ivory shadow-glow"
+                            : "w-[6px] bg-black/[0.08] dark:bg-white/[0.08]"
                         }`}
                       />
                     ))}
@@ -492,11 +492,11 @@ export function ActiveLog() {
                 </div>
                 <div className="shrink-0 flex flex-col items-center gap-1">
                   {done > 0 && (
-                    <span className="font-data text-[11px] font-semibold text-ivory">
+                    <span className="font-data text-[11px] font-semibold text-black dark:text-ivory">
                       {done}/{item.prescribed_sets}
                     </span>
                   )}
-                  <ChevronDownIcon className="h-4 w-4 text-ash/60 transition-transform group-hover:text-silver group-hover:translate-x-0.5" />
+                  <ChevronDownIcon className="h-4 w-4 text-ash/60 transition-transform group-hover:text-gray-500 dark:hover:text-silver group-hover:translate-x-0.5" />
                 </div>
               </button>
             );
@@ -508,7 +508,7 @@ export function ActiveLog() {
       {/* Add Exercise */}
       <button
         onClick={() => setSearchOpen(true)}
-        className="flex w-full items-center justify-center gap-2.5 rounded-[20px] border border-dashed border-white/[0.1] bg-white/[0.03] py-5 text-[13px] font-medium text-silver backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.06] active:scale-[0.98]"
+        className="flex w-full items-center justify-center gap-2.5 rounded-[20px] border border-dashed border-black/[0.1] dark:border-white/[0.1] bg-black/[0.03] dark:bg-white/[0.03] py-5 text-[13px] font-medium text-gray-500 dark:text-silver backdrop-blur-xl transition-all duration-300 hover:bg-black/[0.06] dark:hover:bg-white/[0.06] active:scale-[0.98]"
       >
         <PlusIcon className="h-4 w-4" />
         Add exercise
@@ -527,11 +527,11 @@ export function ActiveLog() {
           ) : (
             cardioLogs.map((c) => (
               <div key={c.id} className="ios-row">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/[0.06] text-silver border border-white/[0.06]">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-black/[0.06] dark:bg-white/[0.06] text-gray-500 dark:text-silver border border-black/[0.08] dark:border-white/[0.06]">
                   <TimerIcon className="h-5 w-5" />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="font-display text-[15px] font-semibold capitalize text-ivory">{c.activity_type}</p>
+                  <p className="font-display text-[15px] font-semibold capitalize text-black dark:text-ivory">{c.activity_type}</p>
                   <p className="mt-0.5 font-data text-[11px] text-stone">
                     {c.duration_minutes ?? 0} min
                     {c.distance_km != null ? ` · ${c.distance_km} km` : ""}
@@ -544,7 +544,7 @@ export function ActiveLog() {
         </div>
         <button
           onClick={() => setCardioOpen(true)}
-          className="mt-3 flex w-full items-center justify-center gap-2.5 rounded-[20px] border border-dashed border-white/[0.1] bg-white/[0.03] py-5 text-[13px] font-medium text-silver backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.06] active:scale-[0.98]"
+          className="mt-3 flex w-full items-center justify-center gap-2.5 rounded-[20px] border border-dashed border-black/[0.1] dark:border-white/[0.1] bg-black/[0.03] dark:bg-white/[0.03] py-5 text-[13px] font-medium text-gray-500 dark:text-silver backdrop-blur-xl transition-all duration-300 hover:bg-black/[0.06] dark:hover:bg-white/[0.06] active:scale-[0.98]"
         >
           <PlusIcon className="h-4 w-4" />
           Add cardio
@@ -577,7 +577,7 @@ export function ActiveLog() {
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search exercises..."
             autoFocus
-            className="w-full rounded-2xl border border-white/[0.08] bg-white/[0.04] px-4 py-3 text-[15px] text-ivory placeholder-ash outline-none backdrop-blur-xl transition-all focus:border-white/[0.15] focus:bg-white/[0.06]"
+            className="w-full rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] px-4 py-3 text-[15px] text-black dark:text-ivory placeholder-ash outline-none backdrop-blur-xl transition-all focus:border-white/[0.15] focus:bg-black/[0.06] dark:bg-white/[0.06]"
           />
           <div className="max-h-[50vh] overflow-y-auto space-y-1">
             {exercisesQuery.isLoading ? (
@@ -595,17 +595,17 @@ export function ActiveLog() {
                     className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-all ${
                       alreadyAdded
                         ? "opacity-40"
-                        : "hover:bg-white/[0.04] active:scale-[0.98]"
+                        : "hover:bg-black/[0.04] dark:hover:bg-white/[0.04] active:scale-[0.98]"
                     }`}
                   >
                     <ExerciseImage
                       thumbnailUrl={ex.thumbnail_url}
                       gifUrl={ex.gif_url}
                       alt={ex.name}
-                      className="h-12 w-12 shrink-0 rounded-xl border border-white/[0.08] bg-white/[0.03]"
+                      className="h-12 w-12 shrink-0 rounded-xl border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.03] dark:bg-white/[0.03]"
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-[15px] font-semibold text-ivory">{ex.name}</p>
+                      <p className="truncate text-[15px] font-semibold text-black dark:text-ivory">{ex.name}</p>
                       <p className="mt-0.5 text-[11px] text-stone">
                         {ex.target_muscle ?? ex.body_part ?? ""}
                         {ex.equipment ? ` · ${ex.equipment}` : ""}
@@ -614,7 +614,7 @@ export function ActiveLog() {
                     {alreadyAdded ? (
                       <span className="text-[11px] text-ash">Added</span>
                     ) : (
-                      <PlusIcon className="h-4 w-4 text-silver" />
+                      <PlusIcon className="h-4 w-4 text-gray-500 dark:text-silver" />
                     )}
                   </button>
                 );
@@ -638,7 +638,7 @@ export function ActiveLog() {
             It's been a while since your last weight entry. Log your current weight to keep your coach up to date.
           </p>
           <div className="flex items-center justify-center gap-2">
-            <span className="font-display text-[56px] font-bold text-ivory">{checkinWeight}</span>
+            <span className="font-display text-[56px] font-bold text-black dark:text-ivory">{checkinWeight}</span>
             <span className="font-data text-sm text-ash">kg</span>
           </div>
           <Stepper value={checkinWeight} min={30} max={300} onChange={setCheckinWeight} />
@@ -709,14 +709,14 @@ function SetSheet({
         thumbnailUrl={exercise.exercise?.thumbnail_url ?? exercise.thumbnail_url}
         gifUrl={exercise.exercise?.gif_url ?? exercise.gif_url}
         alt={exercise.exercise?.name ?? ""}
-        className="h-44 w-full rounded-[24px] border border-white/[0.08] bg-white/[0.03]"
+        className="h-44 w-full rounded-[24px] border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.03] dark:bg-white/[0.03]"
       />
       {last ? (
         <button
           onClick={repeatLast}
-          className="flex w-full items-center justify-center gap-2.5 rounded-2xl border border-white/[0.08] bg-white/[0.04] py-3.5 text-[13px] font-semibold text-silver backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.08] active:scale-[0.98]"
+          className="flex w-full items-center justify-center gap-2.5 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] py-3.5 text-[13px] font-semibold text-gray-500 dark:text-silver backdrop-blur-xl transition-all duration-300 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] active:scale-[0.98]"
         >
-          <span className="text-ivory">↻</span>
+          <span className="text-black dark:text-ivory">↻</span>
           Repeat last set
         </button>
       ) : null}
@@ -736,9 +736,9 @@ function SetSheet({
         const logged = done.find((s) => s.set_number === n);
         if (logged) {
           return (
-            <GlassCard key={n} className="flex items-center justify-between border-white/[0.08] !p-4">
+            <GlassCard key={n} className="flex items-center justify-between border-black/[0.08] dark:border-white/[0.08] !p-4">
               <div className="flex items-center gap-3.5">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-ivory text-ink shadow-glow">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-black dark:bg-ivory text-black dark:text-ink shadow-glow">
                   <CheckIcon className="h-5 w-5" strokeWidth={2.5} />
                 </div>
                 <div>
@@ -746,12 +746,12 @@ function SetSheet({
                     SET {n}
                   </p>
                   <div className="mt-0.5 flex items-baseline gap-1">
-                    <span className="font-display text-[22px] font-bold text-ivory">
+                    <span className="font-display text-[22px] font-bold text-black dark:text-ivory">
                       {logged.weight_kg ?? 0}
                     </span>
                     <span className="font-data text-[11px] text-ash">kg</span>
                     <span className="mx-1 text-ash/40">×</span>
-                    <span className="font-display text-[22px] font-bold text-ivory">
+                    <span className="font-display text-[22px] font-bold text-black dark:text-ivory">
                       {logged.reps ?? 0}
                     </span>
                     <span className="font-data text-[11px] text-ash">reps</span>
@@ -779,13 +779,13 @@ function SetSheet({
                   </p>
                   <button
                     onClick={() => setKeypadFor(null)}
-                    className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/[0.06] text-ash transition-all hover:bg-white/[0.1]"
+                    className="flex h-8 w-8 items-center justify-center rounded-xl bg-black/[0.06] dark:bg-white/[0.06] text-ash transition-all hover:bg-black/[0.1] dark:hover:bg-white/[0.1]"
                   >
                     <CloseIcon className="h-4 w-4" />
                   </button>
                 </div>
                 <div className="flex items-center justify-center gap-2">
-                  <span className="font-display text-[56px] font-bold leading-none text-ivory">
+                  <span className="font-display text-[56px] font-bold leading-none text-black dark:text-ivory">
                     {keypadValue ?? (keypadFor.field === "weight" ? value.weight : value.reps)}
                   </span>
                   <span className="font-data text-sm font-medium text-ash">
@@ -819,7 +819,7 @@ function SetSheet({
               </div>
             ) : (
               <SwipeRow onConfirm={() => onLog(exercise, n, value.weight, value.reps)}>
-                <GlassCard className="space-y-3.5 !p-4 border-white/[0.08]">
+                <GlassCard className="space-y-3.5 !p-4 border-black/[0.08] dark:border-white/[0.08]">
                   <div className="flex items-center justify-between">
                     <p className="font-accent text-[10px] font-semibold uppercase tracking-[0.2em] text-stone">
                       SET {n}
@@ -847,7 +847,7 @@ function SetSheet({
                       <button
                         onClick={() => setKeypadFor({ setNumber: n, field: "weight" })}
                         aria-label="Type weight"
-                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/[0.08] bg-white/[0.04] text-silver backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.08] active:scale-90"
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] text-gray-500 dark:text-silver backdrop-blur-xl transition-all duration-300 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] active:scale-90"
                       >
                         <span className="font-data text-xs">⌨</span>
                       </button>
@@ -868,7 +868,7 @@ function SetSheet({
                       <button
                         onClick={() => setKeypadFor({ setNumber: n, field: "reps" })}
                         aria-label="Type reps"
-                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/[0.08] bg-white/[0.04] text-silver backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.08] active:scale-90"
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] text-gray-500 dark:text-silver backdrop-blur-xl transition-all duration-300 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] active:scale-90"
                       >
                         <span className="font-data text-xs">⌨</span>
                       </button>
@@ -932,8 +932,8 @@ function CardioSheet({
               onClick={() => setActivity(c)}
               className={`rounded-full border px-4 py-2.5 text-[13px] font-medium transition-all duration-300 active:scale-95 ${
                 activity === c
-                  ? "border-ivory/20 bg-ivory text-ink shadow-glow"
-                  : "border-white/[0.08] bg-white/[0.04] text-silver backdrop-blur-xl hover:bg-white/[0.08]"
+                  ? "border-black/20 dark:border-ivory/20 bg-black dark:bg-ivory text-black dark:text-ink shadow-glow"
+                  : "border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] text-gray-500 dark:text-silver backdrop-blur-xl hover:bg-black/[0.08] dark:hover:bg-white/[0.08]"
               }`}
             >
               {c}
@@ -942,22 +942,22 @@ function CardioSheet({
         </div>
 
         {/* Cardio Steppers */}
-        <GlassCard className="space-y-4 border-white/[0.08]">
+        <GlassCard className="space-y-4 border-black/[0.08] dark:border-white/[0.08]">
           <div className="flex items-center justify-between">
             <span className="font-accent text-[10px] font-semibold uppercase tracking-[0.2em] text-stone">Duration</span>
-            <span className="font-display text-[18px] font-bold text-ivory">{duration} <span className="font-data text-xs text-ash">min</span></span>
+            <span className="font-display text-[18px] font-bold text-black dark:text-ivory">{duration} <span className="font-data text-xs text-ash">min</span></span>
           </div>
           <Stepper label="mins" value={duration} min={1} max={300} onChange={setDuration} />
-          <div className="h-px bg-white/[0.06]" />
+          <div className="h-px bg-black/[0.06] dark:bg-white/[0.06]" />
           <div className="flex items-center justify-between">
             <span className="font-accent text-[10px] font-semibold uppercase tracking-[0.2em] text-stone">Distance</span>
-            <span className="font-display text-[18px] font-bold text-ivory">{distance || 0} <span className="font-data text-xs text-ash">km</span></span>
+            <span className="font-display text-[18px] font-bold text-black dark:text-ivory">{distance || 0} <span className="font-data text-xs text-ash">km</span></span>
           </div>
           <Stepper label="km" value={distance} step={0.5} decimals={1} min={0} max={100} onChange={setDistance} />
-          <div className="h-px bg-white/[0.06]" />
+          <div className="h-px bg-black/[0.06] dark:bg-white/[0.06]" />
           <div className="flex items-center justify-between">
             <span className="font-accent text-[10px] font-semibold uppercase tracking-[0.2em] text-stone">Calories</span>
-            <span className="font-display text-[18px] font-bold text-ivory">{calories || 0} <span className="font-data text-xs text-ash">kcal</span></span>
+            <span className="font-display text-[18px] font-bold text-black dark:text-ivory">{calories || 0} <span className="font-data text-xs text-ash">kcal</span></span>
           </div>
           <Stepper label="kcal" value={calories} step={10} min={0} max={2000} onChange={setCalories} />
         </GlassCard>

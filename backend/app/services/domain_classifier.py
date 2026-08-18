@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import random
 import re
 from enum import Enum
 
@@ -197,8 +198,6 @@ GREETING_RESPONSES = [
     "Hello! Welcome to RepPlan AI Coach. I'm here to help with all your fitness questions. What can I help you with today?",
     "Hey there! Ready to talk fitness? I can help with workout techniques, diet plans, recovery, and more. What's on your mind?",
 ]
-
-import random
 
 
 def get_off_topic_response() -> str:

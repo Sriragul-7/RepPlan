@@ -22,11 +22,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex min-h-screen flex-col items-center justify-center bg-ink px-6 text-center">
+        <div className="flex min-h-screen flex-col items-center justify-center bg-white dark:bg-ink px-6 text-center">
           <div className="glass-card max-w-sm space-y-4 p-8">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white/[0.06]">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-black/[0.06] dark:bg-white/[0.06]">
               <svg
-                className="h-8 w-8 text-ivory"
+                className="h-8 w-8 text-black dark:text-ivory"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -38,7 +38,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 <path d="M12 8v4M12 16h.01" />
               </svg>
             </div>
-            <h2 className="font-display text-xl font-bold text-ivory">
+            <h2 className="font-display text-xl font-bold text-black dark:text-ivory">
               Something went wrong
             </h2>
             <p className="text-sm text-stone">
@@ -49,7 +49,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 this.setState({ hasError: false, error: null });
                 window.location.href = "/";
               }}
-              className="w-full rounded-full bg-ivory py-3 text-sm font-semibold text-ink transition-all hover:bg-white active:scale-[0.98]"
+              className="w-full rounded-full bg-black dark:bg-ivory py-3 text-sm font-semibold text-white dark:text-ink transition-all hover:bg-gray-800 dark:hover:bg-white active:scale-[0.98]"
             >
               Restart app
             </button>

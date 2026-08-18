@@ -67,17 +67,17 @@ export function Plan() {
           <p className="font-data text-[10px] uppercase tracking-[0.3em] text-stone">
             Weekly plan
           </p>
-          <h1 className="font-display text-[36px] font-bold leading-tight tracking-tight text-white">
+          <h1 className="font-display text-[36px] font-bold leading-tight tracking-tight text-black dark:text-white">
             {plan.split_type}
           </h1>
         </div>
-        <span className="mb-1 rounded-full border border-white/[0.06] bg-white/[0.04] px-3.5 py-1.5 font-data text-[11px] font-semibold text-silver">
+        <span className="mb-1 rounded-full border border-black/[0.08] dark:border-white/[0.06] bg-black/[0.04] dark:bg-white/[0.04] px-3.5 py-1.5 font-data text-[11px] font-semibold text-gray-500 dark:text-silver">
           {doneCount}/{plan.days.length}
         </span>
       </header>
 
       {/* ── Glass Summary Bar ── */}
-      <div className="flex items-center gap-2 rounded-[22px] border border-white/[0.06] bg-smoke/50 px-5 py-3.5 backdrop-blur-3xl">
+      <div className="flex items-center gap-2 rounded-[22px] border border-black/[0.08] dark:border-white/[0.06] bg-gray-100/50 dark:bg-smoke/50 px-5 py-3.5 backdrop-blur-3xl">
         <div className="flex flex-1 items-center justify-between">
           {plan.days.map((d) => {
             const done = doneDayIds.has(d.id);
@@ -89,10 +89,10 @@ export function Plan() {
                 <div
                   className={`flex h-9 w-9 items-center justify-center rounded-full text-[11px] font-semibold transition-all ${
                     done
-                      ? "bg-white text-ink shadow-[0_0_20px_rgba(255,255,255,0.15)]"
+                      ? "bg-black dark:bg-white text-white dark:text-ink shadow-[0_0_20px_rgba(255,255,255,0.15)]"
                       : d.is_rest_day
-                        ? "bg-white/[0.04] text-ash"
-                        : "border border-white/[0.1] bg-white/[0.03] text-silver"
+                        ? "bg-black/[0.04] dark:bg-white/[0.04] text-ash"
+                        : "border border-black/[0.1] dark:border-white/[0.1] bg-black/[0.03] dark:bg-white/[0.03] text-gray-500 dark:text-silver"
                   }`}
                 >
                   {done
@@ -113,7 +113,7 @@ export function Plan() {
               <button
                 key={m}
                 onClick={() => navigate(`/app/log?muscle=${m}`)}
-                className="rounded-2xl border border-white/[0.06] bg-white/[0.04] px-3 py-3.5 text-[13px] font-medium capitalize text-silver backdrop-blur-2xl transition hover:bg-white/[0.08] hover:text-white active:scale-95"
+                className="rounded-2xl border border-black/[0.08] dark:border-white/[0.06] bg-black/[0.04] dark:bg-white/[0.04] px-3 py-3.5 text-[13px] font-medium capitalize text-gray-500 dark:text-silver backdrop-blur-2xl transition hover:bg-black/[0.08] dark:hover:bg-white/[0.08] hover:text-black dark:hover:text-white active:scale-95"
               >
                 {m}
               </button>
@@ -121,7 +121,7 @@ export function Plan() {
           </div>
           <button
             onClick={() => setPickingMuscle(false)}
-            className="w-full rounded-2xl border border-white/[0.06] bg-white/[0.03] py-3 font-data text-[11px] uppercase tracking-[0.2em] text-stone transition hover:bg-white/[0.06] hover:text-silver active:scale-[0.98]"
+            className="w-full rounded-2xl border border-black/[0.08] dark:border-white/[0.06] bg-black/[0.03] dark:bg-white/[0.03] py-3 font-data text-[11px] uppercase tracking-[0.2em] text-stone transition hover:bg-black/[0.06] dark:hover:bg-white/[0.06] hover:text-gray-500 dark:hover:text-silver active:scale-[0.98]"
           >
             Cancel
           </button>
@@ -129,13 +129,13 @@ export function Plan() {
       ) : (
         <button
           onClick={() => setPickingMuscle(true)}
-          className="flex w-full items-center justify-between rounded-2xl border border-white/[0.06] bg-white/[0.03] px-5 py-4 transition hover:bg-white/[0.06] active:scale-[0.98]"
+          className="flex w-full items-center justify-between rounded-2xl border border-black/[0.08] dark:border-white/[0.06] bg-black/[0.03] dark:bg-white/[0.03] px-5 py-4 transition hover:bg-black/[0.06] dark:hover:bg-white/[0.06] active:scale-[0.98]"
         >
           <span className="flex items-center gap-3.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.06] bg-white/[0.04] text-silver">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full border border-black/[0.08] dark:border-white/[0.06] bg-black/[0.04] dark:bg-white/[0.04] text-gray-500 dark:text-silver">
               <PlusIcon className="h-4 w-4" />
             </span>
-            <span className="text-[14px] font-semibold text-white">
+            <span className="text-[14px] font-semibold text-black dark:text-white">
               Train a muscle
             </span>
           </span>
@@ -161,15 +161,15 @@ export function Plan() {
                 onClick={() =>
                   navigate(`/app/plan/day/${day.id}`)
                 }
-                className="flex w-full items-center gap-4 rounded-2xl border border-white/[0.06] bg-white/[0.03] px-4 py-3.5 transition hover:bg-white/[0.06] active:scale-[0.98]"
+                className="flex w-full items-center gap-4 rounded-2xl border border-black/[0.08] dark:border-white/[0.06] bg-black/[0.03] dark:bg-white/[0.03] px-4 py-3.5 transition hover:bg-black/[0.06] dark:hover:bg-white/[0.06] active:scale-[0.98]"
               >
                 <div
                   className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-all ${
                     done
-                      ? "bg-white text-ink shadow-[0_0_20px_rgba(255,255,255,0.15)]"
+                      ? "bg-black dark:bg-white text-white dark:text-ink shadow-[0_0_20px_rgba(255,255,255,0.15)]"
                       : day.is_rest_day
-                        ? "bg-white/[0.04] text-ash"
-                        : "border border-white/[0.1] bg-white/[0.03] text-silver"
+                        ? "bg-black/[0.04] dark:bg-white/[0.04] text-ash"
+                        : "border border-black/[0.1] dark:border-white/[0.1] bg-black/[0.03] dark:bg-white/[0.03] text-gray-500 dark:text-silver"
                   }`}
                 >
                   {done
@@ -177,7 +177,7 @@ export function Plan() {
                     : DAY_NAMES[day.day_of_week - 1][0]}
                 </div>
                 <div className="min-w-0 flex-1 text-left">
-                  <p className="text-[14px] font-semibold text-white">
+                  <p className="text-[14px] font-semibold text-black dark:text-white">
                     {day.label}
                   </p>
                   <p className="truncate text-[11px] text-ash">
@@ -193,7 +193,7 @@ export function Plan() {
                     &mdash;
                   </span>
                 ) : (
-                  <span className="rounded-full border border-white/[0.06] bg-white/[0.04] px-3 py-1 font-data text-[10px] text-silver">
+                  <span className="rounded-full border border-black/[0.08] dark:border-white/[0.06] bg-black/[0.04] dark:bg-white/[0.04] px-3 py-1 font-data text-[10px] text-gray-500 dark:text-silver">
                     {day.exercises?.length ?? 0} exercises
                   </span>
                 )}

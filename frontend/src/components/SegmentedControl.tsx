@@ -14,7 +14,7 @@ export function SegmentedControl<T extends string>({
 }: SegmentedControlProps<T>) {
   return (
     <div
-      className="grid gap-1 rounded-2xl bg-white/[0.04] p-1 backdrop-blur-xl"
+      className="grid gap-1 rounded-2xl bg-black/[0.04] p-1 backdrop-blur-xl dark:bg-white/[0.04]"
       style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
     >
       {options.map((opt) => {
@@ -27,7 +27,7 @@ export function SegmentedControl<T extends string>({
             className={`rounded-xl px-3 py-3 text-sm font-medium transition-all duration-300 active:scale-[0.97] ${
               active
                 ? "bg-steel/90 text-ink shadow-glow font-semibold"
-                : "text-ash hover:text-ivory hover:bg-white/[0.04]"
+                : "text-ash hover:text-black hover:bg-black/[0.04] dark:hover:text-ivory dark:hover:bg-white/[0.04]"
             }`}
           >
             {opt.label}

@@ -42,10 +42,10 @@ export function SwipeRow({ onConfirm, children, disabled }: SwipeRowProps) {
     <div className="relative select-none overflow-hidden rounded-2xl">
       {/* Reveal behind — mobile only */}
       <div
-        className="pointer-events-none absolute inset-0 flex items-center justify-end rounded-2xl bg-white/[0.12] pr-5 backdrop-blur-xl lg:hidden"
+        className="pointer-events-none absolute inset-0 flex items-center justify-end rounded-2xl bg-black/[0.12] pr-5 backdrop-blur-xl lg:hidden dark:bg-white/[0.12]"
         style={{ opacity: swiped ? 1 : 0.25 + Math.min(0.75, Math.abs(dx) / THRESHOLD) * 0.75 }}
       >
-        <span className="text-sm font-semibold text-ivory">Log set</span>
+        <span className="text-sm font-semibold text-black dark:text-ivory">Log set</span>
       </div>
 
       {/* Swipe layer — mobile only */}
@@ -75,7 +75,7 @@ export function SwipeRow({ onConfirm, children, disabled }: SwipeRowProps) {
             type="button"
             onClick={onConfirm}
             disabled={disabled}
-            className="rounded-xl border border-white/[0.08] bg-white/[0.06] px-5 py-2 text-[13px] font-semibold text-ivory backdrop-blur-xl transition-all duration-200 hover:bg-white/[0.12] hover:border-white/[0.15] active:scale-95 disabled:opacity-40"
+            className="rounded-xl border border-black/[0.08] bg-black/[0.06] px-5 py-2 text-[13px] font-semibold text-black backdrop-blur-xl transition-all duration-200 hover:bg-black/[0.12] active:scale-95 disabled:opacity-40 dark:border-white/[0.08] dark:bg-white/[0.06] dark:text-ivory dark:hover:bg-white/[0.12]"
           >
             Log set
           </button>

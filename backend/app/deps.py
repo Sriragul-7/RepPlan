@@ -1,4 +1,4 @@
-from fastapi import Depends, Header, HTTPException
+from fastapi import Header, HTTPException
 
 from app.config.settings import settings
 
@@ -24,12 +24,3 @@ def get_current_user_id(
     if not x_user_id:
         raise HTTPException(status_code=401, detail="Missing X-User-Id header")
     return x_user_id
-
-
-def _supabase_guard() -> None:
-    if not settings.supabase_url:
-        raise HTTPException(status_code=503, detail="Supabase not configured")
-
-
-def require_supabase(_: str = Depends(get_current_user_id)) -> None:
-    return _supabase_guard()

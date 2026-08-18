@@ -1,10 +1,11 @@
 # RepPlan
 
+<<<<<<< HEAD
 **Discipline made visible.** A mobile-first workout split planner and in-gym logger — built to be used standing at the rack, not filled out at a desk.
 
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white&style=flat-square)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white&style=flat-square)
-![FastAPI](https://img.shields.io/badge/FastAPI-Python-009688?logo=fastapi&logoColor=white&style=flat-square)
+q![FastAPI](https://img.shields.io/badge/FastAPI-Python-009688?logo=fastapi&logoColor=white&style=flat-square)
 ![Supabase](https://img.shields.io/badge/Supabase-Postgres-3ECF8E?logo=supabase&logoColor=white&style=flat-square)
 ![Tailwind](https://img.shields.io/badge/Tailwind-CSS-38BDF8?logo=tailwindcss&logoColor=white&style=flat-square)
 ![PWA](https://img.shields.io/badge/PWA-installable-5A0FC8?logo=pwa&logoColor=white&style=flat-square)
@@ -99,3 +100,140 @@ MIT — see `LICENSE`.
 ---
 
 Built by [Sri Ragul](https://github.com/Sriragul-7)
+=======
+**Discipline made visible.** A mobile-first workout split planner and in-gym logger with AI coaching.
+
+## Features
+
+- **Smart Split Generation** — Rule-based weekly plan tailored to experience, equipment, and goals
+- **In-Gym Logger** — Log sets, reps, weight, and cardio with a custom number keypad and rest timer
+- **Progress Tracking** — Calendar heatmap, exercise progress charts, muscle balance analysis
+- **AI Coach** — Streaming chat with safety guardrails, RAG-powered fitness knowledge
+- **PWA** — Installable progressive web app with offline shell
+- **Guest Mode** — Full functionality without signup; claim data on authentication
+- **Dark/Light Theme** — System-aware with manual toggle and localStorage persistence
+
+## Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React 18, TypeScript, Vite, Tailwind CSS |
+| Backend | FastAPI (Python 3.12) |
+| Database | Supabase (PostgreSQL) |
+| Auth | Supabase Auth (Google OAuth) |
+| AI | OpenRouter LLM with RAG retrieval |
+| PWA | vite-plugin-pwa with service worker |
+
+## Layout
+
+```
+backend/     FastAPI app, services, routers, tests, knowledge base
+frontend/    React + Vite PWA
+```
+
+## Getting Started
+
+### Prerequisites
+
+- Python 3.12+
+- Node.js 18+
+- A Supabase project (or use local JSON fallback)
+
+### Backend
+
+```bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env  # fill in Supabase + OpenRouter keys
+uvicorn app.main:app --reload --port 8100
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+cp .env.example .env  # fill in Supabase anon key
+npm run dev
+```
+
+The Vite dev server proxies `/api` requests to `localhost:8100`.
+
+### Running Tests
+
+```bash
+# Backend
+cd backend && python -m pytest tests/ -v
+
+# Frontend typecheck
+cd frontend && npx tsc --noEmit
+
+# Frontend build
+cd frontend && npm run build
+```
+
+## Environment Variables
+
+### Backend (`.env`)
+
+| Variable | Description | Required |
+|---|---|---|
+| `SUPABASE_URL` | Supabase project URL | Yes (for production) |
+| `SUPABASE_SERVICE_KEY` | Supabase service role key | Yes (for production) |
+| `SUPABASE_JWT_SECRET` | JWT verification secret | Yes (for auth) |
+| `OPENROUTER_API_KEY` | OpenRouter API key for AI coach | Optional |
+| `OPENROUTER_MODEL` | Model ID (default: `openrouter/free`) | Optional |
+| `APP_ENV` | `development` or `production` | Optional |
+| `FRONTEND_URL` | Frontend URL for CORS (production) | Optional |
+
+Backend works in local/dev mode with `LocalRepo` (JSON files) when Supabase is not configured.
+
+### Frontend (`.env`)
+
+| Variable | Description |
+|---|---|
+| `VITE_SUPABASE_URL` | Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | Supabase anonymous/public key |
+| `VITE_API_URL` | Backend API URL (empty for proxy mode) |
+
+## Architecture
+
+### Authentication Flow
+
+1. Guest users get a random UUID stored in `localStorage`
+2. All API requests include `X-User-Id` header (guest UUID or Supabase user ID)
+3. Authenticated requests also include `Authorization: Bearer <token>`
+4. After Google OAuth, guest data is claimed (re-keyed) to the authenticated user
+
+### Data Flow
+
+```
+User → React UI → api.ts → Vite Proxy → FastAPI → SupabaseRepo → Supabase
+                                              ↓
+                                         LocalRepo → local_store.json (dev)
+```
+
+### AI Coach Flow
+
+1. User message → domain classifier (fitness/nutrition/recovery/safety/off-topic)
+2. If off-topic or safety concern → static response
+3. Otherwise → BM25 RAG retrieval over knowledge base JSON files
+4. User profile + conversation history + RAG context → LLM prompt
+5. Streaming response via SSE → saved to database
+
+### Key Directories
+
+- `backend/app/routers/` — API endpoint handlers
+- `backend/app/services/` — Business logic (split generation, planning, AI coach)
+- `backend/app/repo.py` — Storage abstraction (Supabase + local JSON)
+- `backend/knowledge/` — RAG knowledge base (fitness, nutrition, recovery, safety)
+- `frontend/src/screens/` — Page components (lazy-loaded)
+- `frontend/src/components/` — Reusable UI components
+- `frontend/src/lib/` — API client, auth, theme, types
+
+## Attribution
+
+Exercise media (thumbnails/GIFs) is © Gym visual, used under license. Images are kept at their distributed 180x180 resolution and attributed in Settings/About.
+>>>>>>> 2ecc95b (fix: security hardening, bug fixes, dead code removal, and docs update)

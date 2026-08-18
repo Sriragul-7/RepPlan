@@ -40,11 +40,21 @@ const SUGGESTED_PROMPTS = [
   },
 ];
 
-function parseMarkdown(text: string): string {
+function escapeHtml(text: string): string {
   return text
-    .replace(/\*\*(.*?)\*\*/g, '<strong class="text-ivory font-semibold">$1</strong>')
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function parseMarkdown(text: string): string {
+  const safe = escapeHtml(text);
+  return safe
+    .replace(/\*\*(.*?)\*\*/g, '<strong class="text-black dark:text-ivory font-semibold">$1</strong>')
     .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/`(.*?)`/g, '<code class="rounded bg-white/[0.06] px-1.5 py-0.5 text-[13px] text-ivory">$1</code>')
+    .replace(/`(.*?)`/g, '<code class="rounded bg-black/[0.06] dark:bg-white/[0.06] px-1.5 py-0.5 text-[13px] text-black dark:text-ivory">$1</code>')
     .replace(/^• (.*$)/gm, '<span class="block pl-3 before:content-[\'•\'] before:mr-2 before:text-stone">$1</span>')
     .replace(/^(\d+)\. (.*$)/gm, '<span class="block pl-3"><span class="text-stone font-data mr-2">$1.</span>$2</span>');
 }
@@ -219,7 +229,7 @@ export function Coach() {
           <p className="font-data text-[10px] uppercase tracking-[0.26em] text-stone">
             AI Coach
           </p>
-          <h1 className="font-display mt-1 text-[34px] leading-tight text-ivory">
+          <h1 className="font-display mt-1 text-[34px] leading-tight text-black dark:text-ivory">
             Intelligence
           </h1>
         </div>
@@ -227,19 +237,19 @@ export function Coach() {
           {messages.length > 0 && (
             <button
               onClick={startNewConversation}
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.06] bg-white/[0.04] transition-all hover:bg-white/[0.08] active:scale-95"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-black/[0.08] dark:border-white/[0.06] bg-black/[0.04] dark:bg-white/[0.04] transition-all hover:bg-black/[0.08] dark:hover:bg-white/[0.08] active:scale-95"
               title="New conversation"
             >
-              <svg className="h-5 w-5 text-ivory" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <svg className="h-5 w-5 text-black dark:text-ivory" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 5v14M5 12h14" />
               </svg>
             </button>
           )}
           <button
             onClick={() => setShowHistory(!showHistory)}
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.06] bg-white/[0.04] transition-all hover:bg-white/[0.08] active:scale-95"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-black/[0.08] dark:border-white/[0.06] bg-black/[0.04] dark:bg-white/[0.04] transition-all hover:bg-black/[0.08] dark:hover:bg-white/[0.08] active:scale-95"
           >
-            <BrainIcon className="h-5 w-5 text-ivory" />
+            <BrainIcon className="h-5 w-5 text-black dark:text-ivory" />
           </button>
         </div>
       </header>
@@ -251,7 +261,7 @@ export function Coach() {
             <p className="font-accent text-[11px] uppercase tracking-[0.2em] text-stone">
               Recent Conversations
             </p>
-            <button onClick={() => setShowHistory(false)} className="text-stone hover:text-ivory">
+            <button onClick={() => setShowHistory(false)} className="text-stone hover:text-black dark:text-ivory">
               <CloseIcon className="h-4 w-4" />
             </button>
           </div>
@@ -263,9 +273,9 @@ export function Coach() {
                 <button
                   key={conv.id}
                   onClick={() => loadConversation(conv)}
-                  className="ios-tap w-full rounded-xl p-3 text-left transition-colors hover:bg-white/[0.04]"
+                  className="ios-tap w-full rounded-xl p-3 text-left transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"
                 >
-                  <p className="text-[13px] text-ivory truncate">
+                  <p className="text-[13px] text-black dark:text-ivory truncate">
                     {conv.title || "New conversation"}
                   </p>
                   <p className="text-[11px] text-stone mt-0.5">
@@ -294,10 +304,10 @@ export function Coach() {
                   className="ios-row ios-tap w-full text-left"
                 >
                   <div className="glass-card flex h-10 w-10 shrink-0 items-center justify-center">
-                    <suggestion.icon className="h-5 w-5 text-ivory" />
+                    <suggestion.icon className="h-5 w-5 text-black dark:text-ivory" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[15px] font-semibold text-ivory">{suggestion.title}</p>
+                    <p className="text-[15px] font-semibold text-black dark:text-ivory">{suggestion.title}</p>
                     <p className="text-xs text-stone">{suggestion.subtitle}</p>
                   </div>
                   <ChevronRightIcon className="h-4 w-4 shrink-0 text-ash" />
@@ -315,8 +325,8 @@ export function Coach() {
                 <div
                   className={`max-w-[85%] rounded-2xl px-4 py-3 ${
                     message.role === "user"
-                      ? "bg-ivory text-ink"
-                      : "glass-card text-silver"
+                      ? "bg-black dark:bg-ivory text-white dark:text-ink"
+                      : "glass-card text-gray-600 dark:text-silver"
                   }`}
                 >
                   {message.role === "ai" && message.content ? (
@@ -368,13 +378,13 @@ export function Coach() {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend(input)}
           placeholder="Ask about exercises, nutrition, recovery..."
-          className="flex-1 bg-transparent text-[15px] text-ivory placeholder:text-ash outline-none"
+          className="flex-1 bg-transparent text-[15px] text-black dark:text-ivory placeholder:text-ash outline-none"
           disabled={isStreaming}
         />
         <button
           onClick={() => handleSend(input)}
           disabled={!input.trim() || isStreaming}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-ivory text-ink transition-all hover:bg-white active:scale-95 disabled:opacity-30"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-black dark:bg-ivory text-white dark:text-ink transition-all hover:bg-gray-800 dark:hover:bg-white active:scale-95 disabled:opacity-30"
         >
           {isStreaming ? (
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
