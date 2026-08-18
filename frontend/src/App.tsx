@@ -50,6 +50,52 @@ function Gate() {
   return <Shell />;
 }
 
+/** Blocks guest users — shows sign-in prompt for features that require an account */
+function RequireAuth({ children }: { children: React.ReactNode }) {
+  const { user, loading: authLoading, signInWithGoogle } = useAuth();
+  const location = useLocation();
+
+  if (authLoading) {
+    return <LoadingFallback />;
+  }
+
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-white/[0.06] border border-white/[0.08]">
+          <svg className="h-7 w-7 text-stone" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0110 0v4" />
+          </svg>
+        </div>
+        <h2 className="font-display text-[22px] font-bold text-ivory">Sign in required</h2>
+        <p className="mt-2 max-w-xs text-[14px] leading-relaxed text-stone">
+          This feature requires an account. Sign in to unlock workout logging, progress tracking, and the AI coach.
+        </p>
+        <div className="mt-6 flex flex-col gap-3 w-full max-w-[240px]">
+          <button
+            onClick={() => signInWithGoogle()}
+            className="w-full rounded-full bg-steel px-6 py-3 text-[14px] font-bold text-ink shadow-glow transition-all duration-300 hover:shadow-glow-lg active:scale-[0.97]"
+          >
+            Sign in with Google
+          </button>
+          <button
+            onClick={() => window.history.back()}
+            className="w-full rounded-full border border-white/[0.06] bg-white/[0.04] px-6 py-3 text-[14px] font-medium text-ivory backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.08] active:scale-[0.97]"
+          >
+            Go back
+          </button>
+        </div>
+        <p className="mt-4 font-data text-[10px] text-ash">
+          Redirected from {location.pathname}
+        </p>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}
+
 export default function App() {
   return (
     <ErrorBoundary>
@@ -68,11 +114,13 @@ export default function App() {
               <Route index element={<Home />} />
               <Route path="plan" element={<Plan />} />
               <Route path="plan/day/:dayId" element={<DayDetail />} />
-              <Route path="log" element={<ActiveLog />} />
               <Route path="history" element={<WorkoutHistory />} />
-              <Route path="progress" element={<Progress />} />
-              <Route path="coach" element={<Coach />} />
               <Route path="settings" element={<Settings />} />
+
+              {/* Auth-only routes */}
+              <Route path="log" element={<RequireAuth><ActiveLog /></RequireAuth>} />
+              <Route path="progress" element={<RequireAuth><Progress /></RequireAuth>} />
+              <Route path="coach" element={<RequireAuth><Coach /></RequireAuth>} />
             </Route>
 
             {/* Catch-all → landing */}

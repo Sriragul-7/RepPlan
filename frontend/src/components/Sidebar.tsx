@@ -1,9 +1,19 @@
 import { useState, useRef, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { allTabs } from "./BottomNav";
 import { useAuth } from "../lib/auth";
-import { GearIcon, UserIcon, LogOutIcon } from "./icons";
+import { BrainIcon, CalendarIcon, ChartBarIcon, GearIcon, HomeIcon, PencilIcon, UserIcon, LogOutIcon } from "./icons";
 import { Logo } from "./Logo";
+
+const guestTabs = [
+  { to: "/app", label: "Home", icon: HomeIcon },
+  { to: "/app/plan", label: "Workouts", icon: CalendarIcon },
+];
+
+const authTabs = [
+  { to: "/app/log", label: "Log", icon: PencilIcon },
+  { to: "/app/progress", label: "Progress", icon: ChartBarIcon },
+  { to: "/app/coach", label: "AI Coach", icon: BrainIcon },
+];
 
 /** Premium desktop side rail — replaces the bottom tab bar on lg+ screens. */
 export function Sidebar() {
@@ -11,6 +21,8 @@ export function Sidebar() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const tabs = user ? [...guestTabs, ...authTabs] : guestTabs;
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -45,11 +57,11 @@ export function Sidebar() {
         </div>
 
         <nav className="mt-12 flex flex-col gap-1.5">
-          {allTabs.map(({ to, label, icon: Icon }) => (
+          {tabs.map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}
-              end={to === "/"}
+              end={to === "/app"}
               className={({ isActive }) =>
                 `flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-300 ${
                   isActive
