@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { CardSkeleton, Skeleton } from "../components/Skeleton";
+import { Stepper } from "../components/Stepper";
 import { ChevronRightIcon } from "../components/icons";
 import { api } from "../lib/api";
 import type { ProfileInput } from "../lib/types";
@@ -178,7 +179,7 @@ export function Settings() {
 
   const f = form ?? {
     full_name: profile?.full_name ?? "",
-    age: profile?.age ?? 28,
+    age: profile?.computed_age ?? profile?.age ?? 28,
     weight_kg: profile?.weight_kg ?? 70,
     height_cm: profile?.height_cm ?? 170,
     sex: profile?.sex ?? "male",
@@ -229,7 +230,7 @@ export function Settings() {
           />
         </div>
         <Row label="Age">
-          <span className="font-data text-lg text-ivory">{f.age} <span className="text-sm text-stone">yrs</span></span>
+          <span className="font-data text-lg text-ivory">{f.computed_age ?? f.age ?? "—"} <span className="text-sm text-stone">yrs</span></span>
         </Row>
         <Row label="Weight">
           <span className="font-data text-lg text-ivory">{Math.round(f.weight_kg ?? 70)} <span className="text-sm text-stone">kg</span></span>
@@ -237,9 +238,17 @@ export function Settings() {
         <Row label="Height">
           <span className="font-data text-lg text-ivory">{Math.round(f.height_cm ?? 170)} <span className="text-sm text-stone">cm</span></span>
         </Row>
-        <Row label="Experience">
-          <span className="font-data text-lg text-ivory">{f.experience_years} <span className="text-sm text-stone">yrs</span></span>
-        </Row>
+        <div className="ios-row">
+          <span className="flex-1 text-[15px] text-ivory">Experience</span>
+          <Stepper
+            value={f.experience_years}
+            step={0.5}
+            decimals={1}
+            onChange={(v) => set("experience_years", v)}
+            min={0}
+            max={30}
+          />
+        </div>
       </Section>
 
       <Section label="Training">

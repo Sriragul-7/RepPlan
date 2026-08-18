@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field, computed_field
 class ProfileIn(BaseModel):
     full_name: str | None = None
     date_of_birth: date | None = None
-    age: int | None = Field(default=None, ge=13, le=100)
+    age: int | None = Field(default=None, ge=0, le=150)
     weight_kg: float | None = Field(default=None, ge=20, le=400)
     height_cm: float | None = Field(default=None, ge=80, le=280)
     sex: str | None = None

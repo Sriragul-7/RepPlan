@@ -75,7 +75,6 @@ export function ActiveLog() {
   const latestMetricQuery = useQuery({
     queryKey: ["body-metric-latest"],
     queryFn: api.getLatestBodyMetric,
-    enabled: false,
     placeholderData: (prev) => prev,
   });
 

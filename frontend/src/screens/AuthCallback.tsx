@@ -18,11 +18,15 @@ export function AuthCallback() {
         const guestUserId = localStorage.getItem(STORAGE_KEYS.USER_ID);
         if (guestUserId) {
           try {
-            await api.claimProfile(guestUserId);
+            const result = await api.claimProfile(guestUserId);
+            if (result.claimed) {
+              localStorage.removeItem(STORAGE_KEYS.USER_ID);
+            } else {
+              localStorage.removeItem(STORAGE_KEYS.USER_ID);
+            }
           } catch {
-            // Ignore claim errors — user can still proceed
+            // claim request itself failed — keep the guest ID for retry
           }
-          localStorage.removeItem(STORAGE_KEYS.USER_ID);
         }
 
         // Small delay to let AuthProvider's onAuthStateChange settle

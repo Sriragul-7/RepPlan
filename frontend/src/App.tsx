@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from "react";
-import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Shell } from "./components/Shell";
 import { ErrorBoundary } from "./components/ErrorBoundary";
@@ -50,14 +50,6 @@ function Gate() {
   return <Shell />;
 }
 
-/** Redirects guests to /app when they try to access auth-required child routes */
-function AuthRequired() {
-  const { session, loading } = useAuth();
-  if (loading) return <LoadingFallback />;
-  if (!session) return <Navigate to="/app" replace />;
-  return <Outlet />;
-}
-
 export default function App() {
   return (
     <ErrorBoundary>
@@ -76,14 +68,11 @@ export default function App() {
               <Route index element={<Home />} />
               <Route path="plan" element={<Plan />} />
               <Route path="plan/day/:dayId" element={<DayDetail />} />
+              <Route path="log" element={<ActiveLog />} />
+              <Route path="history" element={<WorkoutHistory />} />
+              <Route path="progress" element={<Progress />} />
+              <Route path="coach" element={<Coach />} />
               <Route path="settings" element={<Settings />} />
-              {/* Auth-required routes */}
-              <Route element={<AuthRequired />}>
-                <Route path="log" element={<ActiveLog />} />
-                <Route path="history" element={<WorkoutHistory />} />
-                <Route path="progress" element={<Progress />} />
-                <Route path="coach" element={<Coach />} />
-              </Route>
             </Route>
 
             {/* Catch-all → landing */}

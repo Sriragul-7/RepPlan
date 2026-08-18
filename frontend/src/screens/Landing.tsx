@@ -327,16 +327,16 @@ export function Landing() {
           ) : (
             <>
               <button
-                onClick={() => navigate("/auth")}
+                onClick={handleGetStarted}
                 className="rounded-full border border-white/[0.06] bg-white/[0.04] px-5 py-2 text-[13px] font-medium text-ivory backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.08] active:scale-[0.97]"
               >
-                Login
+                Quick start
               </button>
               <button
                 onClick={() => navigate("/auth")}
                 className="rounded-full bg-steel px-5 py-2 text-[13px] font-bold text-ink transition-all duration-300 hover:shadow-glow active:scale-[0.97]"
               >
-                Sign up
+                Sign in
               </button>
             </>
           )}
@@ -378,16 +378,16 @@ export function Landing() {
           ) : (
             <>
               <button
-                onClick={handleLogin}
+                onClick={handleGetStarted}
                 className="rounded-full bg-steel px-8 py-4 text-[15px] font-bold text-ink shadow-glow transition-all duration-300 hover:shadow-glow-lg active:scale-[0.97]"
               >
-                Sign up
+                Quick start
               </button>
               <button
                 onClick={handleLogin}
                 className="rounded-full border border-white/[0.06] bg-white/[0.04] px-7 py-4 text-[15px] font-medium text-ivory backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.08] active:scale-[0.97]"
               >
-                Login
+                Sign in
               </button>
             </>
           )}
@@ -537,10 +537,10 @@ export function Landing() {
             Build your plan. Track your work. Become harder to outwork.
           </p>
           <button
-            onClick={user ? handleGetStarted : handleLogin}
+            onClick={user ? handleGetStarted : handleGetStarted}
             className="mt-8 rounded-full bg-steel px-10 py-4 text-[16px] font-bold text-ink shadow-glow transition-all duration-300 hover:shadow-glow-lg active:scale-[0.97]"
           >
-            {user ? "Open app" : "Start RepPlan"}
+            {user ? "Open app" : "Quick start — no account needed"}
           </button>
         </div>
       </section>

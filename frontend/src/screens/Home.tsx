@@ -277,10 +277,10 @@ export function Home() {
             ) : (
               <Button
                 full
-                onClick={() => signInWithGoogle()}
+                onClick={() => navigate(`/app/log?day=${todayDay.id}`)}
                 className="py-4 text-base"
               >
-                Sign in to start logging
+                Start workout
               </Button>
             )}
           </div>

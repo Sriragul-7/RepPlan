@@ -47,6 +47,7 @@ export type Profile = {
   full_name?: string | null;
   date_of_birth?: string | null;
   age?: number | null;
+  computed_age?: number | null;
   weight_kg?: number | null;
   height_cm?: number | null;
   sex?: string | null;

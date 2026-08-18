@@ -18,20 +18,25 @@ export function RestTimer({ seconds, id, onFinish, onSkip, active }: RestTimerPr
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    setRemaining(seconds);
     if (!active) return;
-    timerRef.current = setInterval(() => {
-      setRemaining((r) => {
-        if (r <= 1) {
-          if (timerRef.current) clearInterval(timerRef.current);
-          onFinish();
-          return 0;
-        }
-        return r - 1;
-      });
-    }, 1000);
+    const target = Date.now() + seconds * 1000;
+    setRemaining(seconds);
+
+    const tick = () => {
+      const left = Math.max(0, Math.round((target - Date.now()) / 1000));
+      setRemaining(left);
+      if (left <= 0) {
+        if (timerRef.current) clearInterval(timerRef.current);
+        onFinish();
+      }
+    };
+
+    timerRef.current = setInterval(tick, 250);
+    document.addEventListener("visibilitychange", tick);
+
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
+      document.removeEventListener("visibilitychange", tick);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, seconds, id]);

@@ -1,18 +1,26 @@
 from fastapi import Depends, Header, HTTPException
 
 from app.config.settings import settings
-from app.db import get_db
-
-DEV_HEADER = "x-user-id"
 
 
-def get_current_user_id(x_user_id: str | None = Header(default=None)) -> str:
-    """Resolve the acting user.
+def get_current_user_id(
+    x_user_id: str | None = Header(default=None),
+    authorization: str | None = Header(default=None),
+) -> str:
+    if authorization and authorization.startswith("Bearer ") and settings.supabase_jwt_secret:
+        import jwt
 
-    Production: the caller validates a Supabase JWT and passes the user id via
-    X-User-Id (or we validate the JWT here once Supabase Auth is wired).
-    Dev: X-User-Id is passed directly.
-    """
+        token = authorization.removeprefix("Bearer ")
+        try:
+            payload = jwt.decode(
+                token,
+                settings.supabase_jwt_secret,
+                algorithms=["HS256"],
+                audience="authenticated",
+            )
+            return payload["sub"]
+        except jwt.PyJWTError:
+            raise HTTPException(status_code=401, detail="Invalid token")
     if not x_user_id:
         raise HTTPException(status_code=401, detail="Missing X-User-Id header")
     return x_user_id

@@ -50,7 +50,10 @@ def claim_guest_profile(
 def _profile_dict(data: ProfileIn) -> dict:
     """Strip computed fields before writing to DB."""
     d = data.model_dump(exclude_unset=True)
-    d.pop("computed_age", None)
+    computed_age = d.pop("computed_age", None)
+    if d.get("date_of_birth"):
+        # date_of_birth is the source of truth for age — keep them in sync
+        d["age"] = computed_age
     return d
 
 

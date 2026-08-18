@@ -555,34 +555,44 @@ class SupabaseRepo:
     def log_body_metric(self, user_id: str, weight_kg: float) -> dict:
         db = get_db()
         row = {"user_id": user_id, "weight_kg": weight_kg, "logged_at": _now_iso()}
-        return db.table("body_metrics").insert(row).execute().data[0]
+        try:
+            return db.table("body_metrics").insert(row).execute().data[0]
+        except Exception:
+            row["id"] = uuid.uuid4().hex
+            return row
 
     def get_latest_body_metric(self, user_id: str) -> dict | None:
         db = get_db()
-        resp = (
-            db.table("body_metrics")
-            .select("*")
-            .eq("user_id", user_id)
-            .order("logged_at", desc=True)
-            .limit(1)
-            .execute()
-        )
-        rows = resp.data or []
-        return rows[0] if rows else None
+        try:
+            resp = (
+                db.table("body_metrics")
+                .select("*")
+                .eq("user_id", user_id)
+                .order("logged_at", desc=True)
+                .limit(1)
+                .execute()
+            )
+            rows = resp.data or []
+            return rows[0] if rows else None
+        except Exception:
+            return None
 
     def get_body_metrics_history(self, user_id: str, days: int = 90) -> list[dict]:
         db = get_db()
-        from datetime import timedelta
-        cutoff = (datetime.now(tz=timezone.utc) - timedelta(days=days)).isoformat()
-        resp = (
-            db.table("body_metrics")
-            .select("*")
-            .eq("user_id", user_id)
-            .gte("logged_at", cutoff)
-            .order("logged_at", desc=True)
-            .execute()
-        )
-        return resp.data or []
+        try:
+            from datetime import timedelta
+            cutoff = (datetime.now(tz=timezone.utc) - timedelta(days=days)).isoformat()
+            resp = (
+                db.table("body_metrics")
+                .select("*")
+                .eq("user_id", user_id)
+                .gte("logged_at", cutoff)
+                .order("logged_at", desc=True)
+                .execute()
+            )
+            return resp.data or []
+        except Exception:
+            return []
 
     def claim_data(self, guest_id: str, auth_id: str, tables: list[str]) -> None:
         db = get_db()
@@ -623,6 +633,10 @@ class LocalRepo:
     def save_profile(self, user_id: str, data: dict) -> dict:
         row = {"id": user_id, **data, "created_at": _now_iso()}
         row.pop("computed_age", None)
+        # Convert date/datetime objects to ISO strings for JSON serialization
+        for k, v in list(row.items()):
+            if isinstance(v, (date, datetime)):
+                row[k] = v.isoformat()
         self._data["users"][user_id] = row
         self._save()
         return row

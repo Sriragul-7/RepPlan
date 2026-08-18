@@ -105,6 +105,11 @@ export function ProfileSetup() {
       data.height_cm = heightCm;
       data.sex = sex;
       await api.patchProfile(data);
+      try {
+        await api.logBodyMetric({ weight_kg: weightKg });
+      } catch {
+        // Weight log is secondary — never block the profile save on it
+      }
     },
     onSuccess: async () => {
       const profile = await api.getProfile();

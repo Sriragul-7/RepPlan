@@ -38,6 +38,10 @@ def generate_plan(user_id: str = Depends(get_current_user_id)) -> dict:
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
 
+    missing = [f for f in ("days_per_week", "experience_years", "goal", "equipment_access") if not profile.get(f)]
+    if missing:
+        raise HTTPException(status_code=422, detail=f"Profile incomplete, missing: {', '.join(missing)}")
+
     split = split_for(
         profile["days_per_week"],
         profile["experience_years"],

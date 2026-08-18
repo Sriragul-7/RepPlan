@@ -7,9 +7,8 @@ import { Logo } from "./Logo";
 
 /** Premium desktop side rail — replaces the bottom tab bar on lg+ screens. */
 export function Sidebar() {
-  const { session, user, signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const tabs = allTabs.filter((t) => !t.requiresAuth || session);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -46,7 +45,7 @@ export function Sidebar() {
         </div>
 
         <nav className="mt-12 flex flex-col gap-1.5">
-          {tabs.map(({ to, label, icon: Icon }) => (
+          {allTabs.map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}

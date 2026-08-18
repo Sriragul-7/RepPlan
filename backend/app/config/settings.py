@@ -4,6 +4,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     supabase_url: str = ""
     supabase_service_key: str = ""
+    supabase_jwt_secret: str = ""
+    frontend_url: str = ""
     app_env: str = "development"
     openrouter_api_key: str = ""
     openrouter_model: str = "openrouter/free"
