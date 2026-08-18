@@ -43,7 +43,7 @@ export function Sidebar() {
 
         <div className="mt-auto">
           <NavLink
-            to="/settings"
+            to="/app/settings"
             className={({ isActive }) =>
               `flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-300 ${
                 isActive

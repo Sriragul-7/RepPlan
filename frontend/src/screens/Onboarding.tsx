@@ -80,7 +80,7 @@ export function Onboarding() {
     onSuccess: async () => {
       const profile = await api.getProfile();
       queryClient.setQueryData(["profile"], profile);
-      navigate("/", { replace: true });
+      navigate("/app", { replace: true });
     },
     onError: (e: Error) => setError(e.message),
   });

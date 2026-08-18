@@ -136,7 +136,7 @@ export function Home() {
           </h1>
         </div>
         <button
-          onClick={() => navigate("/settings")}
+          onClick={() => navigate("/app/settings")}
           aria-label="Settings"
           className="mt-1 flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.06] bg-white/[0.04] text-stone backdrop-blur-2xl transition hover:bg-white/[0.08] hover:text-white active:scale-95"
         >
@@ -232,7 +232,7 @@ export function Home() {
 
             <Button
               full
-              onClick={() => navigate(`/log?day=${todayDay.id}`)}
+              onClick={() => navigate(`/app/log?day=${todayDay.id}`)}
               className="py-4 text-base"
             >
               Start workout
@@ -255,7 +255,7 @@ export function Home() {
             <Button
               variant="chrome"
               full
-              onClick={() => navigate("/plan")}
+              onClick={() => navigate("/app/plan")}
             >
               Preview the week
             </Button>
@@ -326,7 +326,7 @@ export function Home() {
             {upcoming.map((d) => (
               <button
                 key={d.id}
-                onClick={() => navigate(`/plan/day/${d.id}`)}
+                onClick={() => navigate(`/app/plan/day/${d.id}`)}
                 className="flex w-full items-center gap-4 rounded-2xl border border-white/[0.06] bg-white/[0.03] px-4 py-3.5 transition hover:bg-white/[0.06] active:scale-[0.98]"
               >
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/[0.06] bg-white/[0.04] font-display text-lg font-bold text-white">

@@ -23,8 +23,8 @@ export default defineConfig({
           { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
         ],
         shortcuts: [
-          { name: "Start a workout", short_name: "Log", url: "/log", icons: [{ src: "/icons/icon-180.png", sizes: "180x180" }] },
-          { name: "View plan", short_name: "Plan", url: "/plan" },
+          { name: "Start a workout", short_name: "Log", url: "/app/log", icons: [{ src: "/icons/icon-180.png", sizes: "180x180" }] },
+          { name: "View plan", short_name: "Plan", url: "/app/plan" },
         ],
       },
     }),

@@ -2,11 +2,11 @@ import { NavLink } from "react-router-dom";
 import { BrainIcon, CalendarIcon, ChartBarIcon, HomeIcon, PencilIcon } from "./icons";
 
 const tabs = [
-  { to: "/", label: "Home", icon: HomeIcon },
-  { to: "/plan", label: "Workouts", icon: CalendarIcon },
-  { to: "/log", label: "Log", icon: PencilIcon },
-  { to: "/progress", label: "Progress", icon: ChartBarIcon },
-  { to: "/coach", label: "AI Coach", icon: BrainIcon },
+  { to: "/app", label: "Home", icon: HomeIcon },
+  { to: "/app/plan", label: "Workouts", icon: CalendarIcon },
+  { to: "/app/log", label: "Log", icon: PencilIcon },
+  { to: "/app/progress", label: "Progress", icon: ChartBarIcon },
+  { to: "/app/coach", label: "AI Coach", icon: BrainIcon },
 ];
 
 export { tabs };

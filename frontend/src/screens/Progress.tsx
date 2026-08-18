@@ -126,14 +126,14 @@ export function Progress() {
   const [pendingDate, setPendingDate] = useState<string | null>(null);
 
   const startForDate = useMutation({
-    mutationFn: async ({ dateStr, muscle }: { dateStr: string; muscle: string }) => {
+    mutationFn: async ({ dateStr, muscle: _muscle }: { dateStr: string; muscle: string }) => {
       const session = await api.startSession(undefined, dateStr);
       return session;
     },
     onSuccess: (session, variables) => {
       localStorage.setItem(STORAGE_KEYS.ACTIVE_SESSION, session.id);
       queryClient.invalidateQueries({ queryKey: ["session-history"] });
-      navigate(`/log?muscle=${variables.muscle}&date=${variables.dateStr}`, { replace: true });
+      navigate(`/app/log?muscle=${variables.muscle}&date=${variables.dateStr}`, { replace: true });
     },
   });
 

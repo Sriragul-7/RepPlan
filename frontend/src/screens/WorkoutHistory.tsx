@@ -134,13 +134,13 @@ export function WorkoutHistory() {
   const [pendingDate, setPendingDate] = useState<string | null>(null);
 
   const startForDate = useMutation({
-    mutationFn: async ({ dateStr, muscle }: { dateStr: string; muscle: string }) => {
+    mutationFn: async ({ dateStr, muscle: _muscle }: { dateStr: string; muscle: string }) => {
       return api.startSession(undefined, dateStr);
     },
     onSuccess: (session, variables) => {
       localStorage.setItem(STORAGE_KEYS.ACTIVE_SESSION, session.id);
       queryClient.invalidateQueries({ queryKey: ["workout-history"] });
-      navigate(`/log?muscle=${variables.muscle}&date=${variables.dateStr}`, { replace: true });
+      navigate(`/app/log?muscle=${variables.muscle}&date=${variables.dateStr}`, { replace: true });
     },
   });
 

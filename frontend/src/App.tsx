@@ -4,7 +4,11 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Shell } from "./components/Shell";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { api } from "./lib/api";
+import { useAuth } from "./lib/auth";
 
+const Landing = lazy(() => import("./screens/Landing").then((m) => ({ default: m.Landing })));
+const Auth = lazy(() => import("./screens/Auth").then((m) => ({ default: m.Auth })));
+const AuthCallback = lazy(() => import("./screens/AuthCallback").then((m) => ({ default: m.AuthCallback })));
 const Coach = lazy(() => import("./screens/Coach").then((m) => ({ default: m.Coach })));
 const DayDetail = lazy(() => import("./screens/DayDetail").then((m) => ({ default: m.DayDetail })));
 const Home = lazy(() => import("./screens/Home").then((m) => ({ default: m.Home })));
@@ -23,17 +27,19 @@ function LoadingFallback() {
   );
 }
 
+/** Authenticated + profile check → app shell, or redirect to onboarding */
 function Gate() {
   const location = useLocation();
   const queryClient = useQueryClient();
-  const profile = useQuery({ queryKey: ["profile"], queryFn: api.getProfile });
+  const { loading: authLoading } = useAuth();
+  const profile = useQuery({ queryKey: ["profile"], queryFn: api.getProfile, enabled: !authLoading });
 
   useEffect(() => {
     void queryClient.prefetchQuery({ queryKey: ["plan"], queryFn: () => api.getPlan(true) });
     void queryClient.prefetchQuery({ queryKey: ["sessions-week"], queryFn: api.sessionsThisWeek });
   }, [queryClient]);
 
-  if (profile.isLoading) {
+  if (authLoading || profile.isLoading) {
     return <LoadingFallback />;
   }
 
@@ -49,8 +55,14 @@ export default function App() {
       <BrowserRouter>
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<Landing />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/" element={<Gate />}>
+
+            {/* Protected app routes — profile check happens in Gate */}
+            <Route path="/app" element={<Gate />}>
               <Route index element={<Home />} />
               <Route path="plan" element={<Plan />} />
               <Route path="plan/day/:dayId" element={<DayDetail />} />
@@ -60,6 +72,9 @@ export default function App() {
               <Route path="coach" element={<Coach />} />
               <Route path="settings" element={<Settings />} />
             </Route>
+
+            {/* Catch-all → landing */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
       </BrowserRouter>

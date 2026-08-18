@@ -93,6 +93,10 @@ module.exports = {
           "0%, 100%": { opacity: "0.3" },
           "50%": { opacity: "0.6" },
         },
+        "marquee": {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
       },
       animation: {
         "fade-in": "fade-in 0.5s cubic-bezier(0.22, 1, 0.36, 1)",
@@ -103,6 +107,7 @@ module.exports = {
         "pulse-soft": "pulse-soft 3s ease-in-out infinite",
         "count-up": "count-up 0.4s cubic-bezier(0.22, 1, 0.36, 1)",
         "glow-pulse": "glow-pulse 4s ease-in-out infinite",
+        "marquee": "marquee 20s linear infinite",
       },
     },
   },

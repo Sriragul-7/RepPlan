@@ -246,7 +246,7 @@ export function ActiveLog() {
       queryClient.invalidateQueries({ queryKey: ["progress-overview"] });
       queryClient.invalidateQueries({ queryKey: ["session-history"] });
       queryClient.invalidateQueries({ queryKey: ["lifts"] });
-      navigate("/", { replace: true });
+      navigate("/app", { replace: true });
     },
   });
 
@@ -302,7 +302,7 @@ export function ActiveLog() {
         </div>
         <div className="flex items-center gap-2 mb-2">
           <button
-            onClick={() => navigate("/history")}
+            onClick={() => navigate("/app/history")}
             className="flex h-10 w-10 items-center justify-center rounded-full border border-white/[0.1] bg-white/[0.06] text-silver backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.1] active:scale-95"
             aria-label="Workout history"
           >

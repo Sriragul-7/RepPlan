@@ -112,7 +112,7 @@ export function Plan() {
             {MUSCLES.map((m) => (
               <button
                 key={m}
-                onClick={() => navigate(`/log?muscle=${m}`)}
+                onClick={() => navigate(`/app/log?muscle=${m}`)}
                 className="rounded-2xl border border-white/[0.06] bg-white/[0.04] px-3 py-3.5 text-[13px] font-medium capitalize text-silver backdrop-blur-2xl transition hover:bg-white/[0.08] hover:text-white active:scale-95"
               >
                 {m}
@@ -159,7 +159,7 @@ export function Plan() {
               <button
                 key={day.id}
                 onClick={() =>
-                  navigate(`/plan/day/${day.id}`)
+                  navigate(`/app/plan/day/${day.id}`)
                 }
                 className="flex w-full items-center gap-4 rounded-2xl border border-white/[0.06] bg-white/[0.03] px-4 py-3.5 transition hover:bg-white/[0.06] active:scale-[0.98]"
               >

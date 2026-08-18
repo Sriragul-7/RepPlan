@@ -71,7 +71,7 @@ export function DayDetail() {
   return (
     <div className="animate-slide-up space-y-6">
       <button
-        onClick={() => navigate("/plan")}
+        onClick={() => navigate("/app/plan")}
         className="flex items-center gap-1.5 pt-4 font-data text-[11px] uppercase tracking-[0.22em] text-stone"
       >
         <span className="text-lg leading-none">‹</span> Plan
@@ -145,7 +145,7 @@ export function DayDetail() {
       </div>
 
       <div className="space-y-3 pt-1">
-        <Button full onClick={() => navigate(`/log?day=${day.id}`)} className="py-4 text-base">
+        <Button full onClick={() => navigate(`/app/log?day=${day.id}`)} className="py-4 text-base">
           Start this session
         </Button>
         <button

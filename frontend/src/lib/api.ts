@@ -1,4 +1,4 @@
-import { getUserId } from "./user";
+import { getAuthHeaders } from "./user";
 import type {
   CardioLog,
   DayExercise,
@@ -25,11 +25,12 @@ class ApiError extends Error {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const authHeaders = await getAuthHeaders();
   const res = await fetch(`${BASE}${path}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",
-      "X-User-Id": getUserId(),
+      ...authHeaders,
       ...init?.headers,
     },
   });

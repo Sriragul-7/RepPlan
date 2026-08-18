@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { CardSkeleton, Skeleton } from "../components/Skeleton";
 import { ChevronRightIcon } from "../components/icons";
 import { api } from "../lib/api";
+import { useAuth } from "../lib/auth";
 import type { ProfileInput } from "../lib/types";
 
 const GOALS = [
@@ -130,6 +131,7 @@ function DaysRow({
 export function Settings() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { signOut } = useAuth();
   const profileQuery = useQuery({
     queryKey: ["profile"],
     queryFn: api.getProfile,
@@ -154,9 +156,10 @@ export function Settings() {
     },
   });
 
-  const resetAll = () => {
+  const resetAll = async () => {
     localStorage.clear();
-    navigate("/onboarding", { replace: true });
+    await signOut();
+    navigate("/", { replace: true });
   };
 
   if (profileQuery.isLoading) {
