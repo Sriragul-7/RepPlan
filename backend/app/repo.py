@@ -70,6 +70,11 @@ class Repo(Protocol):
     def get_coach_messages(self, conversation_id: str) -> list[dict]: ...
     def add_coach_message(self, conversation_id: str, role: str, content: str) -> dict: ...
 
+    def log_body_metric(self, user_id: str, weight_kg: float) -> dict: ...
+    def get_latest_body_metric(self, user_id: str) -> dict | None: ...
+    def get_body_metrics_history(self, user_id: str, days: int = 90) -> list[dict]: ...
+    def claim_data(self, guest_id: str, auth_id: str, tables: list[str]) -> None: ...
+
 
 def _build_overview(sessions: list[dict], get_exercise) -> dict:
     """Derive a progress overview from sessions that already carry their sets."""
@@ -175,9 +180,39 @@ def _as_list(value) -> list:
 class SupabaseRepo:
     def save_profile(self, user_id: str, data: dict) -> dict:
         db = get_db()
-        row = {"id": user_id, **data, "created_at": _now_iso()}
-        db.table("users").upsert(row, on_conflict="id").execute()
-        return row
+        defaults = {
+            "full_name": "",
+            "age": 25,
+            "weight_kg": 70,
+            "height_cm": 170,
+            "sex": "other",
+            "experience_years": 1,
+            "goal": "hypertrophy",
+            "days_per_week": 4,
+            "equipment_access": "full gym",
+            "split_preference": "ppl",
+        }
+        merged = {**defaults, **data, "id": user_id, "created_at": _now_iso()}
+        merged.pop("computed_age", None)
+        # Strip None values so NOT NULL columns keep their defaults
+        merged = {k: v for k, v in merged.items() if v is not None}
+        # Convert date objects to ISO strings for JSON serialization
+        for k, v in list(merged.items()):
+            if isinstance(v, date):
+                merged[k] = v.isoformat()
+        # Columns that may not exist in older DB schemas — drop on first error
+        _OPTIONAL = {"date_of_birth"}
+        try:
+            db.table("users").upsert(merged, on_conflict="id").execute()
+        except Exception as exc:
+            msg = str(exc).lower()
+            if "column" in msg and ("not found" in msg or "does not exist" in msg or "could not find" in msg):
+                for col in _OPTIONAL:
+                    merged.pop(col, None)
+                db.table("users").upsert(merged, on_conflict="id").execute()
+            else:
+                raise
+        return merged
 
     def get_profile(self, user_id: str) -> dict | None:
         db = get_db()
@@ -517,6 +552,48 @@ class SupabaseRepo:
             row["id"] = uuid.uuid4().hex
             return row
 
+    def log_body_metric(self, user_id: str, weight_kg: float) -> dict:
+        db = get_db()
+        row = {"user_id": user_id, "weight_kg": weight_kg, "logged_at": _now_iso()}
+        return db.table("body_metrics").insert(row).execute().data[0]
+
+    def get_latest_body_metric(self, user_id: str) -> dict | None:
+        db = get_db()
+        resp = (
+            db.table("body_metrics")
+            .select("*")
+            .eq("user_id", user_id)
+            .order("logged_at", desc=True)
+            .limit(1)
+            .execute()
+        )
+        rows = resp.data or []
+        return rows[0] if rows else None
+
+    def get_body_metrics_history(self, user_id: str, days: int = 90) -> list[dict]:
+        db = get_db()
+        from datetime import timedelta
+        cutoff = (datetime.now(tz=timezone.utc) - timedelta(days=days)).isoformat()
+        resp = (
+            db.table("body_metrics")
+            .select("*")
+            .eq("user_id", user_id)
+            .gte("logged_at", cutoff)
+            .order("logged_at", desc=True)
+            .execute()
+        )
+        return resp.data or []
+
+    def claim_data(self, guest_id: str, auth_id: str, tables: list[str]) -> None:
+        db = get_db()
+        for table in tables:
+            # For user-owned tables, re-key user_id column
+            if table in ("users", "weekly_plans", "workout_sessions", "body_metrics", "coach_conversations"):
+                db.table(table).update({"user_id": auth_id}).eq("user_id", guest_id).execute()
+            # logged_sets and cardio_logs reference sessions by session_id FK.
+            # The session IDs don't change during claim — only workout_sessions.user_id
+            # is re-keyed — so no update is needed for these child tables.
+
 
 # ---------------------------------------------------------------- Local (JSON)
 
@@ -534,6 +611,7 @@ class LocalRepo:
             self._data = {"users": {}, "plans": {}, "sessions": {}, "coach_conversations": {}, "coach_messages": {}}
         self._data.setdefault("coach_conversations", {})
         self._data.setdefault("coach_messages", {})
+        self._data.setdefault("body_metrics", {})
         if self._exercises is None:
             seeded = DATA_DIR / "exercises.json"
             self._exercises = load_from_file(seeded) if seeded.exists() else []
@@ -544,6 +622,7 @@ class LocalRepo:
 
     def save_profile(self, user_id: str, data: dict) -> dict:
         row = {"id": user_id, **data, "created_at": _now_iso()}
+        row.pop("computed_age", None)
         self._data["users"][user_id] = row
         self._save()
         return row
@@ -775,6 +854,59 @@ class LocalRepo:
             self._data["coach_conversations"][conversation_id]["updated_at"] = now
         self._save()
         return row
+
+    def log_body_metric(self, user_id: str, weight_kg: float) -> dict:
+        metric_id = uuid.uuid4().hex
+        row = {"id": metric_id, "user_id": user_id, "weight_kg": weight_kg, "logged_at": _now_iso()}
+        self._data["body_metrics"][metric_id] = row
+        self._save()
+        return row
+
+    def get_latest_body_metric(self, user_id: str) -> dict | None:
+        user_metrics = [m for m in self._data["body_metrics"].values() if m["user_id"] == user_id]
+        if not user_metrics:
+            return None
+        user_metrics.sort(key=lambda m: m["logged_at"], reverse=True)
+        return user_metrics[0]
+
+    def get_body_metrics_history(self, user_id: str, days: int = 90) -> list[dict]:
+        from datetime import timedelta
+        cutoff = (datetime.now(tz=timezone.utc) - timedelta(days=days)).isoformat()
+        user_metrics = [
+            m for m in self._data["body_metrics"].values()
+            if m["user_id"] == user_id and m["logged_at"] >= cutoff
+        ]
+        user_metrics.sort(key=lambda m: m["logged_at"], reverse=True)
+        return user_metrics
+
+    def claim_data(self, guest_id: str, auth_id: str, tables: list[str]) -> None:
+        # Re-key users table (profile)
+        if "users" in tables and guest_id in self._data.get("users", {}):
+            self._data["users"][auth_id] = self._data["users"].pop(guest_id)
+
+        # Re-key plans
+        if "weekly_plans" in tables and guest_id in self._data.get("plans", {}):
+            self._data["plans"][auth_id] = self._data["plans"].pop(guest_id)
+
+        # Re-key sessions
+        if "workout_sessions" in tables:
+            guest_sessions = [sid for sid, s in self._data.get("sessions", {}).items() if s.get("user_id") == guest_id]
+            for sid in guest_sessions:
+                self._data["sessions"][sid]["user_id"] = auth_id
+
+        # Re-key body metrics
+        if "body_metrics" in tables:
+            for m in self._data.get("body_metrics", {}).values():
+                if m.get("user_id") == guest_id:
+                    m["user_id"] = auth_id
+
+        # Re-key coach conversations
+        if "coach_conversations" in tables:
+            for c in self._data.get("coach_conversations", {}).values():
+                if c.get("user_id") == guest_id:
+                    c["user_id"] = auth_id
+
+        self._save()
 
 
 def get_repo() -> Repo:

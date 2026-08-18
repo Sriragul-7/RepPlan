@@ -5,22 +5,8 @@ import { Button } from "../components/Button";
 import { SegmentedControl } from "../components/SegmentedControl";
 import { Stepper } from "../components/Stepper";
 import { api } from "../lib/api";
+import { useAuth } from "../lib/auth";
 import type { ProfileInput } from "../lib/types";
-
-type Sex = "male" | "female" | "other";
-
-const DEFAULTS: ProfileInput = {
-  full_name: "",
-  age: 28,
-  weight_kg: 70,
-  height_cm: 170,
-  sex: "male" as Sex,
-  experience_years: 1,
-  goal: "hypertrophy",
-  days_per_week: 4,
-  equipment_access: "full gym",
-  split_preference: "ppl",
-};
 
 const GOALS = [
   { value: "hypertrophy", label: "Hypertrophy" },
@@ -35,6 +21,8 @@ const EQUIPMENT = [
 ];
 
 const DAYS = [2, 3, 4, 5, 6].map((d) => ({ value: String(d), label: `${d} days` }));
+
+type Sex = "male" | "female" | "other";
 
 function Section({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -63,18 +51,71 @@ function FieldRow({
   );
 }
 
+function SegmentedControlSex({
+  value,
+  onChange,
+}: {
+  value: Sex;
+  onChange: (v: Sex) => void;
+}) {
+  const options: { value: Sex; label: string }[] = [
+    { value: "male", label: "Male" },
+    { value: "female", label: "Female" },
+    { value: "other", label: "Other" },
+  ];
+  return (
+    <div className="flex gap-2">
+      {options.map((opt) => (
+        <button
+          key={opt.value}
+          onClick={() => onChange(opt.value)}
+          className={`flex-1 rounded-xl py-2.5 text-[13px] font-medium transition-all duration-200 ${
+            value === opt.value
+              ? "bg-white text-ink shadow-glow"
+              : "border border-white/[0.08] bg-white/[0.04] text-stone hover:bg-white/[0.06]"
+          }`}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function Onboarding() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [form, setForm] = useState<ProfileInput>(DEFAULTS);
+  const { user } = useAuth();
   const [error, setError] = useState<string | null>(null);
 
-  const set = <K extends keyof ProfileInput>(key: K, value: ProfileInput[K]) =>
-    setForm((f) => ({ ...f, [key]: value }));
+  const [experienceYears, setExperienceYears] = useState(1);
+  const [goal, setGoal] = useState("hypertrophy");
+  const [daysPerWeek, setDaysPerWeek] = useState(4);
+  const [equipmentAccess, setEquipmentAccess] = useState("full gym");
+
+  const [fullName, setFullName] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [weightKg, setWeightKg] = useState(70);
+  const [heightCm, setHeightCm] = useState(170);
+  const [sex, setSex] = useState<Sex>("male");
 
   const mutation = useMutation({
     mutationFn: async () => {
-      await api.saveProfile(form);
+      const data: Partial<ProfileInput> = {
+        experience_years: experienceYears,
+        goal,
+        days_per_week: daysPerWeek,
+        equipment_access: equipmentAccess,
+        split_preference: "ppl",
+      };
+      if (user) {
+        if (fullName.trim()) data.full_name = fullName.trim();
+        if (dateOfBirth) data.date_of_birth = dateOfBirth;
+        data.weight_kg = weightKg;
+        data.height_cm = heightCm;
+        data.sex = sex;
+      }
+      await api.saveProfile(data as ProfileInput);
       await api.generatePlan();
     },
     onSuccess: async () => {
@@ -85,14 +126,8 @@ export function Onboarding() {
     onError: (e: Error) => setError(e.message),
   });
 
-  const canSave = (form.full_name ?? "").trim().length > 0;
-
   const submit = () => {
     setError(null);
-    if (!canSave) {
-      setError("Please tell us your name first.");
-      return;
-    }
     mutation.mutate();
   };
 
@@ -110,13 +145,13 @@ export function Onboarding() {
         {/* Left side — hero content for desktop */}
         <div className="mb-8 hidden flex-1 lg:mb-0 lg:block xl:flex-1">
           <p className="mb-3 font-data text-[11px] font-semibold uppercase tracking-[0.28em] text-stone">
-            Set up your profile
+            Quick start
           </p>
           <h1 className="font-display mb-6 text-[52px] font-semibold leading-[1.02] text-white xl:text-[64px]">
             Build your<br />perfect plan
           </h1>
           <p className="mb-12 max-w-md text-[17px] leading-[1.7] text-stone/60">
-            Tell us a bit about yourself and our AI will craft a workout program tailored to your body, goals, and lifestyle.
+            Tell us about your training and our AI will craft a workout program tailored to your goals.
           </p>
 
           {/* How it works */}
@@ -125,7 +160,7 @@ export function Onboarding() {
               How it works
             </p>
             {[
-              { step: "01", title: "Tell us about you", desc: "Your body, goals, and experience level" },
+              { step: "01", title: "Tell us your goals", desc: "Experience, equipment, and training days" },
               { step: "02", title: "AI builds your plan", desc: "Personalized splits, sets, and progression" },
               { step: "03", title: "Track your workouts", desc: "Log sets, reps, and weights in real time" },
             ].map((item) => (
@@ -153,62 +188,53 @@ export function Onboarding() {
           {/* Mobile headline */}
           <div className="mb-6 lg:hidden">
             <p className="mb-1 font-data text-[11px] font-semibold uppercase tracking-[0.28em] text-stone">
-              Set up your profile
+              Quick start
             </p>
             <h1 className="font-display mb-2 text-[36px] font-semibold leading-[1.1] text-white">
               Build your plan
             </h1>
             <p className="text-[15px] leading-relaxed text-stone/70">
-              Tell us a bit about yourself so we can personalize your workout plan.
+              Tell us about your training goals so we can personalize your workout plan.
             </p>
           </div>
 
       <div className="space-y-4">
-        <Section label="About you">
-          <div className="ios-row">
-            <span className="flex-1 text-sm text-white">Name</span>
-            <input
-              autoFocus
-              value={form.full_name ?? ""}
-              onChange={(e) => set("full_name", e.target.value)}
-              placeholder="Enter your name"
-              enterKeyHint="next"
-              className="w-44 rounded-xl border border-white/[0.08] bg-white/[0.04] px-3.5 py-2.5 text-left text-sm text-white placeholder:text-stone/40 outline-none backdrop-blur-xl transition-all duration-300 focus:border-white/[0.2] focus:bg-white/[0.06]"
-            />
-          </div>
-          <FieldRow label="Age">
-            <Stepper value={form.age} onChange={(v) => set("age", v)} min={13} max={100} />
-          </FieldRow>
-        </Section>
-
-        <Section label="Body">
-          <FieldRow label="Weight" unit="kg">
-            <Stepper value={Math.round(form.weight_kg ?? 70)} onChange={(v) => set("weight_kg", v)} min={30} max={300} />
-          </FieldRow>
-          <FieldRow label="Height" unit="cm">
-            <Stepper value={Math.round(form.height_cm ?? 170)} onChange={(v) => set("height_cm", v)} min={120} max={230} />
-          </FieldRow>
-        </Section>
+        {user && (
+          <Section label="About you">
+            <div className="ios-row">
+              <span className="flex-1 text-sm text-white">Name</span>
+              <input
+                autoFocus
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Enter your name"
+                enterKeyHint="next"
+                className="w-44 rounded-xl border border-white/[0.08] bg-white/[0.04] px-3.5 py-2.5 text-left text-sm text-white placeholder:text-stone/40 outline-none backdrop-blur-xl transition-all duration-300 focus:border-white/[0.2] focus:bg-white/[0.06]"
+              />
+            </div>
+            <div className="ios-row">
+              <span className="flex-1 text-sm text-white">Date of birth</span>
+              <input
+                type="date"
+                value={dateOfBirth}
+                onChange={(e) => setDateOfBirth(e.target.value)}
+                max={new Date().toISOString().slice(0, 10)}
+                className="w-44 rounded-xl border border-white/[0.08] bg-white/[0.04] px-3.5 py-2.5 text-left text-sm text-white outline-none backdrop-blur-xl transition-all duration-300 focus:border-white/[0.2] focus:bg-white/[0.06] [color-scheme:dark]"
+              />
+            </div>
+            <FieldRow label="Sex">
+              <SegmentedControlSex value={sex} onChange={setSex} />
+            </FieldRow>
+          </Section>
+        )}
 
         <Section label="Training background">
-          <div className="ios-row">
-            <span className="flex-1 text-sm text-white">Sex</span>
-            <SegmentedControl<Sex>
-              options={[
-                { value: "male", label: "Male" },
-                { value: "female", label: "Female" },
-                { value: "other", label: "Other" },
-              ]}
-              value={form.sex as Sex}
-              onChange={(v) => set("sex", v)}
-            />
-          </div>
           <FieldRow label="Experience" unit="yrs">
             <Stepper
-              value={Math.round(form.experience_years * 2) / 2}
+              value={Math.round(experienceYears * 2) / 2}
               step={0.5}
               decimals={1}
-              onChange={(v) => set("experience_years", v)}
+              onChange={setExperienceYears}
               min={0}
               max={30}
             />
@@ -218,17 +244,28 @@ export function Onboarding() {
         <Section label="Training">
           <div className="ios-row flex-col !items-stretch gap-3">
             <span className="text-sm text-white">Primary goal</span>
-            <SegmentedControl options={GOALS} value={form.goal as "hypertrophy"} onChange={(v) => set("goal", v)} />
+            <SegmentedControl options={GOALS} value={goal} onChange={setGoal} />
           </div>
           <div className="ios-row flex-col !items-stretch gap-3">
             <span className="text-sm text-white">Days per week</span>
-            <SegmentedControl options={DAYS} value={String(form.days_per_week)} onChange={(v) => set("days_per_week", Number(v))} columns={5} />
+            <SegmentedControl options={DAYS} value={String(daysPerWeek)} onChange={(v) => setDaysPerWeek(Number(v))} columns={5} />
           </div>
           <div className="ios-row flex-col !items-stretch gap-3">
             <span className="text-sm text-white">Equipment</span>
-            <SegmentedControl options={EQUIPMENT} value={form.equipment_access as "full gym"} onChange={(v) => set("equipment_access", v)} />
+            <SegmentedControl options={EQUIPMENT} value={equipmentAccess} onChange={setEquipmentAccess} />
           </div>
         </Section>
+
+        {user && (
+          <Section label="Body">
+            <FieldRow label="Weight" unit="kg">
+              <Stepper value={weightKg} onChange={setWeightKg} min={30} max={300} />
+            </FieldRow>
+            <FieldRow label="Height" unit="cm">
+              <Stepper value={heightCm} onChange={setHeightCm} min={120} max={230} />
+            </FieldRow>
+          </Section>
+        )}
       </div>
 
       {error ? <p className="mt-4 text-center text-sm text-rose lg:text-left">{error}</p> : null}
@@ -237,11 +274,14 @@ export function Onboarding() {
         <Button
           full
           onClick={submit}
-          disabled={mutation.isPending || !canSave}
+          disabled={mutation.isPending}
           className="py-4 text-base"
         >
           {mutation.isPending ? "Building your plan…" : "Build my plan"}
         </Button>
+        <p className="mt-3 text-center text-[13px] text-stone/50">
+          {user ? "You can update your details later in Settings." : "You can add your name and body stats later in Settings."}
+        </p>
       </div>
         </div>
       </div>

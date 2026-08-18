@@ -1,10 +1,34 @@
-import { NavLink } from "react-router-dom";
-import { tabs } from "./BottomNav";
-import { GearIcon } from "./icons";
+import { useState, useRef, useEffect } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { allTabs } from "./BottomNav";
+import { useAuth } from "../lib/auth";
+import { GearIcon, UserIcon, LogOutIcon } from "./icons";
 import { Logo } from "./Logo";
 
 /** Premium desktop side rail — replaces the bottom tab bar on lg+ screens. */
 export function Sidebar() {
+  const { session, user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const tabs = allTabs.filter((t) => !t.requiresAuth || session);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    if (menuOpen) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [menuOpen]);
+
+  const handleSignOut = async () => {
+    await signOut();
+    setMenuOpen(false);
+    navigate("/", { replace: true });
+  };
+
   return (
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-white/[0.06] bg-coal/80 backdrop-blur-3xl lg:flex">
       <div className="flex h-full flex-col px-6 py-9">
@@ -56,6 +80,45 @@ export function Sidebar() {
             Settings
           </NavLink>
           <div className="mt-4 h-px w-full bg-gradient-to-r from-white/[0.06] to-transparent" />
+
+          {/* User menu */}
+          {user && (
+            <div className="relative mt-4" ref={menuRef}>
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-stone transition-all duration-300 hover:bg-white/[0.06] hover:text-ivory"
+              >
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-steel/80">
+                  <UserIcon className="h-4 w-4 text-ink" />
+                </div>
+                <span className="flex-1 truncate text-left text-[13px]">
+                  {user.email}
+                </span>
+              </button>
+
+              {menuOpen && (
+                <div className="absolute bottom-full left-0 mb-2 w-full overflow-hidden rounded-2xl border border-white/[0.08] bg-coal/95 shadow-xl backdrop-blur-xl">
+                  <div className="px-4 py-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-stone/60">
+                      Signed in as
+                    </p>
+                    <p className="mt-0.5 truncate text-[13px] text-ivory">
+                      {user.email}
+                    </p>
+                  </div>
+                  <div className="h-px bg-white/[0.06]" />
+                  <button
+                    onClick={handleSignOut}
+                    className="flex w-full items-center gap-3 px-4 py-3 text-[13px] font-medium text-red-400 transition-colors hover:bg-white/[0.06]"
+                  >
+                    <LogOutIcon className="h-4 w-4" />
+                    Sign out
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
           <p className="px-1 pt-4 font-data text-[9px] uppercase tracking-[0.18em] text-ash/40">
             Built for discipline
           </p>

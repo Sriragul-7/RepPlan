@@ -29,6 +29,24 @@ export function Progress() {
     placeholderData: (prev) => prev,
   });
 
+  const bodyMetricsQuery = useQuery({
+    queryKey: ["body-metrics-history"],
+    queryFn: () => api.getBodyMetricsHistory(90),
+    placeholderData: (prev) => prev,
+  });
+
+  const weightTrend = useMemo(() => {
+    const metrics = bodyMetricsQuery.data ?? [];
+    if (metrics.length < 2) return null;
+    const sorted = [...metrics].sort((a, b) => new Date(a.logged_at).getTime() - new Date(b.logged_at).getTime());
+    const first = sorted[0].weight_kg ?? 0;
+    const last = sorted[sorted.length - 1].weight_kg ?? 0;
+    const change = last - first;
+    const minW = Math.min(...sorted.map((m) => m.weight_kg ?? 0));
+    const maxW = Math.max(...sorted.map((m) => m.weight_kg ?? 0));
+    return { sorted, first, last, change, minW, maxW };
+  }, [bodyMetricsQuery.data]);
+
   const exercisesQuery = useQuery({
     queryKey: ["exercises-all"],
     queryFn: () => api.searchExercises(),
@@ -312,6 +330,54 @@ export function Progress() {
           )}
         </div>
       </div>
+
+      {/* Weight trend chart */}
+      {weightTrend && weightTrend.sorted.length >= 2 && (
+        <div>
+          <h3 className="ios-section-label">Weight trend</h3>
+          <div className="ios-list">
+            <div className="p-4">
+              <div className="flex items-baseline justify-between mb-3">
+                <span className="font-data text-[11px] text-stone">
+                  {weightTrend.sorted.length} entries
+                </span>
+                <span className={`font-data text-[12px] font-semibold ${
+                  weightTrend.change > 0 ? "text-emerald-400" : weightTrend.change < 0 ? "text-rose-400" : "text-stone"
+                }`}>
+                  {weightTrend.change > 0 ? "+" : ""}{weightTrend.change.toFixed(1)} kg
+                </span>
+              </div>
+              <div className="relative h-24">
+                {/* Simple line chart using divs */}
+                <svg className="h-full w-full" viewBox={`0 0 ${weightTrend.sorted.length * 20} 100`} preserveAspectRatio="none">
+                  <polyline
+                    fill="none"
+                    stroke="rgba(255,255,255,0.6)"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    points={weightTrend.sorted.map((m, i) => {
+                      const x = i * 20;
+                      const w = m.weight_kg ?? 0;
+                      const range = weightTrend.maxW - weightTrend.minW || 1;
+                      const y = 100 - ((w - weightTrend.minW) / range) * 80 - 10;
+                      return `${x},${y}`;
+                    }).join(" ")}
+                  />
+                </svg>
+              </div>
+              <div className="flex justify-between mt-2">
+                <span className="font-data text-[10px] text-ash">
+                  {new Date(weightTrend.sorted[0].logged_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                </span>
+                <span className="font-data text-[10px] text-ash">
+                  {new Date(weightTrend.sorted[weightTrend.sorted.length - 1].logged_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <MuscleCategoryPicker
         open={musclePickerOpen}

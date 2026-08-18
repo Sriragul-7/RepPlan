@@ -1,18 +1,22 @@
 import { NavLink } from "react-router-dom";
 import { BrainIcon, CalendarIcon, ChartBarIcon, HomeIcon, PencilIcon } from "./icons";
+import { useAuth } from "../lib/auth";
 
-const tabs = [
+const allTabs = [
   { to: "/app", label: "Home", icon: HomeIcon },
   { to: "/app/plan", label: "Workouts", icon: CalendarIcon },
-  { to: "/app/log", label: "Log", icon: PencilIcon },
-  { to: "/app/progress", label: "Progress", icon: ChartBarIcon },
-  { to: "/app/coach", label: "AI Coach", icon: BrainIcon },
+  { to: "/app/log", label: "Log", icon: PencilIcon, requiresAuth: true },
+  { to: "/app/progress", label: "Progress", icon: ChartBarIcon, requiresAuth: true },
+  { to: "/app/coach", label: "AI Coach", icon: BrainIcon, requiresAuth: true },
 ];
 
-export { tabs };
+export { allTabs };
 
 /** Premium iOS-style floating frosted tab bar — mobile only, hidden on lg+. */
 export function BottomNav() {
+  const { session } = useAuth();
+  const tabs = allTabs.filter((t) => !t.requiresAuth || session);
+
   return (
     <nav className="fixed bottom-0 left-1/2 z-40 w-full max-w-md -translate-x-1/2 pb-safe lg:hidden">
       <div className="mx-3 mb-2 flex items-center justify-around rounded-[28px] border border-white/[0.06] bg-coal/80 px-2 py-1.5 shadow-lg backdrop-blur-xl">

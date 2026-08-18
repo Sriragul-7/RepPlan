@@ -1,5 +1,6 @@
 import { getAuthHeaders } from "./user";
 import type {
+  BodyMetric,
   CardioLog,
   DayExercise,
   Exercise,
@@ -48,9 +49,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  getProfile: () => request<Profile>("/api/profile").catch((e) => (e.status === 404 ? null : Promise.reject(e))),
+  getProfile: (): Promise<Profile | null> =>
+    request<Profile>("/api/profile").catch((e) => (e.status === 404 ? null : Promise.reject(e))),
   saveProfile: (data: ProfileInput) =>
     request<Profile>("/api/profile", { method: "POST", body: JSON.stringify(data) }),
+  patchProfile: (data: Partial<ProfileInput>) =>
+    request<Profile>("/api/profile", { method: "PATCH", body: JSON.stringify(data) }),
   generatePlan: () => request<Plan>("/api/plan/generate", { method: "POST" }),
   getPlan: (skipRecovery = false) =>
     request<Plan>(`/api/plan/current${skipRecovery ? "?skip_recovery=true" : ""}`).catch((e) => (e.status === 404 ? null : Promise.reject(e))),
@@ -97,6 +101,21 @@ export const api = {
   workoutHistory: (startDate: string, endDate: string) =>
     request<Session[]>(`/api/session/history?start=${startDate}&end=${endDate}`),
   sessionDetail: (sessionId: string) => request<Session>(`/api/session/${sessionId}`),
+
+  // Body metrics
+  logBodyMetric: (data: { weight_kg: number }) =>
+    request<BodyMetric>("/api/body-metrics", { method: "POST", body: JSON.stringify(data) }),
+  getLatestBodyMetric: () =>
+    request<BodyMetric | null>("/api/body-metrics/latest").catch(() => null),
+  getBodyMetricsHistory: (days = 90) =>
+    request<BodyMetric[]>(`/api/body-metrics?days=${days}`),
+
+  // Profile claim
+  claimProfile: (guestUserId: string) =>
+    request<{ claimed: boolean }>("/api/profile/claim", {
+      method: "POST",
+      body: JSON.stringify({ guest_user_id: guestUserId }),
+    }),
 
   // Coach
   getCoachConversations: () => request<CoachConversation[]>("/api/coach/conversations"),

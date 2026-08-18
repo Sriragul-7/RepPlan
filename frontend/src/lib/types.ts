@@ -45,7 +45,8 @@ export type Plan = {
 export type Profile = {
   id: string;
   full_name?: string | null;
-  age: number;
+  date_of_birth?: string | null;
+  age?: number | null;
   weight_kg?: number | null;
   height_cm?: number | null;
   sex?: string | null;
@@ -98,6 +99,13 @@ export type LiftPoint = {
 export type MuscleBalance = {
   muscle: string;
   sets: number;
+};
+
+export type BodyMetric = {
+  id: string;
+  user_id: string;
+  weight_kg: number | null;
+  logged_at: string;
 };
 
 export type ProgressOverview = {

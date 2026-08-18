@@ -54,17 +54,36 @@ RULES:
 """
 
 
-def _build_user_context(user_profile: dict | None) -> str:
+def _build_user_context(user_profile: dict | None, latest_weight: float | None = None) -> str:
     if not user_profile:
         return ""
 
     parts = []
-    if user_profile.get("age"):
+    # Compute age from date_of_birth if available, otherwise use legacy age field
+    dob = user_profile.get("date_of_birth")
+    if dob:
+        from datetime import date as _date
+        if isinstance(dob, str):
+            dob = _date.fromisoformat(dob)
+        today = _date.today()
+        age = (
+            today.year
+            - dob.year
+            - ((today.month, today.day) < (dob.month, dob.day))
+        )
+        parts.append(f"Age: {age}")
+    elif user_profile.get("age"):
         parts.append(f"Age: {user_profile['age']}")
+
     if user_profile.get("sex"):
         parts.append(f"Sex: {user_profile['sex']}")
-    if user_profile.get("weight_kg"):
+
+    # Use latest body_metrics weight instead of stale profile snapshot
+    if latest_weight:
+        parts.append(f"Weight: {latest_weight}kg")
+    elif user_profile.get("weight_kg"):
         parts.append(f"Weight: {user_profile['weight_kg']}kg")
+
     if user_profile.get("height_cm"):
         parts.append(f"Height: {user_profile['height_cm']}cm")
     if user_profile.get("goal"):
@@ -106,9 +125,10 @@ def _build_full_prompt(
     question: str,
     user_profile: dict | None,
     conversation_history: list[dict],
+    latest_weight: float | None = None,
 ) -> list[dict]:
     rag_context = _build_rag_context(question)
-    user_context = _build_user_context(user_profile)
+    user_context = _build_user_context(user_profile, latest_weight)
     history_text = _build_conversation_history(conversation_history)
 
     system_parts = [SYSTEM_PROMPT]
@@ -143,6 +163,7 @@ async def stream_chat(
     question: str,
     user_profile: dict | None = None,
     conversation_history: list[dict] | None = None,
+    latest_weight: float | None = None,
 ) -> AsyncIterator[str]:
     history = conversation_history or []
 
@@ -151,7 +172,7 @@ async def stream_chat(
         yield direct_response
         return
 
-    messages = _build_full_prompt(question, user_profile, history)
+    messages = _build_full_prompt(question, user_profile, history, latest_weight)
     messages.append({"role": "user", "content": question})
 
     if not settings.openrouter_api_key:
@@ -187,7 +208,7 @@ async def stream_chat(
                 try:
                     data = json.loads(data_str)
                     delta = data.get("choices", [{}])[0].get("delta", {})
-                    content = delta.get("content", "")
+                    content = delta.get("content") or delta.get("reasoning") or ""
                     if content:
                         yield content
                 except (json.JSONDecodeError, IndexError, KeyError):
@@ -208,9 +229,10 @@ async def chat(
     question: str,
     user_profile: dict | None = None,
     conversation_history: list[dict] | None = None,
+    latest_weight: float | None = None,
 ) -> str:
     chunks = []
-    async for chunk in stream_chat(question, user_profile, conversation_history):
+    async for chunk in stream_chat(question, user_profile, conversation_history, latest_weight):
         chunks.append(chunk)
     return "".join(chunks)
 

@@ -1,22 +1,35 @@
 """Pydantic request/response schemas."""
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
 
 
 class ProfileIn(BaseModel):
     full_name: str | None = None
-    age: int = Field(ge=13, le=100)
+    date_of_birth: date | None = None
+    age: int | None = Field(default=None, ge=13, le=100)
     weight_kg: float | None = Field(default=None, ge=20, le=400)
     height_cm: float | None = Field(default=None, ge=80, le=280)
     sex: str | None = None
-    experience_years: float = Field(ge=0, le=50)
-    goal: str = "hypertrophy"
-    days_per_week: int = Field(ge=2, le=6)
-    equipment_access: str = "full gym"
-    split_preference: str = "ppl"
+    experience_years: float | None = Field(default=None, ge=0, le=50)
+    goal: str | None = None
+    days_per_week: int | None = Field(default=None, ge=2, le=6)
+    equipment_access: str | None = None
+    split_preference: str | None = None
+
+    @computed_field
+    @property
+    def computed_age(self) -> int | None:
+        if self.date_of_birth:
+            today = date.today()
+            return (
+                today.year
+                - self.date_of_birth.year
+                - ((today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day))
+            )
+        return self.age
 
 
 class ProfileOut(ProfileIn):

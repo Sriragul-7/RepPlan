@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { CardSkeleton, Skeleton } from "../components/Skeleton";
 import { ChevronRightIcon } from "../components/icons";
 import { api } from "../lib/api";
-import { useAuth } from "../lib/auth";
 import type { ProfileInput } from "../lib/types";
 
 const GOALS = [
@@ -131,7 +130,6 @@ function DaysRow({
 export function Settings() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { signOut } = useAuth();
   const profileQuery = useQuery({
     queryKey: ["profile"],
     queryFn: api.getProfile,
@@ -140,27 +138,33 @@ export function Settings() {
   const [form, setForm] = useState<ProfileInput | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
 
+  const profile = profileQuery.data;
+
   const set = useCallback(
     <K extends keyof ProfileInput>(key: K, value: ProfileInput[K]) => {
-      setForm((f) => (f ? { ...f, [key]: value } : f));
+      setForm((f) => {
+        if (!f && profile) {
+          return { ...profile, [key]: value };
+        }
+        if (f) return { ...f, [key]: value };
+        return f;
+      });
       setHasChanges(true);
     },
-    [],
+    [profile],
   );
 
   const save = useMutation({
-    mutationFn: () => api.saveProfile(form!),
+    mutationFn: () => {
+      if (!form && profile) return api.saveProfile({ ...profile });
+      if (!form) return Promise.reject(new Error("No changes to save"));
+      return api.saveProfile(form);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profile"] });
       setHasChanges(false);
     },
   });
-
-  const resetAll = async () => {
-    localStorage.clear();
-    await signOut();
-    navigate("/", { replace: true });
-  };
 
   if (profileQuery.isLoading) {
     return (
@@ -172,7 +176,6 @@ export function Settings() {
     );
   }
 
-  const profile = profileQuery.data;
   const f = form ?? {
     full_name: profile?.full_name ?? "",
     age: profile?.age ?? 28,
@@ -209,6 +212,13 @@ export function Settings() {
       </header>
 
       <Section label="Personal">
+        <button
+          onClick={() => navigate("/profile-setup")}
+          className="ios-row ios-tap"
+        >
+          <span className="flex-1 text-[15px] text-ivory">Edit profile</span>
+          <ChevronRightIcon className="h-4 w-4 shrink-0 text-ash" />
+        </button>
         <div className="ios-row">
           <span className="text-[15px] text-ivory">Name</span>
           <input
@@ -267,12 +277,6 @@ export function Settings() {
             Exercise media used under license. Displayed at original resolution.
           </p>
         </div>
-        <button
-          onClick={resetAll}
-          className="ios-row ios-tap justify-center text-[15px] font-medium text-red-400"
-        >
-          Reset all data
-        </button>
       </Section>
     </div>
   );

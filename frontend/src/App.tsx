@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from "react";
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Shell } from "./components/Shell";
 import { ErrorBoundary } from "./components/ErrorBoundary";
@@ -13,6 +13,7 @@ const Coach = lazy(() => import("./screens/Coach").then((m) => ({ default: m.Coa
 const DayDetail = lazy(() => import("./screens/DayDetail").then((m) => ({ default: m.DayDetail })));
 const Home = lazy(() => import("./screens/Home").then((m) => ({ default: m.Home })));
 const Onboarding = lazy(() => import("./screens/Onboarding").then((m) => ({ default: m.Onboarding })));
+const ProfileSetup = lazy(() => import("./screens/ProfileSetup").then((m) => ({ default: m.ProfileSetup })));
 const Plan = lazy(() => import("./screens/Plan").then((m) => ({ default: m.Plan })));
 const Progress = lazy(() => import("./screens/Progress").then((m) => ({ default: m.Progress })));
 const ActiveLog = lazy(() => import("./screens/ActiveLog").then((m) => ({ default: m.ActiveLog })));
@@ -49,6 +50,14 @@ function Gate() {
   return <Shell />;
 }
 
+/** Redirects guests to /app when they try to access auth-required child routes */
+function AuthRequired() {
+  const { session, loading } = useAuth();
+  if (loading) return <LoadingFallback />;
+  if (!session) return <Navigate to="/app" replace />;
+  return <Outlet />;
+}
+
 export default function App() {
   return (
     <ErrorBoundary>
@@ -60,17 +69,21 @@ export default function App() {
             <Route path="/auth" element={<Auth />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/profile-setup" element={<ProfileSetup />} />
 
             {/* Protected app routes — profile check happens in Gate */}
             <Route path="/app" element={<Gate />}>
               <Route index element={<Home />} />
               <Route path="plan" element={<Plan />} />
               <Route path="plan/day/:dayId" element={<DayDetail />} />
-              <Route path="log" element={<ActiveLog />} />
-              <Route path="history" element={<WorkoutHistory />} />
-              <Route path="progress" element={<Progress />} />
-              <Route path="coach" element={<Coach />} />
               <Route path="settings" element={<Settings />} />
+              {/* Auth-required routes */}
+              <Route element={<AuthRequired />}>
+                <Route path="log" element={<ActiveLog />} />
+                <Route path="history" element={<WorkoutHistory />} />
+                <Route path="progress" element={<Progress />} />
+                <Route path="coach" element={<Coach />} />
+              </Route>
             </Route>
 
             {/* Catch-all → landing */}

@@ -69,6 +69,36 @@ export function ActiveLog() {
   const [cardioOpen, setCardioOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+  const [weightCheckinOpen, setWeightCheckinOpen] = useState(false);
+  const [checkinWeight, setCheckinWeight] = useState(70);
+
+  const latestMetricQuery = useQuery({
+    queryKey: ["body-metric-latest"],
+    queryFn: api.getLatestBodyMetric,
+    enabled: false,
+    placeholderData: (prev) => prev,
+  });
+
+  useEffect(() => {
+    const metric = latestMetricQuery.data;
+    if (metric && metric.logged_at) {
+      const lastDate = new Date(metric.logged_at);
+      const now = new Date();
+      const daysSince = (now.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24);
+      if (daysSince >= 14) {
+        setCheckinWeight(Math.round(metric.weight_kg ?? 70));
+        setWeightCheckinOpen(true);
+      }
+    }
+  }, [latestMetricQuery.data]);
+
+  const weightCheckinMutation = useMutation({
+    mutationFn: () => api.logBodyMetric({ weight_kg: checkinWeight }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["body-metric-latest"] });
+      setWeightCheckinOpen(false);
+    },
+  });
 
   const exercisesQuery = useQuery({
     queryKey: ["exercises-all"],
@@ -602,6 +632,27 @@ export function ActiveLog() {
         onFinish={() => setRest((r) => ({ ...r, active: false }))}
         onSkip={() => setRest((r) => ({ ...r, active: false }))}
       />
+
+      <BottomSheet open={weightCheckinOpen} onClose={() => setWeightCheckinOpen(false)} title="Weight check-in">
+        <div className="space-y-5">
+          <p className="text-[14px] text-stone">
+            It's been a while since your last weight entry. Log your current weight to keep your coach up to date.
+          </p>
+          <div className="flex items-center justify-center gap-2">
+            <span className="font-display text-[56px] font-bold text-ivory">{checkinWeight}</span>
+            <span className="font-data text-sm text-ash">kg</span>
+          </div>
+          <Stepper value={checkinWeight} min={30} max={300} onChange={setCheckinWeight} />
+          <div className="flex gap-3">
+            <Button variant="chrome" full onClick={() => setWeightCheckinOpen(false)}>
+              Skip
+            </Button>
+            <Button full onClick={() => weightCheckinMutation.mutate()} disabled={weightCheckinMutation.isPending}>
+              {weightCheckinMutation.isPending ? "Saving…" : "Log weight"}
+            </Button>
+          </div>
+        </div>
+      </BottomSheet>
     </div>
   );
 }

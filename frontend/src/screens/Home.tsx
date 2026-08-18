@@ -1,12 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "../components/Button";
 import { DisciplineRing } from "../components/DisciplineRing";
 import { GlassCard } from "../components/GlassCard";
 import { CardSkeleton, Skeleton } from "../components/Skeleton";
 import { ChevronRightIcon, DumbbellIcon, GearIcon } from "../components/icons";
 import { api } from "../lib/api";
+import { useAuth } from "../lib/auth";
 import { DAY_NAMES } from "../lib/constants";
 
 export function todayIndex(): number {
@@ -23,6 +24,10 @@ export function formatDate(): string {
 
 export function Home() {
   const navigate = useNavigate();
+  const { signInWithGoogle, session } = useAuth();
+  const [dismissedGuest, setDismissedGuest] = useState(() =>
+    localStorage.getItem("repplan_guest_dismissed") === "1"
+  );
   const planQuery = useQuery({
     queryKey: ["plan"],
     queryFn: () => api.getPlan(true),
@@ -39,32 +44,7 @@ export function Home() {
     placeholderData: (prev) => prev,
   });
 
-  if (planQuery.isLoading || weekQuery.isLoading) {
-    return (
-      <div className="space-y-6">
-        <Skeleton className="h-6 w-40" />
-        <Skeleton className="h-48 w-full rounded-[28px]" />
-        <CardSkeleton />
-      </div>
-    );
-  }
-
-  const plan = planQuery.data;
-  if (!plan) return null;
-
-  const firstName = profileQuery.data?.full_name?.split(" ")[0] ?? null;
-  const greeting = (() => {
-    const h = new Date().getHours();
-    if (h < 12) return "Good morning";
-    if (h < 18) return "Good afternoon";
-    return "Good evening";
-  })();
-
-  const today = todayIndex() + 1;
-  const todayDay = plan.days.find((d) => d.day_of_week === today) ?? null;
-  const isWorkout = todayDay && !todayDay.is_rest_day;
-
-  // Build past 5 days data
+  // ALL hooks must be declared before any early returns
   const pastDays = useMemo(() => {
     const days = [];
     const todayDate = new Date();
@@ -73,7 +53,7 @@ export function Home() {
       d.setDate(todayDate.getDate() - i);
       days.push({
         date: d.toISOString().slice(0, 10),
-        dayOfWeek: (d.getDay() + 6) % 7 + 1, // Monday=1..Sunday=7
+        dayOfWeek: (d.getDay() + 6) % 7 + 1,
         dayName: DAY_NAMES[(d.getDay() + 6) % 7],
       });
     }
@@ -109,6 +89,32 @@ export function Home() {
     return map;
   }, [pastDays, weekQuery.data]);
 
+  // NOW safe to early-return
+  if (planQuery.isLoading || weekQuery.isLoading) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-6 w-40" />
+        <Skeleton className="h-48 w-full rounded-[28px]" />
+        <CardSkeleton />
+      </div>
+    );
+  }
+
+  const plan = planQuery.data;
+  if (!plan) return null;
+
+  const firstName = profileQuery.data?.full_name?.split(" ")[0] ?? null;
+  const greeting = (() => {
+    const h = new Date().getHours();
+    if (h < 12) return "Good morning";
+    if (h < 18) return "Good afternoon";
+    return "Good evening";
+  })();
+
+  const today = todayIndex() + 1;
+  const todayDay = plan.days.find((d) => d.day_of_week === today) ?? null;
+  const isWorkout = todayDay && !todayDay.is_rest_day;
+
   const upcoming = [...plan.days]
     .filter((d) => !d.is_rest_day && d.day_of_week !== today)
     .sort((a, b) => {
@@ -143,6 +149,36 @@ export function Home() {
           <GearIcon className="h-5 w-5" />
         </button>
       </header>
+
+      {/* Guest save prompt */}
+      {!session && !dismissedGuest && (
+        <div className="glass-card border border-white/[0.08] p-5">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="font-display text-[15px] font-semibold text-white">
+                Save your plan
+              </p>
+              <p className="mt-1 text-[13px] leading-relaxed text-stone">
+                Sign in to save your plan and track progress across devices.
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                setDismissedGuest(true);
+                localStorage.setItem("repplan_guest_dismissed", "1");
+              }}
+              className="shrink-0 text-[12px] text-ash hover:text-white transition-colors"
+            >
+              Dismiss
+            </button>
+          </div>
+          <div className="mt-3 flex gap-2">
+            <Button full onClick={() => signInWithGoogle()} className="py-2.5 text-[13px]">
+              Sign in with Google
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* ── Today's Session ── */}
       {isWorkout ? (
@@ -230,13 +266,23 @@ export function Home() {
               )}
             </div>
 
-            <Button
-              full
-              onClick={() => navigate(`/app/log?day=${todayDay.id}`)}
-              className="py-4 text-base"
-            >
-              Start workout
-            </Button>
+            {session ? (
+              <Button
+                full
+                onClick={() => navigate(`/app/log?day=${todayDay.id}`)}
+                className="py-4 text-base"
+              >
+                Start workout
+              </Button>
+            ) : (
+              <Button
+                full
+                onClick={() => signInWithGoogle()}
+                className="py-4 text-base"
+              >
+                Sign in to start logging
+              </Button>
+            )}
           </div>
         </div>
       ) : (
@@ -263,7 +309,7 @@ export function Home() {
         </div>
       )}
 
-            {/* ── Activity Heatmap ── */}
+      {/* ── Activity Heatmap ── */}
       <GlassCard className="p-4">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="font-data text-[10px] uppercase tracking-[0.3em] text-stone">

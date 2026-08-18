@@ -55,7 +55,13 @@ async def chat_endpoint(data: CoachMessageIn, user_id: str = Depends(get_current
     history_msgs = repo.get_coach_messages(conversation_id)
     conversation_history = [{"role": m["role"], "content": m["content"]} for m in history_msgs[:-1]]
 
-    response_text = await chat(data.message, user_profile, conversation_history)
+    try:
+        latest_metric = repo.get_latest_body_metric(user_id)
+        latest_weight = latest_metric.get("weight_kg") if latest_metric else None
+    except Exception:
+        latest_weight = user_profile.get("weight_kg") if user_profile else None
+
+    response_text = await chat(data.message, user_profile, conversation_history, latest_weight)
 
     ai_msg = repo.add_coach_message(conversation_id, "assistant", response_text)
 
@@ -86,9 +92,15 @@ async def chat_stream_endpoint(data: CoachMessageIn, user_id: str = Depends(get_
     history_msgs = repo.get_coach_messages(conversation_id)
     conversation_history = [{"role": m["role"], "content": m["content"]} for m in history_msgs[:-1]]
 
+    try:
+        latest_metric = repo.get_latest_body_metric(user_id)
+        latest_weight = latest_metric.get("weight_kg") if latest_metric else None
+    except Exception:
+        latest_weight = user_profile.get("weight_kg") if user_profile else None
+
     async def event_stream():
         full_response = []
-        async for chunk in stream_chat(data.message, user_profile, conversation_history):
+        async for chunk in stream_chat(data.message, user_profile, conversation_history, latest_weight):
             full_response.append(chunk)
             yield f"data: {chunk}\n\n"
         yield "data: [DONE]\n\n"

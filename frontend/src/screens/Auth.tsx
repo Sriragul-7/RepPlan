@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/auth";
 import { Logo } from "../components/Logo";
 
@@ -15,8 +15,7 @@ export function Auth() {
   }
 
   if (user) {
-    navigate("/app", { replace: true });
-    return null;
+    return <Navigate to="/app" replace />;
   }
 
   return (
@@ -42,10 +41,10 @@ export function Auth() {
           {/* Tagline */}
           <div className="mb-8 text-center">
             <p className="font-display text-[18px] font-bold text-white/90">
-              Continue your journey.
+              Get started with RepPlan.
             </p>
             <p className="mt-2 text-[14px] text-stone/50">
-              Your plan is waiting.
+              Sign in with Google to continue.
             </p>
           </div>
 
@@ -78,9 +77,9 @@ export function Auth() {
 
           {/* Supporting text */}
           <p className="mt-6 text-center text-[12px] leading-[1.6] text-stone/40">
-            Already trained with us?
+            New user? Your account will be created automatically.
             <br />
-            Your progress is saved. Just sign in.
+            Returning? Your progress is saved.
           </p>
         </div>
 

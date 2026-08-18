@@ -4,4 +4,5 @@ export const STORAGE_KEYS = {
   ACTIVE_SESSION: "repplan_active_session",
   LAST_WEIGHT: "repplan_last_weight",
   USER_ID: "repplan_user_id",
+  ONBOARDING_COMPLETED: "repplan_onboarding_completed",
 } as const;
