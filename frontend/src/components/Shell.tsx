@@ -36,9 +36,12 @@ export function Shell() {
       <Sidebar />
       <div className="mx-auto flex min-h-screen w-full max-w-md flex-col lg:max-w-3xl">
         <header className="flex items-center justify-between px-5 pt-safe pb-2 lg:hidden">
-          <p className="font-display text-sm font-bold uppercase tracking-[0.15em] text-black dark:text-ivory">
-            RepPlan
-          </p>
+          <div className="flex items-center gap-2">
+            <Logo className="h-6 w-6" />
+            <p className="font-display text-sm font-bold uppercase tracking-[0.15em] text-black dark:text-ivory">
+              RepPlan
+            </p>
+          </div>
           <div className="flex items-center gap-2">
             <button
               onClick={toggleTheme}
@@ -99,7 +102,6 @@ export function Shell() {
                 )}
               </div>
             )}
-            <Logo className="h-6 w-6" />
           </div>
         </header>
         <main className="animate-fade-in flex-1 px-5 pb-32 lg:px-10 lg:pb-16 lg:pt-12">
