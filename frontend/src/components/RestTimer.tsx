@@ -50,7 +50,7 @@ export function RestTimer({ seconds, id, onFinish, onSkip, active }: RestTimerPr
   return (
     <div className="animate-scale-in pointer-events-none fixed inset-x-0 bottom-24 z-40 flex justify-center px-6 lg:bottom-10">
       <div className="glass-card pointer-events-auto flex items-center gap-4 rounded-[28px] border border-black/[0.08] p-4 pr-2 shadow-card backdrop-blur-xl dark:border-white/[0.06]">
-        <DisciplineRing value={progress} size={64} strokeWidth={5} color="#FFFFFF">
+        <DisciplineRing value={progress} size={64} strokeWidth={5}>
           <span className="font-data text-sm text-black dark:text-ivory">
             {mm}:{ss}
           </span>

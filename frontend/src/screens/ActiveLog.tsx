@@ -393,7 +393,7 @@ export function ActiveLog() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={`Search ${muscle} exercises...`}
-              className="w-full rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] px-4 py-3.5 pl-11 text-[15px] text-black dark:text-ivory placeholder-ash outline-none backdrop-blur-xl transition-all focus:border-white/[0.15] focus:bg-black/[0.06] dark:bg-white/[0.06]"
+              className="w-full rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] px-4 py-3.5 pl-11 text-[15px] text-black dark:text-ivory placeholder-ash outline-none backdrop-blur-xl transition-all focus:border-black/[0.15] focus:bg-black/[0.06] dark:focus:border-white/[0.15] dark:focus:bg-white/[0.06]"
             />
             <svg className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ash" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
               <circle cx="11" cy="11" r="8" />
@@ -577,7 +577,7 @@ export function ActiveLog() {
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search exercises..."
             autoFocus
-            className="w-full rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] px-4 py-3 text-[15px] text-black dark:text-ivory placeholder-ash outline-none backdrop-blur-xl transition-all focus:border-white/[0.15] focus:bg-black/[0.06] dark:bg-white/[0.06]"
+            className="w-full rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] px-4 py-3 text-[15px] text-black dark:text-ivory placeholder-ash outline-none backdrop-blur-xl transition-all focus:border-black/[0.15] focus:bg-black/[0.06] dark:focus:border-white/[0.15] dark:focus:bg-white/[0.06]"
           />
           <div className="max-h-[50vh] overflow-y-auto space-y-1">
             {exercisesQuery.isLoading ? (

@@ -48,7 +48,7 @@ export function NumberKeypad({ onDigit, onBackspace, onClear, onDone, decimals =
       <button
         type="button"
         onClick={onDone}
-        className="col-span-3 h-12 rounded-2xl bg-steel text-ink text-sm font-semibold shadow-glow transition-all duration-300 hover:shadow-glow-lg active:scale-[0.98]"
+        className="col-span-3 h-12 rounded-2xl bg-steel text-ink text-sm font-semibold shadow-glow transition-all duration-300 hover:shadow-glow-lg active:scale-[0.98] dark:bg-ivory dark:text-ink"
       >
         Done
       </button>

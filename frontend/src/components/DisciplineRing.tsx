@@ -21,8 +21,8 @@ export function DisciplineRing({
   value,
   size = 120,
   strokeWidth = 8,
-  color = "#FFFFFF",
-  trackColor = "rgba(255,255,255,0.06)",
+  color,
+  trackColor,
   children,
   className,
   animate = true,
@@ -32,6 +32,9 @@ export function DisciplineRing({
   const circumference = 2 * Math.PI * radius;
   const offset = circumference * (1 - clamped);
 
+  const ringColor = color ?? "var(--ring-color)";
+  const ringTrack = trackColor ?? "var(--ring-track)";
+
   return (
     <div className={`relative inline-flex items-center justify-center ${className ?? ""}`}>
       <svg width={size} height={size} className="-rotate-90">
@@ -40,7 +43,7 @@ export function DisciplineRing({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke={trackColor}
+          stroke={ringTrack}
           strokeWidth={strokeWidth}
         />
         <circle
@@ -48,13 +51,13 @@ export function DisciplineRing({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke={color}
+          stroke={ringColor}
           strokeWidth={strokeWidth}
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
           style={{
-            filter: `drop-shadow(0 0 8px ${color}88)`,
+            filter: `drop-shadow(0 0 8px ${ringColor}88)`,
             ...(animate
               ? { transition: "stroke-dashoffset 0.7s cubic-bezier(0.22, 1, 0.36, 1)" }
               : undefined),
