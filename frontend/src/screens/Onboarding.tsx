@@ -70,9 +70,9 @@ function SegmentedControlSex({
         <button
           key={opt.value}
           onClick={() => onChange(opt.value)}
-          className={`flex-1 rounded-xl py-2.5 text-[13px] font-medium transition-all duration-200 ${
+          className={`flex-1 whitespace-nowrap rounded-xl py-3 text-[13px] font-medium transition-all duration-200 ${
             value === opt.value
-              ? "bg-black dark:bg-white text-black dark:text-ink shadow-glow"
+              ? "bg-black dark:bg-white text-white dark:text-ink shadow-glow"
               : "border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] text-stone hover:bg-black/[0.06] dark:hover:bg-white/[0.06]"
           }`}
         >
@@ -192,9 +192,9 @@ export function Onboarding() {
               { step: "03", title: "Track your workouts", desc: "Log sets, reps, and weights in real time" },
             ].map((item) => (
               <div key={item.step} className="flex items-start gap-4">
-                <span className="font-data mt-0.5 text-[13px] font-bold text-black dark:text-black/20 dark:text-white/20">{item.step}</span>
+                <span className="font-data mt-0.5 text-[13px] font-bold text-black dark:text-white/20">{item.step}</span>
                 <div>
-                  <p className="text-[15px] font-semibold text-black dark:text-black/90 dark:text-white/90">{item.title}</p>
+                  <p className="text-[15px] font-semibold text-black dark:text-white/90">{item.title}</p>
                   <p className="mt-0.5 text-[13px] text-stone/50">{item.desc}</p>
                 </div>
               </div>
@@ -203,7 +203,7 @@ export function Onboarding() {
 
           {/* Motivational quote */}
           <div className="rounded-2xl border border-black/[0.05] dark:border-white/[0.05] bg-black/[0.025] dark:bg-white/[0.025] p-7">
-            <p className="text-[16px] font-medium leading-[1.7] text-black dark:text-black/70 dark:text-white/70">
+            <p className="text-[16px] font-medium leading-[1.7] text-black dark:text-white/70">
               "The only bad workout is the one that didn't happen."
             </p>
             <p className="mt-3 text-[12px] text-stone/40">— Start now, results follow.</p>
@@ -271,15 +271,15 @@ export function Onboarding() {
         <Section label="Training">
           <div className="ios-row flex-col !items-stretch gap-3">
             <span className="text-sm text-black dark:text-white">Primary goal</span>
-            <SegmentedControl options={GOALS} value={goal} onChange={setGoal} />
+            <SegmentedControl options={GOALS} value={goal} onChange={setGoal} minCol={92} />
           </div>
           <div className="ios-row flex-col !items-stretch gap-3">
             <span className="text-sm text-black dark:text-white">Days per week</span>
-            <SegmentedControl options={DAYS} value={String(daysPerWeek)} onChange={(v) => setDaysPerWeek(Number(v))} columns={5} />
+            <SegmentedControl options={DAYS} value={String(daysPerWeek)} onChange={(v) => setDaysPerWeek(Number(v))} minCol={56} />
           </div>
           <div className="ios-row flex-col !items-stretch gap-3">
             <span className="text-sm text-black dark:text-white">Equipment</span>
-            <SegmentedControl options={EQUIPMENT} value={equipmentAccess} onChange={setEquipmentAccess} />
+            <SegmentedControl options={EQUIPMENT} value={equipmentAccess} onChange={setEquipmentAccess} minCol={110} />
           </div>
         </Section>
 

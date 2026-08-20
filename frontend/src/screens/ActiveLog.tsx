@@ -307,7 +307,7 @@ export function ActiveLog() {
             setLoading(true);
             loadInit();
           }}
-          className="mt-6 rounded-full bg-black dark:bg-ivory px-6 py-3 text-sm font-semibold text-black dark:text-ink transition active:scale-95"
+          className="mt-6 rounded-full bg-black dark:bg-ivory px-6 py-3 text-sm font-semibold text-white dark:text-ink transition active:scale-95"
         >
           Try again
         </button>
@@ -738,7 +738,7 @@ function SetSheet({
           return (
             <GlassCard key={n} className="flex items-center justify-between border-black/[0.08] dark:border-white/[0.08] !p-4">
               <div className="flex items-center gap-3.5">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-black dark:bg-ivory text-black dark:text-ink shadow-glow">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-black dark:bg-ivory text-white dark:text-ink shadow-glow">
                   <CheckIcon className="h-5 w-5" strokeWidth={2.5} />
                 </div>
                 <div>
@@ -932,7 +932,7 @@ function CardioSheet({
               onClick={() => setActivity(c)}
               className={`rounded-full border px-4 py-2.5 text-[13px] font-medium transition-all duration-300 active:scale-95 ${
                 activity === c
-                  ? "border-black/20 dark:border-ivory/20 bg-black dark:bg-ivory text-black dark:text-ink shadow-glow"
+                  ? "border-black/20 dark:border-ivory/20 bg-black dark:bg-ivory text-white dark:text-ink shadow-glow"
                   : "border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] text-gray-500 dark:text-silver backdrop-blur-xl hover:bg-black/[0.08] dark:hover:bg-white/[0.08]"
               }`}
             >

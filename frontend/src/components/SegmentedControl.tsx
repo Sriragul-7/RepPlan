@@ -3,19 +3,26 @@ type SegmentedControlProps<T extends string> = {
   value: T;
   onChange: (value: T) => void;
   columns?: number;
+  /** Minimum column width (px) when wrapping on narrow screens — omit `columns` to enable auto-wrap. */
+  minCol?: number;
 };
 
-/** Premium iOS-style segmented control — glass active state with glow. */
+/** Premium iOS-style segmented control — glass active state with glow. Wraps gracefully on narrow screens. */
 export function SegmentedControl<T extends string>({
   options,
   value,
   onChange,
-  columns = options.length,
+  columns,
+  minCol = 96,
 }: SegmentedControlProps<T>) {
+  const gridStyle = columns
+    ? { gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }
+    : { gridTemplateColumns: `repeat(auto-fit, minmax(min(${minCol}px, 100%), 1fr))` };
+
   return (
     <div
-      className="grid gap-1 rounded-2xl bg-black/[0.04] p-1 backdrop-blur-xl dark:bg-white/[0.04]"
-      style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
+      className="grid gap-1.5 rounded-2xl bg-black/[0.04] p-1.5 backdrop-blur-xl dark:bg-white/[0.04]"
+      style={gridStyle}
     >
       {options.map((opt) => {
         const active = opt.value === value;
@@ -24,7 +31,7 @@ export function SegmentedControl<T extends string>({
             key={opt.value}
             type="button"
             onClick={() => onChange(opt.value)}
-            className={`rounded-xl px-3 py-3 text-sm font-medium transition-all duration-300 active:scale-[0.97] ${
+            className={`whitespace-nowrap rounded-xl px-2 py-3 text-[13px] font-medium transition-all duration-300 active:scale-[0.97] ${
               active
                 ? "bg-steel/90 text-ink shadow-glow font-semibold"
                 : "text-ash hover:text-black hover:bg-black/[0.04] dark:hover:text-ivory dark:hover:bg-white/[0.04]"

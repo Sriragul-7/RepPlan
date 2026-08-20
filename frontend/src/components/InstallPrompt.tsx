@@ -1,48 +1,60 @@
 import { useEffect, useState } from "react";
 import { STORAGE_KEYS } from "../lib/constants";
+import { isIOS, isStandalone, useInstallPrompt } from "../lib/useInstallPrompt";
 import { BottomSheet } from "./BottomSheet";
 
-interface BeforeInstallPromptEvent extends Event {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
-}
-
-function isStandalone() {
+/** iOS "Add to Home Screen" instructions sheet — reused by the banner and the Landing download button. */
+export function InstallGuideSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   return (
-    window.matchMedia("(display-mode: standalone)").matches ||
-    (navigator as unknown as { standalone?: boolean }).standalone === true
+    <BottomSheet open={open} onClose={onClose} title="Install RepPlan">
+      <ol className="space-y-3">
+        <li className="ios-row rounded-2xl border border-black/[0.06] dark:border-white/[0.06]">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-steel/20 text-[13px] font-bold text-ink">1</span>
+          <p className="text-[13px] text-black dark:text-ivory">
+            Tap the <span className="font-semibold">Share</span> button in Safari's toolbar.
+          </p>
+        </li>
+        <li className="ios-row rounded-2xl border border-black/[0.06] dark:border-white/[0.06]">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-steel/20 text-[13px] font-bold text-ink">2</span>
+          <p className="text-[13px] text-black dark:text-ivory">
+            Tap <span className="font-semibold">Add to Home Screen</span>.
+          </p>
+        </li>
+        <li className="ios-row rounded-2xl border border-black/[0.06] dark:border-white/[0.06]">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-steel/20 text-[13px] font-bold text-ink">3</span>
+          <p className="text-[13px] text-black dark:text-ivory">
+            Tap <span className="font-semibold">Add</span> in the top-right corner.
+          </p>
+        </li>
+      </ol>
+      <button
+        onClick={onClose}
+        className="mt-6 w-full rounded-full bg-steel px-6 py-3.5 text-sm font-semibold text-ink shadow-glow transition-all duration-300 hover:shadow-glow-lg active:scale-[0.97]"
+      >
+        Got it
+      </button>
+    </BottomSheet>
   );
-}
-
-function isIOS() {
-  return /iphone|ipad|ipod/i.test(navigator.userAgent);
 }
 
 /** Prompts users to install the PWA — native Android prompt or iOS "Add to Home Screen" guide. */
 export function InstallPrompt() {
-  const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
+  const { canInstall, promptInstall } = useInstallPrompt();
   const [show, setShow] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
 
   useEffect(() => {
     if (isStandalone() || localStorage.getItem(STORAGE_KEYS.INSTALL_DISMISSED)) return;
 
-    const handle = (e: Event) => {
-      e.preventDefault();
-      setDeferred(e as BeforeInstallPromptEvent);
+    if (canInstall) {
       setShow(true);
-    };
-
-    window.addEventListener("beforeinstallprompt", handle);
-    let timer: number | undefined;
-    if (isIOS()) {
-      timer = window.setTimeout(() => setShow(true), 4000);
+      return;
     }
-    return () => {
-      window.removeEventListener("beforeinstallprompt", handle);
-      if (timer) window.clearTimeout(timer);
-    };
-  }, []);
+    if (isIOS()) {
+      const timer = window.setTimeout(() => setShow(true), 4000);
+      return () => window.clearTimeout(timer);
+    }
+  }, [canInstall]);
 
   const dismiss = () => {
     localStorage.setItem(STORAGE_KEYS.INSTALL_DISMISSED, "1");
@@ -50,10 +62,9 @@ export function InstallPrompt() {
   };
 
   const handleInstall = async () => {
-    if (deferred) {
-      await deferred.prompt();
-      const { outcome } = await deferred.userChoice;
-      if (outcome === "accepted") dismiss();
+    if (canInstall) {
+      const outcome = await promptInstall();
+      if (outcome === "installed") dismiss();
       else setShow(false);
       return;
     }
@@ -96,34 +107,7 @@ export function InstallPrompt() {
         </button>
       </div>
 
-      <BottomSheet open={sheetOpen} onClose={() => setSheetOpen(false)} title="Install RepPlan">
-        <ol className="space-y-3">
-          <li className="ios-row rounded-2xl border border-black/[0.06] dark:border-white/[0.06]">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-steel/20 text-[13px] font-bold text-ink">1</span>
-            <p className="text-[13px] text-black dark:text-ivory">
-              Tap the <span className="font-semibold">Share</span> button in Safari's toolbar.
-            </p>
-          </li>
-          <li className="ios-row rounded-2xl border border-black/[0.06] dark:border-white/[0.06]">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-steel/20 text-[13px] font-bold text-ink">2</span>
-            <p className="text-[13px] text-black dark:text-ivory">
-              Tap <span className="font-semibold">Add to Home Screen</span>.
-            </p>
-          </li>
-          <li className="ios-row rounded-2xl border border-black/[0.06] dark:border-white/[0.06]">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-steel/20 text-[13px] font-bold text-ink">3</span>
-            <p className="text-[13px] text-black dark:text-ivory">
-              Tap <span className="font-semibold">Add</span> in the top-right corner.
-            </p>
-          </li>
-        </ol>
-        <button
-          onClick={() => setSheetOpen(false)}
-          className="mt-6 w-full rounded-full bg-steel px-6 py-3.5 text-sm font-semibold text-ink shadow-glow transition-all duration-300 hover:shadow-glow-lg active:scale-[0.97]"
-        >
-          Got it
-        </button>
-      </BottomSheet>
+      <InstallGuideSheet open={sheetOpen} onClose={() => setSheetOpen(false)} />
     </>
   );
 }

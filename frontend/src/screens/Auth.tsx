@@ -113,7 +113,7 @@ export function Auth() {
         {/* Back link */}
         <button
           onClick={() => navigate("/")}
-          className="mt-6 block w-full text-center text-[13px] text-stone/40 transition-colors hover:text-black dark:text-black/60 dark:text-white/60"
+          className="mt-6 block w-full text-center text-[13px] text-stone/40 transition-colors hover:text-black dark:hover:text-ivory dark:text-white/60"
         >
           ← Back to home
         </button>

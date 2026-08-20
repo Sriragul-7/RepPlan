@@ -71,12 +71,12 @@ export function Shell() {
               <div className="relative" ref={menuRef}>
                 <button
                   onClick={() => setMenuOpen(!menuOpen)}
-                  className="flex items-center gap-2 rounded-full border border-black/[0.08] bg-black/[0.04] px-3 py-1.5 transition-all duration-300 hover:bg-black/[0.08] active:scale-[0.97] dark:border-white/[0.06] dark:bg-white/[0.04] dark:hover:bg-white/[0.08]"
+                  className="flex items-center gap-2 rounded-full border border-black/[0.08] bg-black/[0.04] px-2.5 py-1.5 transition-all duration-300 hover:bg-black/[0.08] active:scale-[0.97] sm:px-3 dark:border-white/[0.06] dark:bg-white/[0.04] dark:hover:bg-white/[0.08]"
                 >
                   <div className="flex h-6 w-6 items-center justify-center rounded-full bg-steel/80">
                     <UserIcon className="h-3.5 w-3.5 text-ink" />
                   </div>
-                  <span className="max-w-[100px] truncate text-[12px] font-medium text-black dark:text-ivory">
+                  <span className="hidden max-w-[100px] truncate text-[12px] font-medium text-black min-[400px]:block dark:text-ivory">
                     {user.email?.split("@")[0]}
                   </span>
                 </button>

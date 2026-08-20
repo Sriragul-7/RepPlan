@@ -4,6 +4,8 @@ import { useAuth } from "../lib/auth";
 import { useTheme } from "../lib/theme";
 import { Logo } from "../components/Logo";
 import { DisciplineRing } from "../components/DisciplineRing";
+import { InstallGuideSheet } from "../components/InstallPrompt";
+import { isIOS, useInstallPrompt } from "../lib/useInstallPrompt";
 
 const QUOTES = [
   "Nobody is coming to save your gains.",
@@ -286,6 +288,8 @@ export function Landing() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { canInstall, promptInstall } = useInstallPrompt();
+  const [guideOpen, setGuideOpen] = useState(false);
   const [quoteIdx] = useState(() => Math.floor(Math.random() * QUOTES.length));
 
   const handleGetStarted = () => {
@@ -298,6 +302,14 @@ export function Landing() {
 
   const handleLogin = () => {
     navigate("/auth");
+  };
+
+  const handleDownload = async () => {
+    if (canInstall) {
+      await promptInstall();
+    } else if (isIOS()) {
+      setGuideOpen(true);
+    }
   };
 
   return (
@@ -353,7 +365,7 @@ export function Landing() {
             <>
               <button
                 onClick={handleGetStarted}
-                className="rounded-full border border-black/[0.08] dark:border-white/[0.06] bg-black/[0.04] dark:bg-white/[0.04] px-5 py-2 text-[13px] font-medium text-black dark:text-ivory backdrop-blur-xl transition-all duration-300 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] active:scale-[0.97]"
+                className="hidden rounded-full border border-black/[0.08] dark:border-white/[0.06] bg-black/[0.04] dark:bg-white/[0.04] px-5 py-2 text-[13px] font-medium text-black dark:text-ivory backdrop-blur-xl transition-all duration-300 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] active:scale-[0.97] sm:block"
               >
                 Quick start
               </button>
@@ -413,6 +425,17 @@ export function Landing() {
                 className="rounded-full border border-black/[0.08] dark:border-white/[0.06] bg-black/[0.04] dark:bg-white/[0.04] px-7 py-4 text-[15px] font-medium text-black dark:text-ivory backdrop-blur-xl transition-all duration-300 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] active:scale-[0.97]"
               >
                 Sign in
+              </button>
+              <button
+                onClick={handleDownload}
+                className="flex w-full items-center justify-center gap-2 rounded-full border border-black/[0.08] dark:border-white/[0.06] bg-black/[0.04] dark:bg-white/[0.04] px-7 py-4 text-[15px] font-medium text-black dark:text-ivory backdrop-blur-xl transition-all duration-300 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] active:scale-[0.97] sm:w-auto"
+              >
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                Download app
               </button>
             </>
           )}
@@ -584,6 +607,7 @@ export function Landing() {
           </p>
         </div>
       </footer>
+      <InstallGuideSheet open={guideOpen} onClose={() => setGuideOpen(false)} />
     </div>
   );
 }
