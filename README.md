@@ -9,7 +9,7 @@
 ![Tailwind](https://img.shields.io/badge/Tailwind-CSS-38BDF8?logo=tailwindcss&logoColor=white&style=flat-square)
 ![PWA](https://img.shields.io/badge/PWA-installable-5A0FC8?logo=pwa&logoColor=white&style=flat-square)
 
-**Live demo:** _add your Vercel URL here_
+**Live demo:** https://rep-plan.vercel.app/
 
 <!-- Add a screenshot or short GIF of the app here before publishing — Home screen or an active logging session works best. Recruiters open this before they open the code. -->
 
