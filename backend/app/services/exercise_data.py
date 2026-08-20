@@ -146,6 +146,41 @@ CANONICAL_MAINSTREAM: set[str] = {
     "kettlebell swing",
 }
 
+# The definitive go-to versions of the most common lifts. These should always
+# outrank even close mainstream variations (flat bench over decline/incline,
+# standard deadlift over sumo, etc.).
+PRIMARY_CANONICAL: set[str] = {
+    "barbell bench press",
+    "dumbbell bench press",
+    "barbell front squat",
+    "barbell full squat",
+    "barbell deadlift",
+    "barbell romanian deadlift",
+    "barbell seated overhead press",
+    "dumbbell seated shoulder press",
+    "dumbbell lateral raise",
+    "barbell bent over row",
+    "dumbbell bent over row",
+    "seated cable row",
+    "pull-up",
+    "chin-up",
+    "barbell curl",
+    "dumbbell hammer curl",
+    "cable triceps pushdown (v-bar)",
+    "barbell lunge",
+    "dumbbell lunge",
+    "lever leg extension",
+    "lever lying leg curl",
+    "barbell glute bridge",
+    "barbell standing calf raise",
+    "russian twist",
+    "hanging leg raise",
+    "dumbbell fly",
+    "barbell shrug",
+    "dumbbell shrug",
+    "barbell wrist curl",
+}
+
 MAINSTREAM_KEYWORDS: dict[str, int] = {
     # Compounds everyone knows.
     "bench press": 6,
@@ -171,8 +206,6 @@ MAINSTREAM_KEYWORDS: dict[str, int] = {
     "goblet": 6,
     "thruster": 6,
     # Common variations / equipment.
-    "incline": 3,
-    "decline": 3,
     "dumbbell": 4,
     "barbell": 4,
     "cable": 3,
@@ -202,6 +235,7 @@ MAINSTREAM_KEYWORDS: dict[str, int] = {
     "carry": 2,
     "clean": 4,
     "snatch": 4,
+    "shrug": 5,
     "upright row": 5,
     "pendlay": 5,
     "good morning": 5,
@@ -252,6 +286,33 @@ _VARIANT_MARKERS = (
     "on bosu ball",
     "sitted",
 )
+# Obscure, single-sided, or gimmick variants are pushed below the standard lift.
+_OBSCURE_MARKERS = (
+    "one arm",
+    "one-arm",
+    "single leg",
+    "single-leg",
+    "alternate",
+    "alternating",
+    "cross body",
+    "cross-body",
+    "reverse grip",
+    "reverse-grip",
+    "palms in",
+    "palms out",
+    "with towel",
+    "with throw",
+    "with leg raised",
+    "with stork",
+    "with bowling",
+    "on knee",
+    "jump",
+    "turkish",
+    "windmill",
+    "sprint",
+    "skip",
+    "kick",
+)
 
 
 def popularity_score(exercise: dict) -> int:
@@ -259,8 +320,10 @@ def popularity_score(exercise: dict) -> int:
     name = (exercise.get("name") or "").lower().strip()
     score = 0
 
-    if name in CANONICAL_MAINSTREAM:
-        score += 20
+    if name in PRIMARY_CANONICAL:
+        score += 25
+    elif name in CANONICAL_MAINSTREAM:
+        score += 18
     for keyword, weight in MAINSTREAM_KEYWORDS.items():
         if keyword in name:
             score += weight
@@ -273,6 +336,8 @@ def popularity_score(exercise: dict) -> int:
 
     if any(marker in name for marker in _VARIANT_MARKERS):
         score -= 1
+    if any(marker in name for marker in _OBSCURE_MARKERS):
+        score -= 4
 
     return score
 

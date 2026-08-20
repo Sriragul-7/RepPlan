@@ -285,7 +285,7 @@ class SupabaseRepo:
                 .data
                 or []
             )
-            day["exercises"] = exercises
+            day["exercises"] = self._fmt_plan_exercises(exercises)
             day["target_muscles"] = _as_list(day.get("target_muscles"))
             day["label"] = DAY_LABELS.get(day["day_of_week"], "")
         return days
@@ -297,7 +297,7 @@ class SupabaseRepo:
         if not rows:
             return None
         day = rows[0]
-        day["exercises"] = (
+        exercises = (
             db.table("plan_day_exercises")
             .select("*, exercise:exercises(*)")
             .eq("plan_day_id", day_id)
@@ -305,9 +305,20 @@ class SupabaseRepo:
             .data
             or []
         )
+        day["exercises"] = self._fmt_plan_exercises(exercises)
         day["target_muscles"] = _as_list(day.get("target_muscles"))
         day["label"] = DAY_LABELS.get(day["day_of_week"], "")
         return day
+
+    @staticmethod
+    def _fmt_plan_exercises(exercises: list[dict]) -> list[dict]:
+        """Title-case names of the embedded exercise rows in plan-day reads."""
+        return [
+            {**item, "exercise": _fmt_name(item["exercise"])}
+            if item.get("exercise")
+            else item
+            for item in exercises
+        ]
 
     def find_plan_by_day(self, day_id: str) -> dict | None:
         db = get_db()

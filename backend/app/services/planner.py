@@ -19,7 +19,7 @@ MAX_EXERCISES_PER_DAY = 6
 MAX_PER_MUSCLE = 2
 
 REP_SCHEMES: dict[str, dict[str, tuple[int, str]]] = {
-    "hypertrophy": {"compound": (4, "8-12"), "isolation": (3, "10-15")},
+    "hypertrophy": {"compound": (3, "6-10"), "isolation": (3, "10-15")},
     "strength": {"compound": (5, "4-6"), "isolation": (4, "8-10")},
     "general fitness": {"compound": (3, "8-12"), "isolation": (3, "10-15")},
 }
@@ -139,12 +139,29 @@ def pick_exercises_for_day(
         secondary_by_muscle[muscle] = secondary
 
     counts: dict[str, int] = {}
+    picked_kinds: dict[str, list[bool]] = {}
 
     def take(muscle: str, cap: int = MAX_PER_MUSCLE) -> bool:
         if counts.get(muscle, 0) >= cap:
             return False
-        pool = primary_by_muscle[muscle] + secondary_by_muscle[muscle]
-        for ex in pool:
+        # Primary-target exercises always outrank secondary-muscle fallbacks.
+        # A modest bonus to the other movement type (compound vs isolation) adds
+        # variety — bench press then a fly, not two presses — without letting
+        # obscure exercises outrank mainstream ones.
+        pool = [(e, True) for e in primary_by_muscle[muscle]] + [
+            (e, False) for e in secondary_by_muscle[muscle]
+        ]
+        kinds = picked_kinds.get(muscle, [])
+        prefer_other = any(kinds) if kinds else None
+
+        def _rank(ex: dict, is_primary: bool) -> int:
+            score = popularity_score(ex) + (50 if is_primary else 0)
+            if prefer_other is not None and _is_compound(ex) != prefer_other:
+                score += 12
+            return score
+
+        pool.sort(key=lambda t: _rank(*t), reverse=True)
+        for ex, _ in pool:
             if ex["id"] in used:
                 continue
             sets, reps = _prescribe(ex, goal)
@@ -162,6 +179,7 @@ def pick_exercises_for_day(
             )
             used.add(ex["id"])
             counts[muscle] = counts.get(muscle, 0) + 1
+            picked_kinds.setdefault(muscle, []).append(_is_compound(ex))
             return True
         return False
 
