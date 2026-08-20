@@ -5,4 +5,5 @@ export const STORAGE_KEYS = {
   LAST_WEIGHT: "repplan_last_weight",
   USER_ID: "repplan_user_id",
   THEME: "repplan_theme",
+  INSTALL_DISMISSED: "repplan_install_dismissed",
 } as const;

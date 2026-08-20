@@ -3,6 +3,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { BottomNav } from "./BottomNav";
 import { Sidebar } from "./Sidebar";
 import { Logo } from "./Logo";
+import { InstallPrompt } from "./InstallPrompt";
 import { UserIcon, LogOutIcon } from "./icons";
 import { useAuth } from "../lib/auth";
 import { useTheme } from "../lib/theme";
@@ -109,6 +110,7 @@ export function Shell() {
         </main>
       </div>
       <BottomNav />
+      <InstallPrompt />
     </div>
   );
 }
