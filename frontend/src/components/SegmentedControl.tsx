@@ -21,7 +21,7 @@ export function SegmentedControl<T extends string>({
 
   return (
     <div
-      className="grid gap-1.5 rounded-2xl bg-black/[0.04] p-1.5 backdrop-blur-xl dark:bg-white/[0.04]"
+      className="grid gap-2 rounded-2xl bg-black/[0.05] p-2 backdrop-blur-xl dark:bg-white/[0.05]"
       style={gridStyle}
     >
       {options.map((opt) => {
@@ -31,10 +31,10 @@ export function SegmentedControl<T extends string>({
             key={opt.value}
             type="button"
             onClick={() => onChange(opt.value)}
-            className={`whitespace-nowrap rounded-xl px-2 py-3 text-[13px] font-medium transition-all duration-300 active:scale-[0.97] ${
+            className={`whitespace-nowrap rounded-xl px-3 py-3.5 text-[13px] font-medium transition-all duration-300 active:scale-[0.97] ${
               active
                 ? "bg-steel/90 text-ink shadow-glow font-semibold"
-                : "text-ash hover:text-black hover:bg-black/[0.04] dark:hover:text-ivory dark:hover:bg-white/[0.04]"
+                : "text-ash hover:text-black hover:bg-black/[0.05] dark:hover:text-ivory dark:hover:bg-white/[0.05]"
             }`}
           >
             {opt.label}

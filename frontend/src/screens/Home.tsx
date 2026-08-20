@@ -218,11 +218,11 @@ export function Home() {
               <h2 className="font-display text-[28px] font-bold leading-tight tracking-tight text-black dark:text-white">
                 {todayDay.label}
               </h2>
-              <div className="mt-2.5 flex flex-wrap gap-1.5">
+              <div className="mt-2.5 flex flex-wrap gap-2">
                 {todayDay.target_muscles.map((m) => (
                   <span
                     key={m}
-                    className="rounded-full border border-black/[0.08] dark:border-white/[0.06] bg-black/[0.04] dark:bg-white/[0.04] px-3 py-1 text-[11px] capitalize text-gray-500 dark:text-silver backdrop-blur-xl"
+                    className="rounded-full border border-black/[0.08] dark:border-white/[0.06] bg-black/[0.04] dark:bg-white/[0.04] px-3.5 py-1.5 text-[11px] capitalize text-gray-500 dark:text-silver backdrop-blur-xl"
                   >
                     {m}
                   </span>

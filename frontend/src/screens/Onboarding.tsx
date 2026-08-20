@@ -23,6 +23,12 @@ const EQUIPMENT = [
 
 const DAYS = [2, 3, 4, 5, 6].map((d) => ({ value: String(d), label: `${d} days` }));
 
+const SEX = [
+  { value: "male", label: "Male" },
+  { value: "female", label: "Female" },
+  { value: "other", label: "Other" },
+] as const;
+
 type Sex = "male" | "female" | "other";
 
 function Section({ label, children }: { label: string; children: React.ReactNode }) {
@@ -59,27 +65,8 @@ function SegmentedControlSex({
   value: Sex;
   onChange: (v: Sex) => void;
 }) {
-  const options: { value: Sex; label: string }[] = [
-    { value: "male", label: "Male" },
-    { value: "female", label: "Female" },
-    { value: "other", label: "Other" },
-  ];
   return (
-    <div className="flex gap-2">
-      {options.map((opt) => (
-        <button
-          key={opt.value}
-          onClick={() => onChange(opt.value)}
-          className={`flex-1 whitespace-nowrap rounded-xl py-3 text-[13px] font-medium transition-all duration-200 ${
-            value === opt.value
-              ? "bg-black dark:bg-white text-white dark:text-ink shadow-glow"
-              : "border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] text-stone hover:bg-black/[0.06] dark:hover:bg-white/[0.06]"
-          }`}
-        >
-          {opt.label}
-        </button>
-      ))}
-    </div>
+    <SegmentedControl options={[...SEX]} value={value} onChange={onChange} minCol={88} />
   );
 }
 
@@ -249,9 +236,10 @@ export function Onboarding() {
                 className="w-44 rounded-xl border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] px-3.5 py-2.5 text-left text-sm text-black dark:text-white outline-none backdrop-blur-xl transition-all duration-300 focus:border-white/[0.2] focus:bg-black/[0.06] dark:bg-white/[0.06]"
               />
             </div>
-            <FieldRow label="Sex">
+            <div className="ios-row flex-col !items-stretch gap-3">
+              <span className="text-sm text-black dark:text-white">Sex</span>
               <SegmentedControlSex value={sex} onChange={setSex} />
-            </FieldRow>
+            </div>
           </Section>
         )}
 
@@ -271,15 +259,15 @@ export function Onboarding() {
         <Section label="Training">
           <div className="ios-row flex-col !items-stretch gap-3">
             <span className="text-sm text-black dark:text-white">Primary goal</span>
-            <SegmentedControl options={GOALS} value={goal} onChange={setGoal} minCol={92} />
+            <SegmentedControl options={GOALS} value={goal} onChange={setGoal} minCol={104} />
           </div>
           <div className="ios-row flex-col !items-stretch gap-3">
             <span className="text-sm text-black dark:text-white">Days per week</span>
-            <SegmentedControl options={DAYS} value={String(daysPerWeek)} onChange={(v) => setDaysPerWeek(Number(v))} minCol={56} />
+            <SegmentedControl options={DAYS} value={String(daysPerWeek)} onChange={(v) => setDaysPerWeek(Number(v))} minCol={72} />
           </div>
           <div className="ios-row flex-col !items-stretch gap-3">
             <span className="text-sm text-black dark:text-white">Equipment</span>
-            <SegmentedControl options={EQUIPMENT} value={equipmentAccess} onChange={setEquipmentAccess} minCol={110} />
+            <SegmentedControl options={EQUIPMENT} value={equipmentAccess} onChange={setEquipmentAccess} minCol={118} />
           </div>
         </Section>
 

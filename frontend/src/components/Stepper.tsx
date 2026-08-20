@@ -36,7 +36,7 @@ export function Stepper({
   const display = decimals > 0 ? value.toFixed(decimals) : String(value);
 
   return (
-    <div className={`flex items-center gap-1 ${className ?? ""}`} style={style}>
+    <div className={`flex items-center gap-1.5 ${className ?? ""}`} style={style}>
       {label ? (
         <span className="w-9 shrink-0 text-xs uppercase tracking-wider text-ash">{label}</span>
       ) : null}
@@ -44,7 +44,7 @@ export function Stepper({
         type="button"
         aria-label={`Decrease ${label ?? "value"}`}
         onClick={() => onChange(clamp(value - step))}
-        className="group flex h-8 w-8 items-center justify-center rounded-lg border border-black/[0.08] bg-black/[0.04] text-[15px] text-stone transition-all duration-200 hover:border-black/[0.12] hover:bg-black/[0.08] hover:text-black active:scale-90 active:bg-black/[0.12] dark:border-white/[0.06] dark:bg-white/[0.04] dark:hover:border-white/[0.12] dark:hover:bg-white/[0.08] dark:hover:text-ivory dark:active:bg-white/[0.12]"
+        className="group flex h-10 w-10 items-center justify-center rounded-xl border border-black/[0.08] bg-black/[0.04] text-[15px] text-stone transition-all duration-200 hover:border-black/[0.12] hover:bg-black/[0.08] hover:text-black active:scale-90 active:bg-black/[0.12] dark:border-white/[0.06] dark:bg-white/[0.04] dark:hover:border-white/[0.12] dark:hover:bg-white/[0.08] dark:hover:text-ivory dark:active:bg-white/[0.12]"
       >
         <span className="transition-transform duration-200 group-hover:scale-110">−</span>
       </button>
@@ -55,7 +55,7 @@ export function Stepper({
           if (onLongPress) onLongPress();
           if (onValueTap) onValueTap();
         }}
-        className="flex h-8 min-w-[3.5ch] items-center justify-center rounded-lg px-2 font-data text-[15px] tabular-nums text-black transition-all duration-200 active:scale-90 dark:text-ivory"
+        className="flex h-10 min-w-[3.5ch] items-center justify-center rounded-xl px-2.5 font-data text-[15px] tabular-nums text-black transition-all duration-200 active:scale-90 dark:text-ivory"
       >
         {display}
       </button>
@@ -63,7 +63,7 @@ export function Stepper({
         type="button"
         aria-label={`Increase ${label ?? "value"}`}
         onClick={() => onChange(clamp(value + step))}
-        className="group flex h-8 w-8 items-center justify-center rounded-lg border border-black/[0.08] bg-black/[0.04] text-[15px] text-stone transition-all duration-200 hover:border-black/[0.12] hover:bg-black/[0.08] hover:text-black active:scale-90 active:bg-black/[0.12] dark:border-white/[0.06] dark:bg-white/[0.04] dark:hover:border-white/[0.12] dark:hover:bg-white/[0.08] dark:hover:text-ivory dark:active:bg-white/[0.12]"
+        className="group flex h-10 w-10 items-center justify-center rounded-xl border border-black/[0.08] bg-black/[0.04] text-[15px] text-stone transition-all duration-200 hover:border-black/[0.12] hover:bg-black/[0.08] hover:text-black active:scale-90 active:bg-black/[0.12] dark:border-white/[0.06] dark:bg-white/[0.04] dark:hover:border-white/[0.12] dark:hover:bg-white/[0.08] dark:hover:text-ivory dark:active:bg-white/[0.12]"
       >
         <span className="transition-transform duration-200 group-hover:scale-110">+</span>
       </button>

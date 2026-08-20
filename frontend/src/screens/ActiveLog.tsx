@@ -319,13 +319,13 @@ export function ActiveLog() {
     <div className="animate-slide-up space-y-5 pb-8">
       {/* Premium Header */}
       <header className="flex items-end justify-between pt-3">
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <p className="font-accent text-[10px] font-semibold uppercase tracking-[0.3em] text-stone">
             {resolvedDayId ? "Today's session" : muscle ? `${muscle} focus` : "Session"}
           </p>
-          <h1 className="font-display mt-1.5 text-[40px] font-bold leading-[1.05] text-black dark:text-ivory">
+          <h1 className="font-display mt-1.5 truncate text-[30px] font-bold leading-[1.05] text-black dark:text-ivory sm:text-[40px]">
             Log
-            <br />
+            <br className="hidden sm:block" />
             workout
           </h1>
         </div>

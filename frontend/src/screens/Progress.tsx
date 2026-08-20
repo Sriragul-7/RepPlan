@@ -197,7 +197,11 @@ export function Progress() {
 
       <div>
         <div className="flex items-center justify-between mb-3">
-          <button onClick={prevMonth} className="text-stone hover:text-black dark:hover:text-white transition-colors px-2 py-1">
+          <button
+            onClick={prevMonth}
+            aria-label="Previous month"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] text-stone transition-all duration-300 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] hover:text-black dark:hover:text-white active:scale-95"
+          >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
             </svg>
@@ -205,7 +209,11 @@ export function Progress() {
           <h3 className="font-data text-[11px] uppercase tracking-[0.22em] text-stone">
             {monthNames[month]} {year}
           </h3>
-          <button onClick={nextMonth} className="text-stone hover:text-black dark:hover:text-white transition-colors px-2 py-1">
+          <button
+            onClick={nextMonth}
+            aria-label="Next month"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] text-stone transition-all duration-300 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] hover:text-black dark:hover:text-white active:scale-95"
+          >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
             </svg>
@@ -254,7 +262,7 @@ export function Progress() {
                   {sessionExercises[sessionIndex]?.map((ex) => (
                     <div key={ex.name} className="ios-row flex-col items-start !py-3">
                       <span className="text-sm font-semibold text-black dark:text-white">{ex.name}</span>
-                      <div className="mt-1 flex flex-wrap gap-1.5">
+                      <div className="mt-1 flex flex-wrap gap-2">
                         {ex.sets.map((set, i) => (
                           <span
                             key={i}

@@ -261,7 +261,11 @@ export function Coach() {
             <p className="font-accent text-[11px] uppercase tracking-[0.2em] text-stone">
               Recent Conversations
             </p>
-            <button onClick={() => setShowHistory(false)} className="text-stone hover:text-black dark:text-ivory">
+            <button
+              onClick={() => setShowHistory(false)}
+              aria-label="Close history"
+              className="-mr-1 flex h-9 w-9 items-center justify-center rounded-full text-stone transition-all duration-200 hover:bg-black/[0.05] hover:text-black active:scale-90 dark:text-ivory dark:hover:bg-white/[0.05]"
+            >
               <CloseIcon className="h-4 w-4" />
             </button>
           </div>

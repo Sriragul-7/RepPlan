@@ -107,14 +107,14 @@ function DaysRow({
   onChange: (v: number) => void;
 }) {
   return (
-    <div className="ios-row">
-      <span className="flex-1 text-[15px] text-black dark:text-ivory">Training days</span>
-      <div className="flex gap-1.5">
+    <div className="ios-row flex-col !items-stretch gap-2.5">
+      <span className="text-[15px] text-black dark:text-ivory">Training days</span>
+      <div className="grid grid-cols-5 gap-2">
         {[2, 3, 4, 5, 6].map((d) => (
           <button
             key={d}
             onClick={() => onChange(d)}
-            className={`flex h-9 w-9 items-center justify-center rounded-xl text-sm font-medium transition-all duration-200 ${
+            className={`flex h-10 w-full items-center justify-center rounded-xl text-sm font-medium transition-all duration-200 ${
               value === d
                 ? "bg-black dark:bg-ivory text-white dark:text-ink shadow-glow"
                 : "border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] text-stone hover:bg-black/[0.06] dark:hover:bg-white/[0.06]"

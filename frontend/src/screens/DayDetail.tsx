@@ -133,7 +133,7 @@ export function DayDetail() {
                     onClick={() => swap.mutate(ex.id)}
                     disabled={swap.isPending}
                     aria-label="Swap exercise"
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] text-stone transition-all duration-200 active:scale-90 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] hover:text-black dark:hover:text-white backdrop-blur-xl"
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] text-stone transition-all duration-200 active:scale-90 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] hover:text-black dark:hover:text-white backdrop-blur-xl"
                   >
                     <SwapIcon className="h-4 w-4" />
                   </button>
