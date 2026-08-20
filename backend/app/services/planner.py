@@ -11,7 +11,7 @@ from __future__ import annotations
 import random
 from dataclasses import dataclass
 
-from .exercise_data import equipment_compatible
+from .exercise_data import equipment_compatible, popularity_score, sort_by_popularity
 from .split import COMPOUND_KEYWORDS, MUSCLE_ALIASES
 
 MIN_EXERCISES_PER_DAY = 4
@@ -74,13 +74,35 @@ def candidates_for_muscle(
     canonical_muscle: str,
     equipment_access: str,
 ) -> list[dict]:
-    """Exercises whose primary target matches the muscle and fit the equipment."""
-    return [
-        e
-        for e in exercises
-        if _matches_target(e, canonical_muscle)
-        and equipment_compatible(equipment_access, e.get("equipment", ""))
-    ]
+    """Exercises whose primary target matches the muscle and fit the equipment,
+    ordered by mainstream popularity so the classic exercises are chosen first."""
+    return sort_by_popularity(
+        [
+            e
+            for e in exercises
+            if _matches_target(e, canonical_muscle)
+            and equipment_compatible(equipment_access, e.get("equipment", ""))
+        ]
+    )
+
+
+def _shuffle_within_rank(pool: list[dict], rng: random.Random) -> list[dict]:
+    """Shuffle candidates inside popularity buckets so variety is preserved
+    without letting obscure exercises outrank mainstream ones."""
+    buckets: dict[int, list[dict]] = {}
+    ranks: list[int] = []
+    for exercise in pool:
+        rank = popularity_score(exercise)
+        if rank not in buckets:
+            buckets[rank] = []
+            ranks.append(rank)
+        buckets[rank].append(exercise)
+    result: list[dict] = []
+    for rank in sorted(ranks, reverse=True):
+        bucket = buckets[rank]
+        rng.shuffle(bucket)
+        result.extend(bucket)
+    return result
 
 
 def pick_exercises_for_day(
@@ -99,18 +121,21 @@ def pick_exercises_for_day(
     secondary_by_muscle: dict[str, list[dict]] = {}
 
     for muscle in muscles:
-        primary = candidates_for_muscle(exercises, muscle, equipment_access)
-        rng.shuffle(primary)
+        primary = _shuffle_within_rank(candidates_for_muscle(exercises, muscle, equipment_access), rng)
         primary_by_muscle[muscle] = primary
 
-        secondary = [
-            e
-            for e in exercises
-            if _matches_secondary(e, muscle)
-            and not _matches_target(e, muscle)
-            and equipment_compatible(equipment_access, e.get("equipment", ""))
-        ]
-        rng.shuffle(secondary)
+        secondary = _shuffle_within_rank(
+            sort_by_popularity(
+                [
+                    e
+                    for e in exercises
+                    if _matches_secondary(e, muscle)
+                    and not _matches_target(e, muscle)
+                    and equipment_compatible(equipment_access, e.get("equipment", ""))
+                ]
+            ),
+            rng,
+        )
         secondary_by_muscle[muscle] = secondary
 
     counts: dict[str, int] = {}
@@ -186,5 +211,5 @@ def find_swap(
     ]
     if not candidates:
         return None
-    candidates.sort(key=lambda e: e["name"])
+    candidates = sort_by_popularity(candidates)
     return candidates[0]

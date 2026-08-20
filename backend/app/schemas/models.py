@@ -48,6 +48,7 @@ class ExerciseOut(BaseModel):
     instructions_en: str | None = None
     thumbnail_url: str | None = None
     gif_url: str | None = None
+    popularity: int = 0
 
 
 class DayExerciseOut(BaseModel):

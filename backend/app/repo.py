@@ -16,11 +16,19 @@ from typing import Protocol
 
 from app.config.settings import settings
 from app.db import get_db, reset_db
-from app.services.exercise_data import load_from_file
+from app.services.exercise_data import format_exercise_name, load_from_file
 from app.services.split import DAY_LABELS
 
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
 LOCAL_STORE = Path(os.environ.get("REPPLAN_STORE_PATH", str(DATA_DIR / "local_store.json")))
+
+
+def _fmt_name(row: dict | None) -> dict | None:
+    """Title-case a stored exercise's name on read (DB dumps may be lowercase)."""
+    if row and row.get("name"):
+        row = dict(row)
+        row["name"] = format_exercise_name(row["name"])
+    return row
 
 
 def _now_iso() -> str:
@@ -334,20 +342,20 @@ class SupabaseRepo:
         if has_filters:
             query = query.limit(100)
         resp = query.execute()
-        return resp.data or []
+        return [r for r in (_fmt_name(x) for x in (resp.data or [])) if r is not None]
 
     def get_exercise(self, exercise_id: str) -> dict | None:
         def _query():
             db = get_db()
             resp = db.table("exercises").select("*").eq("id", exercise_id).limit(1).execute()
             rows = resp.data or []
-            return rows[0] if rows else None
+            return _fmt_name(rows[0]) if rows else None
         return _retry(_query)
 
     def get_all_exercises(self) -> list[dict]:
         db = get_db()
         resp = db.table("exercises").select("*").execute()
-        return resp.data or []
+        return [r for r in (_fmt_name(x) for x in (resp.data or [])) if r is not None]
 
     def start_session(self, user_id: str, plan_day_id: str | None, started_at: str | None = None) -> dict:
         def _query():

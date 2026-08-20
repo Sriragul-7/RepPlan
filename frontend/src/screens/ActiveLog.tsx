@@ -13,6 +13,7 @@ import { Stepper } from "../components/Stepper";
 import { SwipeRow } from "../components/SwipeRow";
 import { api } from "../lib/api";
 import { STORAGE_KEYS } from "../lib/constants";
+import { searchExercises } from "../lib/exerciseSearch";
 import type { CardioLog, DayExercise, LiftPoint, LoggedSet, Profile } from "../lib/types";
 
 const COMPOUND_RE = /squat|bench|deadlift|row|press|pull-up|chin-up|push-up|dip|lunge|clean|snatch|thruster|overhead|hip thrust|good morning|farmer/i;
@@ -115,17 +116,10 @@ export function ActiveLog() {
     );
   }, [muscle, exercisesQuery.data]);
 
-  const searchResults = useMemo(() => {
-    if (!searchQuery.trim()) return exercisesQuery.data ?? [];
-    const q = searchQuery.toLowerCase();
-    return (exercisesQuery.data ?? []).filter(
-      (ex) =>
-        ex.name.toLowerCase().includes(q) ||
-        (ex.body_part ?? "").toLowerCase().includes(q) ||
-        (ex.target_muscle ?? "").toLowerCase().includes(q) ||
-        (ex.equipment ?? "").toLowerCase().includes(q),
-    );
-  }, [searchQuery, exercisesQuery.data]);
+  const searchResults = useMemo(
+    () => searchExercises(exercisesQuery.data ?? [], searchQuery),
+    [searchQuery, exercisesQuery.data],
+  );
 
   const addExercise = (exercise: (typeof searchResults)[number]) => {
     const existing = exerciseList.find((e) => e.exercise_id === exercise.id);

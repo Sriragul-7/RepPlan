@@ -9,6 +9,7 @@ export type Exercise = {
   instructions_en?: string | null;
   thumbnail_url?: string | null;
   gif_url?: string | null;
+  popularity?: number;
 };
 
 export type DayExercise = {

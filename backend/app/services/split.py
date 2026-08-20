@@ -49,7 +49,8 @@ DAY_LABELS = {
 COMPOUND_KEYWORDS = re.compile(
     r"(squat|bench|deadlift|row|press|pull-up|chin-up|push-up|dip|lunge|"
     r"clean|snatch|thruster|overhead|bulgarian|hip thrust|good morning|"
-    r"dumbbell curl|farmer|carry)"
+    r"dumbbell curl|farmer|carry)",
+    re.IGNORECASE,
 )
 
 

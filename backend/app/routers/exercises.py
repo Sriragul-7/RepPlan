@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from app.deps import get_current_user_id
 from app.repo import get_repo
 from app.schemas.models import ExerciseOut
-from app.services.exercise_data import equipment_compatible
+from app.services.exercise_data import equipment_compatible, popularity_score
 from app.services.planner import find_swap
 
 router = APIRouter(prefix="/api/exercises", tags=["exercises"])
@@ -17,9 +17,14 @@ def list_exercises(
     user_id: str = Depends(get_current_user_id),
 ) -> list[dict]:
     repo = get_repo()
-    return repo.list_exercises(
-        {"body_part": body_part, "equipment": equipment, "target_muscle": target}
-    )
+    exercises = [
+        {**e, "popularity": popularity_score(e)}
+        for e in repo.list_exercises(
+            {"body_part": body_part, "equipment": equipment, "target_muscle": target}
+        )
+    ]
+    exercises.sort(key=lambda e: -e["popularity"])
+    return exercises
 
 
 @router.get("/{exercise_id}/swap", response_model=ExerciseOut)
